@@ -1,7 +1,7 @@
 <div class="modal fade modal-xl" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" action="ecd.php">
+            <form method="post" id="newDoForm">
                 <div class="modal-header">
                     <h3 class="modal-title" id="exampleModalLabel"><strong>Create New</strong></h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -14,7 +14,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="submitBtn" type="submit" class="btn btn-primary" name="addnew">Submit</button>
+                    <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
         </div>

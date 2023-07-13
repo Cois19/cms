@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION['badge'] = "";
+$_SESSION['uid'] = "";
 $_SESSION['login'] = "no";
 session_destroy();
 

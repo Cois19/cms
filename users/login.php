@@ -43,8 +43,8 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
             <h1 class="h3 mb-3 fw-normal">Welcome to CMS</h1>
 
             <div class="form-floating mb-2">
-                <input type="text" class="form-control" id="badge" placeholder="123456">
-                <label for="floatingInput">Badge No</label>
+                <input type="text" class="form-control" id="userid" placeholder="123456">
+                <label for="floatingInput">User ID</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="password" class="form-control" id="password" placeholder="Password">
@@ -61,12 +61,12 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
     $(document).ready(function () {
         $("#login-form").submit(function (event) {
             event.preventDefault();
-            var badge = $("#badge").val();
+            var userid = $("#userid").val();
             var password = $("#password").val();
             $.ajax({
                 url: "log.php",
                 method: "POST",
-                data: { badge: badge, password: password },
+                data: { userid: userid, password: password },
                 success: function (data) {
                     if (data === "success") {
                         window.location.href = "../ecd.php";
