@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Central Management System</a>
+  <div class="container">
+    <a class="navbar-brand" href="ecd.php">Central Management System</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -19,6 +19,20 @@
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Create DO</a>
+            </li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            User Management
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createUser">Register User</a>
             </li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
             <li>

@@ -6,6 +6,11 @@
 <script src="assets/bootstrap/js/select2.js"></script>
 <script src="assets/tinymce/js/tinymce/tinymce.min.js"></script>
 <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables -->
+<script src="assets/DataTables/datatables.js"></script>
+<link rel="stylesheet" href="assets/DataTables/datatables.css">
+
 <link rel="stylesheet" href="assets/bootstrap-icons/bootstrap-icons-1.10.3/bootstrap-icons.css">
 <script src="dbCrudFunctions/crudFunctions.js"></script>
 <style>

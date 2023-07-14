@@ -3,7 +3,8 @@ include '../database/connect.php';
 include '../users/session.php';
 date_default_timezone_set("Asia/Jakarta");
 
-$insert_status = '';
+$response = '';
+$que = '';
 
 $do = explode(',', $_POST['do']);
 
@@ -15,39 +16,47 @@ $qty = $do[4];
 $boxcount = $do[5];
 $date = $do[6];
 
-// Check if the same data already exists in ecd and ecd_details tables
-// $query = "SELECT *
-//     FROM dotest
-//     WHERE pallet = ? AND partno = ? AND partname = ?";
-// $stmt = mysqli_prepare($conn, $query);
-// mysqli_stmt_bind_param($stmt, 'sss', $palletid, $partno, $partname);
-// mysqli_stmt_execute($stmt);
-// mysqli_stmt_store_result($stmt);
+// Check if the same data already exists in tdoc table
+$query = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
+$result = mysqli_query($conn, $query);
 
-// if (mysqli_stmt_num_rows($stmt) > 0) {
-//     // Data already exists, show alert and do not execute INSERT query
-//     $insert_result = "Data already exists!";
-// } else {
-
-
-if (strlen($palletid) == 16) {
-    $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
-    $result1 = mysqli_query($conn, $query1);
-} else if (strlen($palletid) == 8) {
-    $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
-    $result1 = mysqli_query($conn, $query1);
-}
-
-if ($result1 != 1) {
-    error_log("Error in insert query: " . mysqli_error($conn));
-    $insert_status = 'fail';
+if (mysqli_num_rows($result) > 0) {
+    // Data already exists, set response as "fail" and retrieve que
+    $response = "fail";
+    $row = mysqli_fetch_assoc($result);
+    $que = $row['que'];
 } else {
-    $insert_status = 'success';
+    if (strlen($palletid) == 16) {
+        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
+                VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
+    } else if (strlen($palletid) == 8) {
+        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
+                VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
+    }
+
+    $result1 = mysqli_query($conn, $query1);
+
+    if ($result1 != 1) {
+        error_log("Error in insert query: " . mysqli_error($conn));
+    }
+    else {
+        // Data inserted successfully, set response as "success"
+        $response = "success";
+
+        // Retrieve que for the newly inserted data
+        $query3 = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
+        $result3 = mysqli_query($conn, $query3);
+        $row = mysqli_fetch_assoc($result3);
+        $que = $row['que'];
+    }
 }
 
-// }
-echo $insert_status;
+$responseData = array(
+    'status' => $response,
+    'que' => $que
+);
+
+echo json_encode($responseData);
+
 mysqli_close($conn);
 ?>
