@@ -14,6 +14,7 @@ if ($mode == 'isn') {
     $result7 = mysqli_query($conn, $query7);
     $row7 = mysqli_fetch_assoc($result7);
     $tdono = $row7['tdono'];
+    
     $query2 = "SELECT que, tisn, tpn, tmodel FROM tisn WHERE tdono = '$tdono' AND tstatus = 1 ORDER BY que DESC";
 
     if ($select_result2 = mysqli_query($conn, $query2)) {

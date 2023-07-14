@@ -86,7 +86,11 @@ include 'users/session.php';
                 dataType: 'json',
                 success: function (response) {
                     // Clear the existing table data and redraw with new data
-                    table.clear().rows.add(response.data).draw();
+                    if (response.data) {
+                        table.clear().rows.add(response.data).draw();
+                    } else {
+                        table.clear().draw();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error:', error);
@@ -153,8 +157,15 @@ include 'users/session.php';
                 {
                     data: 8,
                     render: function (data, type, row) {
-
-                        return '<td class="'+ row[8] == 'ON GOING' ? 'badge text-bg-warning' '+>'  > + '' + row[8] + '</td>';
+                        if (row[8] === "INACTIVE") {
+                            return '<span class="badge text-bg-dark fs-6">' + row[8] + '</span>';
+                        } else if (row[8] === "ON GOING") {
+                            return '<span class="badge text-bg-warning fs-6">' + row[8] + '</span>';
+                        } else if (row[8] === "GR COMPLETE") {
+                            return '<span class="badge text-bg-success fs-6">' + row[8] + '</span>';
+                        } else {
+                            return row[8];
+                        }
                     }
                 },
                 {

@@ -18,7 +18,7 @@ $tdono = $row6['tdono'];
 $tpno = $row6['tpno'];
 
 // Check if the same data already exists in tdoc table
-$query = "SELECT que FROM tisn WHERE tdono = '$tdono' AND tisn = '$tisn' AND tpn = '$tpno' LIMIT 1";
+$query = "SELECT que FROM tisn WHERE tdono = '$tdono' AND tisn = '$tisn' AND tpn = '$tpno' AND tstatus = 1 LIMIT 1";
 $result = mysqli_query($conn, $query);
 
 if (mysqli_num_rows($result) > 0) {
@@ -28,8 +28,8 @@ if (mysqli_num_rows($result) > 0) {
     $que = $row['que'];
 } else {
     // if (strlen($palletid) == 16) {
-    $query1 = "INSERT INTO tisn(tdono, tisn, tpn, cd, cp) 
-                VALUES('$tdono', '$tisn', '$tpno', CURRENT_TIMESTAMP, '$uid')";
+    $query1 = "INSERT INTO tisn(tdono, tisn, tpn, tstatus, cd, cp) 
+                VALUES('$tdono', '$tisn', '$tpno', '1', CURRENT_TIMESTAMP, '$uid')";
     // } else if (strlen($palletid) == 8) {
     //     $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
     //             VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";

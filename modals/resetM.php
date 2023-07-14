@@ -11,7 +11,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button id="resetBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Yes</button>
+                    <button id="resetBtn" type="button" class="btn btn-primary">Yes</button>
                 </div>
             </form>
         </div>

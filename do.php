@@ -28,8 +28,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Order <Details></Details>
-    </title>
+    <title>Delivery Order</title>
     <?php include 'scripts.php' ?>
 </head>
 
@@ -47,7 +46,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/resetM.php'; ?>
         <?php include 'modals/deleteDoM.php'; ?>
 
-        <div class="card mb-3 <?php echo $hide ?>" id="doCard">
+        <div class="card border-dark mb-3 <?php echo $hide ?>" id="doCard">
             <div class="card-header">
                 Delivery Order
             </div>
@@ -100,182 +99,182 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     </div>
                 </div>
                 <a href="#" data-bs-toggle="modal" data-bs-target="#isnModal" class="btn btn-primary">Scan ISN</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#grModal" class="btn btn-success" style="margin-right: 30px;">GR</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#grModal" class="btn btn-success"
+                    style="margin-right: 30px;">GR</a>
                 <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger">Reset ISN</a>
                 <a href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger">Delete DO</a>
             </div>
         </div>
 
-        <table id="isnTable" class="table <?php echo $hide ?>">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>ISN</th>
-                    <th>PART NO</th>
-                    <th>MODEL</th>
-                </tr>
-            </thead>
-        </table>
+        <div class="table-responsive">
+            <table id="isnTable" class="table table-hover <?php echo $hide ?>">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ISN</th>
+                        <th>PART NO</th>
+                        <th>MODEL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('#newDoForm').submit(function (e) {
-                e.preventDefault(); // Prevent form submission
+        $('#newDoForm').submit(function (e) {
+            e.preventDefault(); // Prevent form submission
 
-                // Send form data using Ajax
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/insert.php',
-                    data: $(this).serialize(),
-                    dataType: 'json',
-                    success: function (response) {
-                        $('#newDoForm')[0].reset(); // Reset the form
-                        $('#createModal').modal('hide');
-                        // Construct the URL for the new page
-                        var url = 'do.php?id=' + response.que;
+            // Send form data using Ajax
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/insert.php',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    $('#newDoForm')[0].reset(); // Reset the form
+                    $('#createModal').modal('hide');
+                    // Construct the URL for the new page
+                    var url = 'do.php?id=' + response.que;
 
-                        // Redirect to the new page
-                        window.location.href = url;
+                    // Redirect to the new page
+                    window.location.href = url;
 
-                    }
-                });
+                }
+            });
+        });
+
+        $('#newIsnForm').submit(function (e) {
+            e.preventDefault(); // Prevent form submission
+
+            // Send form data using Ajax
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/insertISN.php',
+                data: $(this).serialize() + '&doId=<?php echo $doId; ?>',
+                dataType: 'json',
+                success: function (response) {
+                    $('#newIsnForm')[0].reset(); // Reset the form
+                    updateQtyCount(); // Update the qtyCount after successful ISN insertion
+                    loadTable();
+                }
+            });
+        });
+
+        $('#resetBtn').click(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/reset.php',
+                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
+                success: function (response) {
+                    $('#resetModal').modal('hide');
+                    updateQtyCount();
+                    loadTable();
+                }
+            });
+        });
+
+        $('#deleteBtn').click(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/delete.php',
+                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
+                success: function (response) {
+                    $('#deleteDoModal').modal('hide');
+                    // Construct the URL for the new page
+                    var url = 'ecd.php';
+
+                    // Redirect to the new page
+                    window.location.href = url;
+                }
             });
 
-            $('#newIsnForm').submit(function (e) {
-                e.preventDefault(); // Prevent form submission
+        });
 
-                // Send form data using Ajax
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/insertISN.php',
-                    data: $(this).serialize() + '&doId=<?php echo $doId; ?>',
-                    dataType: 'json',
-                    success: function (response) {
-                        $('#newIsnForm')[0].reset(); // Reset the form
-                        updateQtyCount(); // Update the qtyCount after successful ISN insertion
-                        loadTable();
-                    }
-                });
+        function updateQtyCount() {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/updateQtyCount.php',
+                data: { doId: <?php echo $doId; ?> },
+                dataType: 'json',
+                success: function (response) {
+                    // Update the qtyCount value on the page
+                    $('#qtyCount').text(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    // Handle the error case if needed
+                }
             });
+        }
 
-            // function resetISN() {
+        var doId = <?php echo $doId; ?>;
 
-            // }
-
-            $('#resetBtn').click(function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/reset.php',
-                    data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
-                    dataType: 'json',
-                    success: function (response) {
-                        // $('#resetModal').modal('hide');
-                        // alert('test');
-                        // loadTable();
-                    }
-                });
-                // alert('test');
-                // loadTable();
-                location.reload();
-            });
-
-            $('#deleteBtn').click(function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/delete.php',
-                    data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
-                    dataType: 'json',
-                    success: function (response) {
-                        // $('#resetModal').modal('hide');
-                        // alert('test');
-                        // loadTable();
-                    }
-                });
-                // Construct the URL for the new page
-                var url = 'ecd.php';
-
-                // Redirect to the new page
-                window.location.href = url;
-            });
-
-            function updateQtyCount() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/updateQtyCount.php',
-                    data: { doId: <?php echo $doId; ?> },
-                    dataType: 'json',
-                    success: function (response) {
-                        // Update the qtyCount value on the page
-                        $('#qtyCount').text(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX error:', error);
-                        // Handle the error case if needed
-                    }
-                });
-            }
-
-            var table = $('#isnTable').DataTable({
-                // responsive: true,
-                // dom: 'B<"d-flex flex-wrap justify-content-between"lf>rt<"d-flex flex-wrap justify-content-between"ip>',
-                // buttons: [
-                //     {
-                //         extend: 'collection',
-                //         text: 'Export',
-                //         buttons: [
-                //             'copy',
-                //             'excel',
-                //             'csv',
-                //             'pdf',
-                //             'print'
-                //         ]
-                //     }
-                // ],
-                order: [[0, 'desc']],
-                columnDefs: [
-                    {
-                        target: 0,
-                        visible: false,
-                        searchable: false
-                    },
-                ],
-                columns: [
-                    { data: 0 },
-                    { data: 1 },
-                    { data: 2 },
-                    { data: 3 }
-                ]
-            });
-
-            function loadTable() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'dbCrudFunctions/table.php',
-                    data: { mode: 'isn', doId: <?php echo $doId; ?> },
-                    dataType: 'json',
-                    success: function (response) {
-                        // Clear the existing table data and redraw with new data
+        function loadTable() {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/table.php',
+                data: { mode: 'isn', doId: doId },
+                dataType: 'json',
+                success: function (response) {
+                    // Clear the existing table data and redraw with new data
+                    if (response.data) {
                         table.clear().rows.add(response.data).draw();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX error:', error);
-                        // Handle the error case if needed
+                    } else {
+                        table.clear().draw();
                     }
-                });
-            }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    // Handle the error case if needed
+                }
+            });
+        }
 
+        var table = $('#isnTable').DataTable({
+            // responsive: true,
+            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                        'copy',
+                        'excel',
+                        'csv',
+                        'pdf',
+                        'print'
+                    ]
+                }
+            ],
+            order: [[0, 'desc']],
+            columnDefs: [
+                {
+                    target: 0,
+                    visible: false,
+                    searchable: false
+                },
+            ],
+            columns: [
+                { data: 0 },
+                { data: 1 },
+                { data: 2 },
+                { data: 3 }
+            ]
+        });
 
-
-
-
-
-        updateQtyCount();
-        loadTable();
+        $(document).ready(function () {
+            updateQtyCount();
+            loadTable();
         });
 
 
