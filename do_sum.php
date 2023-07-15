@@ -26,7 +26,6 @@ $hide = '';
     <div class="container">
         <!-- Modals -->
         <?php include 'modals/create.php'; ?>
-        <?php include 'modals/add_model.php'; ?>
         <?php include 'modals/edit.php'; ?>
         <?php include 'modals/uploading.php'; ?>
         <?php include 'modals/isn.php'; ?>

@@ -19,21 +19,9 @@ include 'users/session.php';
     <?php include 'navbar.php' ?>
     <div class="mb-3"></div>
     <div class="container">
-        <!-- Button trigger create modal -->
-        <!-- <div class="mb-4">
-            <button type="button" class="btn btn-primary btn-sm my-2 <?php echo $hide ?>" data-bs-toggle="modal"
-                data-bs-target="#createModal" style="margin-right: 10px;">
-                Create DO
-            </button>
-            <button type="button" class="btn btn-light btn-sm my-2 <?php echo $hide ?>" data-bs-toggle="modal"
-                data-bs-target="#modelModal">
-                Add Model
-            </button>
-        </div> -->
 
         <!-- Modals -->
         <?php include 'modals/create.php'; ?>
-        <?php include 'modals/add_model.php'; ?>
         <?php include 'modals/edit.php'; ?>
         <?php include 'modals/uploading.php'; ?>
         <?php include 'modals/isn.php'; ?>
@@ -80,7 +68,6 @@ include 'users/session.php';
         function loadISN(tdono) {
             var url = 'do.php?id=' + tdono;
 
-            // Redirect to the new page
             window.location.href = url;
         }
 
@@ -91,7 +78,6 @@ include 'users/session.php';
                 data: { mode: 'do' },
                 dataType: 'json',
                 success: function (response) {
-                    // Clear the existing table data and redraw with new data
                     if (response.data) {
                         table.clear().rows.add(response.data).draw();
                     } else {
@@ -100,27 +86,23 @@ include 'users/session.php';
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error:', error);
-                    // Handle the error case if needed
                 }
             });
         }
 
         $('#newDoForm').submit(function (e) {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
 
-            // Send form data using Ajax
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/insert.php',
                 data: $(this).serialize(),
                 dataType: 'json',
                 success: function (response) {
-                    $('#newDoForm')[0].reset(); // Reset the form
+                    $('#newDoForm')[0].reset();
                     $('#createModal').modal('hide');
-                    // Construct the URL for the new page
                     var url = 'do.php?id=' + response.que;
 
-                    // Redirect to the new page
                     window.location.href = url;
 
                 }
@@ -128,6 +110,7 @@ include 'users/session.php';
         });
 
         var table = $('#doTable').DataTable({
+            responsive: true,
             dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [
                 {

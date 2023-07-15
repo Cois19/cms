@@ -1,13 +1,10 @@
 <?php
 include 'database/connect.php';
 include 'users/session.php';
-// Retrieve the delivery order ID from the URL parameter
+
 $doId = $_GET['id'];
 $hide = '';
-// TODO: Query the database to fetch the delivery order details based on $doId
-// Replace the code below with your actual database query logic
 
-// Example code to simulate fetching the data
 $query4 = "SELECT * FROM tdoc WHERE que = $doId AND tstatus = 1";
 $result4 = mysqli_query($conn, $query4);
 if ($result4 && mysqli_num_rows($result4) > 0) {
@@ -15,8 +12,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     $tdono = $row4['tdono'];
 
 } else {
-    // Handle the case when the query returns no results
-    // For example, display a message or redirect to another page
     $hide = "d-none";
 }
 ?>
@@ -39,7 +34,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <div class="container">
         <!-- Modals -->
         <?php include 'modals/create.php'; ?>
-        <?php include 'modals/add_model.php'; ?>
         <?php include 'modals/edit.php'; ?>
         <?php include 'modals/uploading.php'; ?>
         <?php include 'modals/isn.php'; ?>
@@ -138,21 +132,18 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 
     <script>
         $('#newDoForm').submit(function (e) {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
 
-            // Send form data using Ajax
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/insert.php',
                 data: $(this).serialize(),
                 dataType: 'json',
                 success: function (response) {
-                    $('#newDoForm')[0].reset(); // Reset the form
+                    $('#newDoForm')[0].reset();
                     $('#createModal').modal('hide');
-                    // Construct the URL for the new page
                     var url = 'do.php?id=' + response.que;
 
-                    // Redirect to the new page
                     window.location.href = url;
 
                 }
@@ -160,17 +151,16 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         });
 
         $('#newIsnForm').submit(function (e) {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
 
-            // Send form data using Ajax
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/insertISN.php',
                 data: $(this).serialize() + '&doId=<?php echo $doId; ?>',
                 dataType: 'json',
                 success: function (response) {
-                    $('#newIsnForm')[0].reset(); // Reset the form
-                    updateQtyCount(); // Update the qtyCount after successful ISN insertion
+                    $('#newIsnForm')[0].reset();
+                    updateQtyCount();
                     loadTable();
                 }
             });
@@ -200,10 +190,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
                 success: function (response) {
                     $('#deleteDoModal').modal('hide');
-                    // Construct the URL for the new page
                     var url = 'ecd.php';
 
-                    // Redirect to the new page
                     window.location.href = url;
                 }
             });
@@ -217,10 +205,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 data: { doId: <?php echo $doId; ?> },
                 success: function (response) {
                     $('#grModal').modal('hide');
-                    // Construct the URL for the new page
                     var url = 'ecd.php';
 
-                    // Redirect to the new page
                     window.location.href = url;
                 }
             });
@@ -232,7 +218,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 url: 'dbCrudFunctions/updateQtyCount.php',
                 data: { doId: <?php echo $doId; ?> },
                 success: function (response) {
-                    // Update the qtyCount value on the page
                     $('#qtyCount').text(response);
                     if (response == 0) {
                         document.getElementById("scanIsnBtn").disabled = true;
@@ -242,7 +227,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error:', error);
-                    // Handle the error case if needed
                 }
             });
         }
@@ -256,7 +240,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 data: { mode: 'isn', doId: doId },
                 dataType: 'json',
                 success: function (response) {
-                    // Clear the existing table data and redraw with new data
                     if (response.data) {
                         table.clear().rows.add(response.data).draw();
                     } else {
@@ -265,13 +248,12 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error:', error);
-                    // Handle the error case if needed
                 }
             });
         }
 
         var table = $('#isnTable').DataTable({
-            // responsive: true,
+            responsive: true,
             dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [
                 {

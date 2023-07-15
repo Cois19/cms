@@ -9,9 +9,12 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 
     <!-- Bootstrap -->
@@ -37,24 +40,29 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
 </head>
 
 <body class="text-center">
-    <main class="form-signin m-auto" style="width: 30%;">
-        <form id="login-form" method="post">
-            <img src="../assets/pic/logo ptsn.jpg" alt="logo ptsn" style="width: 250px">
-            <h1 class="h3 mb-3 fw-normal">Welcome to CMS</h1>
+    <!-- <main class="form-signin m-auto col-sm-12 col-lg-6"> -->
+    <img src="../assets/pic/logo ptsn.jpg" alt="logo ptsn" style="width: 250px">
+    <div class="card m-auto col-10 col-lg-4">
+        <div class="card-body">
+            <form id="login-form" method="post">
 
-            <div class="form-floating mb-2">
-                <input type="text" class="form-control" id="userid" placeholder="123456">
-                <label for="floatingInput">User ID</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="password" class="form-control" id="password" placeholder="Password">
-                <label for="floatingPassword">Password</label>
-            </div>
+                <h1 class="h3 mb-3">Welcome to CMS</h1>
 
-            <button class="w-50 btn btn-md btn-primary" type="submit">Sign in</button>
-            <div id="error-message"></div>
-        </form>
-    </main>
+                <div class="form-floating mb-2 mx-auto" style="width: 75%;">
+                    <input type="text" class="form-control" id="userid" placeholder="123456">
+                    <label for="floatingInput">User ID</label>
+                </div>
+                <div class="form-floating mb-3 mx-auto" style="width: 75%;">
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    <label for="floatingPassword">Password</label>
+                </div>
+
+                <button class="btn btn-primary" type="submit">Sign in</button>
+                <div id="error-message"></div>
+            </form>
+        </div>
+    </div>
+    <!-- </main> -->
 </body>
 
 <script>

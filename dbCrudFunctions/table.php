@@ -5,7 +5,6 @@ date_default_timezone_set("Asia/Jakarta");
 
 $mode = $_POST['mode'];
 
-
 if ($mode == 'isn') {
     $doId = $_POST['doId'];
 
@@ -34,8 +33,6 @@ if ($mode == 'isn') {
             'message' => 'Error: ' . mysqli_error($conn)
         );
     }
-
-    echo json_encode($response);
 } else if ($mode == 'do') {
     $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, cd, 
                 CASE
@@ -62,8 +59,6 @@ if ($mode == 'isn') {
             'message' => 'Error: ' . mysqli_error($conn)
         );
     }
-
-    echo json_encode($response);
 } else if ($mode == 'sum') {
     $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, cd, 
                 CASE
@@ -90,9 +85,9 @@ if ($mode == 'isn') {
             'message' => 'Error: ' . mysqli_error($conn)
         );
     }
-
-    echo json_encode($response);
 }
+
+echo json_encode($response);
 
 mysqli_close($conn);
 ?>
