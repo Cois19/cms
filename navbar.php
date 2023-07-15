@@ -20,7 +20,7 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Create DO</a>
             </li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" href="do_sum.php">DO Summary</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>

@@ -27,11 +27,11 @@ if (mysqli_num_rows($result) > 0) {
     $que = $row['que'];
 } else {
     if (strlen($palletid) == 16) {
-        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
+        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, cd, cp) 
+                VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', '1', CURRENT_TIMESTAMP, '$uid')";
     } else if (strlen($palletid) == 8) {
-        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', CURRENT_TIMESTAMP, '$uid')";
+        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, cd, cp) 
+                VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', '1', CURRENT_TIMESTAMP, '$uid')";
     }
 
     $result1 = mysqli_query($conn, $query1);

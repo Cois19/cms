@@ -37,7 +37,35 @@ if ($mode == 'isn') {
 
     echo json_encode($response);
 } else if ($mode == 'do') {
-    $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, tbxcount, 
+    $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, cd, 
+                CASE
+                    WHEN tstatus = 0 THEN 'INACTIVE'
+                    WHEN tstatus = 1 THEN 'ON GOING'
+                    WHEN tstatus = 2 THEN 'GR COMPLETE'
+                END as 'status'
+                FROM tdoc ORDER BY que DESC";
+
+    if ($select_result2 = mysqli_query($conn, $query2)) {
+        $response1 = array();
+        while ($row = mysqli_fetch_assoc($select_result2)) {
+            $response1[] = array_values($row);
+        }
+        if (empty($response1)) {
+            $response1 = null;
+        }
+        $response = array(
+            'data' => $response1
+        );
+    } else {
+        $response = array(
+            'status' => 500,
+            'message' => 'Error: ' . mysqli_error($conn)
+        );
+    }
+
+    echo json_encode($response);
+} else if ($mode == 'sum') {
+    $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, cd, 
                 CASE
                     WHEN tstatus = 0 THEN 'INACTIVE'
                     WHEN tstatus = 1 THEN 'ON GOING'

@@ -45,6 +45,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/isn.php'; ?>
         <?php include 'modals/resetM.php'; ?>
         <?php include 'modals/deleteDoM.php'; ?>
+        <?php include 'modals/grM.php'; ?>
 
         <div class="card border-dark mb-3 <?php echo $hide ?>" id="doCard">
             <div class="card-header">
@@ -98,11 +99,20 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         </p>
                     </div>
                 </div>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#isnModal" class="btn btn-primary">Scan ISN</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#grModal" class="btn btn-success"
-                    style="margin-right: 30px;">GR</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger">Reset ISN</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger">Delete DO</a>
+                <div class="d-flex flex-wrap justify-content-between">
+                    <div class="btn-group mb-3 mb-lg-0">
+                        <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#isnModal" class="btn btn-primary">Scan
+                            ISN</button>
+                        <button id="grBtn" href="#" data-bs-toggle="modal" data-bs-target="#grModal"
+                            class="btn btn-success" disabled>Good Received</button>
+                    </div>
+                    <div class="btn-group">
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger">Reset
+                            ISN</button>
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger">Delete
+                            DO</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -200,15 +210,35 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 
         });
 
+        $('#grConfirm').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/gr.php',
+                data: { doId: <?php echo $doId; ?> },
+                success: function (response) {
+                    $('#grModal').modal('hide');
+                    // Construct the URL for the new page
+                    var url = 'ecd.php';
+
+                    // Redirect to the new page
+                    window.location.href = url;
+                }
+            });
+        });
+
         function updateQtyCount() {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/updateQtyCount.php',
                 data: { doId: <?php echo $doId; ?> },
-                dataType: 'json',
                 success: function (response) {
                     // Update the qtyCount value on the page
                     $('#qtyCount').text(response);
+                    if (response == 0) {
+                        document.getElementById("scanIsnBtn").disabled = true;
+                        document.getElementById("grBtn").disabled = false;
+                        $('#isnModal').modal('hide');
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error:', error);

@@ -40,34 +40,40 @@ include 'users/session.php';
 
         <h2>DO List</h2>
         <hr>
-        <table id="doTable" class="table">
-            <thead>
-                <tr>
-                    <th>QUE</th>
-                    <th>DO NUMBER</th>
-                    <th>PALLET ID</th>
-                    <th>PART NO</th>
-                    <th>PART NAME</th>
-                    <th>MODEL</th>
-                    <th>QTY</th>
-                    <th>BOX COUNT</th>
-                    <th>STATUS</th>
-                    <th colspan="1" rowspan="1"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td colspan="1" rowspan="1"></td>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="doTable" class="table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>QUE</th>
+                        <th>DO NUMBER</th>
+                        <th>PALLET ID</th>
+                        <th>PART NO</th>
+                        <th>PART NAME</th>
+                        <th>MODEL</th>
+                        <th>QTY</th>
+                        <th>INCOMING</th>
+                        <th>STATUS</th>
+                        <th colspan="1" rowspan="1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan="1" rowspan="1"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -122,30 +128,37 @@ include 'users/session.php';
         });
 
         var table = $('#doTable').DataTable({
-            // responsive: true,
-            // dom: 'B<"d-flex flex-wrap justify-content-between"lf>rt<"d-flex flex-wrap justify-content-between"ip>',
-            // buttons: [
-            //     {
-            //         extend: 'collection',
-            //         text: 'Export',
-            //         buttons: [
-            //             'copy',
-            //             'excel',
-            //             'csv',
-            //             'pdf',
-            //             'print'
-            //         ]
-            //     }
-            // ],
+            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                        'copy',
+                        'excel',
+                        'csv',
+                        'pdf',
+                        'print'
+                    ]
+                }
+            ],
             // order: [[0, 'desc']],
             columnDefs: [
                 {
-                    target: 0,
+                    target: 1,
                     visible: false,
                     searchable: false
                 },
             ],
             columns: [
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        var startNumber = 1;
+                        var currentNumber = meta.row + startNumber;
+                        return currentNumber;
+                    }
+                },
                 { data: 0 },
                 { data: 1 },
                 { data: 2 },
@@ -172,7 +185,7 @@ include 'users/session.php';
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadISN(\'' + token + '\')">ISN</button>';
+                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadISN(\'' + token + '\')">ACTION</button>';
                     }
                 }
             ]
