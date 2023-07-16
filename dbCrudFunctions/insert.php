@@ -43,6 +43,10 @@ if (mysqli_num_rows($result) > 0) {
         // Data inserted successfully, set response as "success"
         $response = "success";
 
+        // Insert into tlog
+        $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INSERT TDOC', '$palletid', CURRENT_TIMESTAMP, '$uid')";
+        $result2 = mysqli_query($conn, $query2);
+
         // Retrieve que for the newly inserted data
         $query3 = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
         $result3 = mysqli_query($conn, $query3);

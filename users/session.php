@@ -9,6 +9,7 @@ $uid = $_SESSION['uid'];
 $ucost = $_SESSION['ucost'];
 $uname = $_SESSION['uname'];
 $uemail = $_SESSION['uemail'];
+$utype = $_SESSION['utype'];
 
 $login = $_SESSION['login'];
 if ($login != 'yes' || !isset($uid)) {

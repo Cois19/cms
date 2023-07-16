@@ -6,7 +6,7 @@ date_default_timezone_set("Asia/Jakarta");
 $doId = $_POST['doId'];
 
 // Get qty count
-$query9 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
+$query9 = "SELECT tqty, (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
 $result9 = mysqli_query($conn, $query9);
 
 if ($result9) {

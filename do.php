@@ -12,7 +12,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     $tdono = $row4['tdono'];
 
 } else {
-    $hide = "d-none";
+    // $hide = "d-none";
+    header("Location: do_list.php");
 }
 ?>
 
@@ -23,7 +24,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Order</title>
+    <title>Delivery Order Details</title>
     <?php include 'scripts.php' ?>
 </head>
 
@@ -40,6 +41,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/resetM.php'; ?>
         <?php include 'modals/deleteDoM.php'; ?>
         <?php include 'modals/grM.php'; ?>
+        <?php include 'modals/changePassM.php'; ?>
 
         <div class="card border-dark mb-3 <?php echo $hide ?>" id="doCard">
             <div class="card-header">
@@ -95,15 +97,18 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 </div>
                 <div class="d-flex flex-wrap justify-content-between">
                     <div class="btn-group mb-3 mb-lg-0">
-                        <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#isnModal" class="btn btn-primary">Scan
+                        <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#isnModal"
+                            class="btn btn-primary">Scan
                             ISN</button>
                         <button id="grBtn" href="#" data-bs-toggle="modal" data-bs-target="#grModal"
                             class="btn btn-success" disabled>Good Received</button>
                     </div>
                     <div class="btn-group">
-                        <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger">Reset
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger"
+                            <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Reset
                             ISN</button>
-                        <button href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger">Delete
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger"
+                            <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Delete
                             DO</button>
                     </div>
                 </div>
@@ -174,7 +179,13 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 url: 'dbCrudFunctions/reset.php',
                 data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
                 success: function (response) {
-                    $('#resetModal').modal('hide');
+                    if (response == 'success') {
+                        $('#resetModal').modal('hide');
+                    } else if (response == 'fail') {
+                        alert('Reset Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('You are not authorized');
+                    }
                     updateQtyCount();
                     loadTable();
                 }
@@ -189,10 +200,16 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 url: 'dbCrudFunctions/delete.php',
                 data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
                 success: function (response) {
-                    $('#deleteDoModal').modal('hide');
-                    var url = 'ecd.php';
+                    if (response == 'success') {
+                        $('#deleteDoModal').modal('hide');
+                        var url = 'do_list.php';
 
-                    window.location.href = url;
+                        window.location.href = url;
+                    } else if (response == 'fail') {
+                        alert('Reset Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('You are not authorized');
+                    }
                 }
             });
 
@@ -202,12 +219,18 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/gr.php',
-                data: { doId: <?php echo $doId; ?> },
+                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
                 success: function (response) {
-                    $('#grModal').modal('hide');
-                    var url = 'ecd.php';
+                    if (response == 'success') {
+                        $('#grModal').modal('hide');
+                        var url = 'do_list.php';
 
-                    window.location.href = url;
+                        window.location.href = url;
+                    } else if (response == 'fail') {
+                        alert('Reset Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('Remaining Qty is more than 0');
+                    }
                 }
             });
         });
@@ -222,6 +245,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     if (response == 0) {
                         document.getElementById("scanIsnBtn").disabled = true;
                         document.getElementById("grBtn").disabled = false;
+                        $('#isnModal').modal('hide');
+                    } else {
+                        document.getElementById("scanIsnBtn").disabled = false;
+                        document.getElementById("grBtn").disabled = true;
                         $('#isnModal').modal('hide');
                     }
                 },
@@ -289,7 +316,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             loadTable();
         });
 
-
+        <?php include 'dbCrudFunctions/bodyScripts.js' ?>
     </script>
 </body>
 

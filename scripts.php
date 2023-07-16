@@ -1,9 +1,9 @@
 <!-- Bootstrap -->
 <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/bootstrap/css/select2.css" rel="stylesheet" />
+<link href="assets/select2/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="styles/style.css">
 <script src="assets/bootstrap/jquery/jquery.min.js"></script>
-<script src="assets/bootstrap/js/select2.js"></script>
+<script src="assets/select2/js/select2.min.js"></script>
 <script src="assets/tinymce/js/tinymce/tinymce.min.js"></script>
 <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 

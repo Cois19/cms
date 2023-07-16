@@ -3,7 +3,7 @@ session_start();
 include '../database/connect.php';
 
 if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
-    header("location:../ecd.php");
+    header("location:../do_list.php");
     exit();
 }
 ?>
@@ -77,7 +77,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
                 data: { userid: userid, password: password },
                 success: function (data) {
                     if (data === "success") {
-                        window.location.href = "../ecd.php";
+                        window.location.href = "../do_list.php";
                     } else {
                         $("#error-message").html("Invalid username or password.");
                     }

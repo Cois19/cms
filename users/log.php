@@ -3,7 +3,7 @@ session_start();
 include '../database/connect.php';
 
 if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
-    header("location:../ecd.php");
+    header("location:../do_list.php");
     exit();
 }
 
@@ -20,6 +20,7 @@ if ($result->num_rows == 1) {
     $_SESSION['ucost'] = $row['ucost'];
     $_SESSION['uname'] = $row['uname'];
     $_SESSION['uemail'] = $row['uemail'];
+    $_SESSION['utype'] = $row['utype'];
     echo "success";
 } else {
     echo "Invalid badge or password";

@@ -10,7 +10,7 @@ include 'users/session.php';
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCAN</title>
+    <title>Delivery Order List</title>
     <?php include 'scripts.php' ?>
 </head>
 
@@ -25,6 +25,7 @@ include 'users/session.php';
         <?php include 'modals/edit.php'; ?>
         <?php include 'modals/uploading.php'; ?>
         <?php include 'modals/isn.php'; ?>
+        <?php include 'modals/changePassM.php'; ?>
 
         <h2>DO List</h2>
         <hr>
@@ -111,20 +112,20 @@ include 'users/session.php';
 
         var table = $('#doTable').DataTable({
             responsive: true,
-            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
-            buttons: [
-                {
-                    extend: 'collection',
-                    text: 'Export',
-                    buttons: [
-                        'copy',
-                        'excel',
-                        'csv',
-                        'pdf',
-                        'print'
-                    ]
-                }
-            ],
+            // dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            // buttons: [
+            //     {
+            //         extend: 'collection',
+            //         text: 'Export',
+            //         buttons: [
+            //             'copy',
+            //             'excel',
+            //             'csv',
+            //             'pdf',
+            //             'print'
+            //         ]
+            //     }
+            // ],
             // order: [[0, 'desc']],
             columnDefs: [
                 {
@@ -179,6 +180,8 @@ include 'users/session.php';
 
             loadDoTable();
         });
+
+        <?php include 'dbCrudFunctions/bodyScripts.js' ?>
     </script>
 
 </body>
