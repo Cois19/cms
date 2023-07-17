@@ -91,27 +91,16 @@ include 'users/session.php';
             });
         }
 
-        $('#newDoForm').submit(function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                type: 'POST',
-                url: 'dbCrudFunctions/insert.php',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function (response) {
-                    $('#newDoForm')[0].reset();
-                    $('#createModal').modal('hide');
-                    var url = 'do.php?id=' + response.que;
-
-                    window.location.href = url;
-
-                }
-            });
-        });
-
         var table = $('#doTable').DataTable({
-            responsive: true,
+            responsive: {
+                breakpoints: [
+                    { name: 'desktop', width: Infinity },
+                    { name: 'tablet-l', width: 1024 },
+                    { name: 'tablet-p', width: 768 },
+                    { name: 'mobile-l', width: 480 },
+                    { name: 'mobile-p', width: 320 }
+                ]
+            },
             // dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             // buttons: [
             //     {

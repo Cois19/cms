@@ -58,8 +58,19 @@ if ($utype == 3) {
     </div>
 
     <script>
+
         $('#addUserForm').submit(function (e) {
             e.preventDefault(); // Prevent form submission
+
+            // check required fields
+            var userid = $('#userid').val();
+            var upassword = $('#upassword').val();
+            var username = $('#username').val();
+
+            if (userid == null || userid == '' || upassword == null || upassword == '' || username == null || username == '') {
+                alert('User ID, Password and Username Cannot be Empty!');
+                return;
+            }
 
             // Send form data using Ajax
             $.ajax({
@@ -71,6 +82,8 @@ if ($utype == 3) {
                         $('#addUserForm')[0].reset();
                         $('#addUserModal').modal('hide');
                         loadUserTable();
+                    } else if (response == 'duplicate') {
+                        alert('User Already Exists!');
                     } else {
                         alert('Add User Failed');
                     }
@@ -114,13 +127,13 @@ if ($utype == 3) {
             //     }
             // ],
             // order: [[0, 'desc']],
-            columnDefs: [
-                {
-                    target: 1,
-                    visible: false,
-                    searchable: false
-                },
-            ],
+            // columnDefs: [
+            //     {
+            //         target: 1,
+            //         visible: false,
+            //         searchable: false
+            //     },
+            // ],
             columns: [
                 {
                     data: null,

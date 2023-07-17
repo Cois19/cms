@@ -3,17 +3,20 @@ include 'database/connect.php';
 include 'users/session.php';
 
 $doId = $_GET['id'];
-$hide = '';
+$hideIfNot1 = '';
 
-$query4 = "SELECT * FROM tdoc WHERE que = $doId AND tstatus = 1";
+$query4 = "SELECT * FROM tdoc WHERE que = $doId";
 $result4 = mysqli_query($conn, $query4);
 if ($result4 && mysqli_num_rows($result4) > 0) {
     $row4 = mysqli_fetch_assoc($result4);
     $tdono = $row4['tdono'];
 
+    if ($row4['tstatus'] != 1) {
+        $hideIfNot1 = "d-none";
+    }
 } else {
-    // $hide = "d-none";
-    header("Location: do_list.php");
+    
+    // header("Location: do_list.php");
 }
 ?>
 
@@ -43,67 +46,79 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/grM.php'; ?>
         <?php include 'modals/changePassM.php'; ?>
 
-        <div class="card border-dark mb-3 <?php echo $hide ?>" id="doCard">
+        <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
                 Delivery Order
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Pallet ID</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tpid']; ?>
                         </p>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Part No</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tpno']; ?>
                         </p>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Part Name</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tpname']; ?>
                         </p>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">DN Number</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tdono']; ?>
                         </p>
                     </div>
-                    <div class="col-md-4 col-sm-12">
-                        <h5 class="card-title">Remaining Qty</h5>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Quantity</h5>
                         <p class="card-text mb-2" id="qtyCount">
+                            <?php echo $row4['tqty']; ?>
                         </p>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Model</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['tpmodel']; ?>
+                        </p>
+                    </div><div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Date</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['tdate']; ?>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Vendor</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['tvendor']; ?>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Box Count</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tbxcount']; ?>
                         </p>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4 col-sm-12">
-                        <h5 class="card-title">Date</h5>
-                        <p class="card-text mb-2">
-                            <?php echo $row4['tdate']; ?>
-                        </p>
-                    </div>
-                </div>
                 <div class="d-flex flex-wrap justify-content-between">
-                    <div class="btn-group mb-3 mb-lg-0">
+                    <div class="btn-group mb-3 mb-lg-0 <?php echo $hideIfNot1 ?>">
                         <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#isnModal"
                             class="btn btn-primary">Scan
                             ISN</button>
                         <button id="grBtn" href="#" data-bs-toggle="modal" data-bs-target="#grModal"
                             class="btn btn-success" disabled>Good Received</button>
                     </div>
-                    <div class="btn-group">
+                    <div class="btn-group <?php echo $hideIfNot1 ?>">
                         <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger"
                             <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Reset
                             ISN</button>
@@ -116,7 +131,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         </div>
 
         <div class="table-responsive">
-            <table id="isnTable" class="table table-hover <?php echo $hide ?>">
+            <table id="isnTable" class="table table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -125,35 +140,12 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <th>MODEL</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        $('#newDoForm').submit(function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                type: 'POST',
-                url: 'dbCrudFunctions/insert.php',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function (response) {
-                    $('#newDoForm')[0].reset();
-                    $('#createModal').modal('hide');
-                    var url = 'do.php?id=' + response.que;
-
-                    window.location.href = url;
-
-                }
-            });
-        });
+        
 
         $('#newIsnForm').submit(function (e) {
             e.preventDefault();
@@ -164,9 +156,18 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 data: $(this).serialize() + '&doId=<?php echo $doId; ?>',
                 dataType: 'json',
                 success: function (response) {
-                    $('#newIsnForm')[0].reset();
-                    updateQtyCount();
-                    loadTable();
+                    if (response.status == 'success') {
+                        $('#newIsnForm')[0].reset();
+                        updateQtyCount();
+                        loadTable();
+                    }
+                    else if (response.status == 'fail') {
+                        alert('Duplicate Data');
+                    } else if (response.status == 'empty') {
+                        alert('ISN Cannot be Empty!');
+                    } else {
+                        alert('Failed');
+                    }
                 }
             });
         });
@@ -225,7 +226,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         $('#grModal').modal('hide');
                         var url = 'do_list.php';
 
-                        window.location.href = url;
+                        window.location.reload();
                     } else if (response == 'fail') {
                         alert('Reset Failed');
                     } else if (response == 'unauthorized') {
@@ -240,16 +241,24 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 type: 'POST',
                 url: 'dbCrudFunctions/updateQtyCount.php',
                 data: { doId: <?php echo $doId; ?> },
+                dataType: 'json',
                 success: function (response) {
-                    $('#qtyCount').text(response);
-                    if (response == 0) {
+                    // $('#qtyCount').text(response);
+                    var remainingQty = $('.remaining-qty');
+                    remainingQty.text('Remaining : ' + response.remainingQty);
+                    remainingQty.addClass('text-danger fw-bold border border-danger rounded m-auto px-2');
+
+                    var scannedQty = $('.scanned-qty');
+                    scannedQty.text('Scanned : ' + response.scannedQty);
+                    scannedQty.addClass('text-success fw-bold border border-success rounded m-auto px-2');
+                    if (response.remainingQty == 0) {
                         document.getElementById("scanIsnBtn").disabled = true;
                         document.getElementById("grBtn").disabled = false;
                         $('#isnModal').modal('hide');
+                        alert('Scanning Complete!');
                     } else {
                         document.getElementById("scanIsnBtn").disabled = false;
                         document.getElementById("grBtn").disabled = true;
-                        $('#isnModal').modal('hide');
                     }
                 },
                 error: function (xhr, status, error) {
@@ -281,7 +290,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 
         var table = $('#isnTable').DataTable({
             responsive: true,
-            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap me-3"<"remaining-qty me-2"><"scanned-qty">><"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [
                 {
                     extend: 'collection',

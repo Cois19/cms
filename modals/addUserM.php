@@ -15,12 +15,12 @@
                     <div class="form-group mb-3">
                         <label for="upassword">Password</label>
                         <input type="password" class="form-control" name="upassword" id="upassword"
-                            placeholder="Password">
+                            placeholder="Password" autocomplete="off">
                         <input type="checkbox" onclick="showPass()" class="me-1">Show Password
                     </div>
                     <div class="form-group mb-3">
                         <label for="username">Name</label>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Name">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Name" autocomplete="off">
                     </div>
                     <div class="form-group mb-3">
                         <label for="useremail">Email</label>
@@ -36,7 +36,7 @@
                     <div class="form-group mb-3" id="utypeParent">
                         <label for="usertype">User Type</label>
                         <select type="text" class="form-control" name="usertype" id="usertype" placeholder="User Type">
-                            <option value="1">ADMIN</option>
+                            <option value="1" <?php echo ($utype != 1) ? 'disabled' : ''; ?>>ADMIN</option>
                             <option value="2">PIC</option>
                             <option value="3" selected>USER</option>
                         </select>

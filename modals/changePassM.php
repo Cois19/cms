@@ -9,7 +9,7 @@
                 <div class="modal-body">
                     <div class="form-group mb-3">
                         <label for="upasswordOld">Old Password</label>
-                        <input type="password" class="form-control" name="upasswordOld" id="upasswordOld" placeholder="Old Password">
+                        <input type="password" class="form-control" name="upasswordOld" id="upasswordOld" placeholder="Old Password" autofocus>
                     </div>
                     <div class="form-group mb-3">
                         <label for="upasswordNew">New Password</label>

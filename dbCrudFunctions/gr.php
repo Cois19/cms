@@ -9,7 +9,8 @@ $reset_status = '';
 // Get qty count
 $query2 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.tdono = '$tdono' AND tisn.tstatus = 1 GROUP BY tisn.tdono";
 $result2 = mysqli_query($conn, $query2);
-$row2 = mysqli_fetch_assoc($result2);
+
+$qtyCount = '';
 
 if (mysqli_num_rows($result2) > 0) {
     $row2 = mysqli_fetch_assoc($result2);

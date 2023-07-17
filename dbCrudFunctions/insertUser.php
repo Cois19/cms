@@ -13,18 +13,26 @@ $useremail = $_POST['useremail'];
 $usertype = $_POST['usertype'];
 $remarks = $_POST['remarks'];
 
-$query9 = "INSERT INTO tuser(uid, upass, uname, ucost, uemail, utype, remarks, ustatus, cp, cd)
-            VALUES('$userid', '$upassword', '$username', '$usercost', '$useremail', '$usertype', '$remarks', 1, CURRENT_TIMESTAMP, '$uid')";
-$result9 = mysqli_query($conn, $query9);
+// check if user already exists
+$query2 = "SELECT uid FROM tuser WHERE uid = '$uid'";
+$result2 = mysqli_query($conn, $query2);
 
-if ($result9) {
-    $insert_status = 'success';
-
-    // Insert into tlog
-    $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('ADD USER', '$userid', CURRENT_TIMESTAMP, '$uid')";
-    $result = mysqli_query($conn, $query);
+if (mysqli_num_rows($result2) > 0) {
+    $insert_status = 'duplicate';
 } else {
-    $insert_status = 'fail'; // Default value when an error occurs
+    $query9 = "INSERT INTO tuser(uid, upass, uname, ucost, uemail, utype, remarks, ustatus, cd, cp)
+            VALUES('$userid', '$upassword', \"$username\", '$usercost', \"$useremail\", '$usertype', '$remarks', 1, CURRENT_TIMESTAMP, '$uid')";
+    $result9 = mysqli_query($conn, $query9);
+
+    if ($result9) {
+        $insert_status = 'success';
+
+        // Insert into tlog
+        $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('ADD USER', '$userid', CURRENT_TIMESTAMP, '$uid')";
+        $result = mysqli_query($conn, $query);
+    } else {
+        $insert_status = 'fail'; // Default value when an error occurs
+    }
 }
 
 echo $insert_status;

@@ -49,12 +49,12 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
                 <h1 class="h3 mb-3">Welcome to CMS</h1>
 
                 <div class="form-floating mb-2 mx-auto" style="width: 75%;">
-                    <input type="text" class="form-control" id="userid" placeholder="123456">
-                    <label for="floatingInput">User ID</label>
+                    <input type="text" class="form-control" id="useridLogin" placeholder="123456">
+                    <label for="useridLogin">User ID</label>
                 </div>
                 <div class="form-floating mb-3 mx-auto" style="width: 75%;">
-                    <input type="password" class="form-control" id="password" placeholder="Password">
-                    <label for="floatingPassword">Password</label>
+                    <input type="password" class="form-control" id="passwordLogin" placeholder="Password">
+                    <label for="passwordLogin">Password</label>
                 </div>
 
                 <button class="btn btn-primary" type="submit">Sign in</button>
@@ -66,24 +66,27 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
 </body>
 
 <script>
-    $(document).ready(function () {
-        $("#login-form").submit(function (event) {
-            event.preventDefault();
-            var userid = $("#userid").val();
-            var password = $("#password").val();
-            $.ajax({
-                url: "log.php",
-                method: "POST",
-                data: { userid: userid, password: password },
-                success: function (data) {
-                    if (data === "success") {
-                        window.location.href = "../do_list.php";
-                    } else {
-                        $("#error-message").html("Invalid username or password.");
-                    }
+    $("#login-form").submit(function (event) {
+        event.preventDefault();
+        var userid = $("#useridLogin").val();
+        var password = $("#passwordLogin").val();
+        $.ajax({
+            url: "log.php",
+            method: "POST",
+            data: { userid: userid, password: password },
+            success: function (data) {
+                if (data === "success") {
+                    $("#useridLogin").val("");
+                    $("#passwordLogin").val("");
+                    window.location.href = "../do_list.php";
+                } else {
+                    $("#error-message").html("Invalid username or password.");
                 }
-            });
+            }
         });
+    });
+
+    $(document).ready(function () {
     });
 </script>
 

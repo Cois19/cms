@@ -66,16 +66,78 @@ if ($mode == 'isn') {
     $start = $_POST['startDate'];
     $end = $_POST['endDate'];
 
-    $query2 = "SELECT que, tdono, tpid, tpno, tpname, tpmodel, tqty, cd, 
-                CASE
-                    WHEN tstatus = 0 THEN 'INACTIVE'
-                    WHEN tstatus = 1 THEN 'ON GOING'
-                    WHEN tstatus = 2 THEN 'GR COMPLETE'
-                END as 'status'
-                FROM tdoc 
-                WHERE tdono = '$tdono' AND tpno = '$tpno' AND tpname = '$tpname' AND cd BETWEEN DATE('$start') AND DATE('$end')
-                ORDER BY que DESC";
+    if ($mode == 'sum') {
+        $tdono = $_POST['do'];
+        $tpno = $_POST['pno'];
+        $tpname = $_POST['pna'];
+        $start = $_POST['startDate'];
+        $end = $_POST['endDate'];
 
+        // Initialize an empty array to hold the conditions
+        $conditions = array();
+
+        if (!empty($tdono)) {
+            $conditions[] = "tdono = '$tdono'";
+        }
+
+        if (!empty($tpno)) {
+            $conditions[] = "tpno = '$tpno'";
+        }
+
+        if (!empty($tpname)) {
+            $conditions[] = "tpname = '$tpname'";
+        }
+
+        // Handle the start and end date conditions separately
+        if (!empty($start) && !empty($end)) {
+            $conditions[] = "DATE(cd) BETWEEN DATE('$start') AND DATE('$end')";
+        } elseif (!empty($start)) {
+            $conditions[] = "DATE(cd) >= DATE('$start')";
+        } elseif (!empty($end)) {
+            $conditions[] = "DATE(cd) <= DATE('$end')";
+        }
+
+        // Join the conditions with AND operator
+        $whereClause = implode(' AND ', $conditions);
+
+        $query2 = "SELECT tdono, tpid, tpno, tpname, tpmodel, tqty, tbxcount, tdate, cd, 
+            CASE
+                WHEN tstatus = 0 THEN 'INACTIVE'
+                WHEN tstatus = 1 THEN 'ON GOING'
+                WHEN tstatus = 2 THEN 'GR COMPLETE'
+            END as 'status'
+            FROM tdoc";
+
+        // Add the WHERE clause if there are conditions
+        if (!empty($whereClause)) {
+            $query2 .= " WHERE $whereClause";
+        }
+
+        $query2 .= " ORDER BY que DESC";
+
+        if ($select_result2 = mysqli_query($conn, $query2)) {
+            $response1 = array();
+            while ($row = mysqli_fetch_assoc($select_result2)) {
+                $response1[] = array_values($row);
+            }
+
+            if (empty($response1)) {
+                $response = array(
+                    'data' => null
+                );
+            } else {
+                $response = array(
+                    'data' => $response1
+                );
+            }
+        } else {
+            $response = array(
+                'status' => 500,
+                'message' => 'Error: ' . mysqli_error($conn)
+            );
+        }
+
+    }
 
     if ($select_result2 = mysqli_query($conn, $query2)) {
         $response1 = array();
