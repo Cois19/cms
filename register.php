@@ -55,10 +55,10 @@ if ($utype == 3) {
                 </thead>
             </table>
         </div>
+        <?php include 'footer.php' ?>
     </div>
 
     <script>
-
         $('#addUserForm').submit(function (e) {
             e.preventDefault(); // Prevent form submission
 
@@ -84,6 +84,8 @@ if ($utype == 3) {
                         loadUserTable();
                     } else if (response == 'duplicate') {
                         alert('User Already Exists!');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     } else {
                         alert('Add User Failed');
                     }

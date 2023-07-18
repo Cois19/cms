@@ -45,6 +45,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/deleteDoM.php'; ?>
         <?php include 'modals/grM.php'; ?>
         <?php include 'modals/changePassM.php'; ?>
+        <?php include 'modals/scanCompleteM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -109,6 +110,18 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                             <?php echo $row4['tbxcount']; ?>
                         </p>
                     </div>
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Status</h5>
+                            <?php 
+                            if ($row4['tstatus'] == '0') {
+                                echo '<p class="card-text mb-2 fw-bold">INACTIVE</p>';
+                            } else if ($row4['tstatus'] == '1') {
+                                echo '<p class="card-text mb-2 fw-bold text-warning">ON GOING</p>';
+                            } else if ($row4['tstatus'] == '2') {
+                                echo '<p class="card-text mb-2 fw-bold text-success">GR COMPLETE</p>';
+                            }
+                            ?>
+                    </div>
                 </div>
                 <div class="d-flex flex-wrap justify-content-between">
                     <div class="btn-group mb-3 mb-lg-0 <?php echo $hideIfNot1 ?>">
@@ -137,16 +150,16 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <th>ID</th>
                         <th>ISN</th>
                         <th>PART NO</th>
+                        <th>PART NAME</th>
                         <th>MODEL</th>
                     </tr>
                 </thead>
             </table>
         </div>
+        <?php include 'footer.php' ?>
     </div>
 
     <script>
-        
-
         $('#newIsnForm').submit(function (e) {
             e.preventDefault();
 
@@ -160,11 +173,14 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         $('#newIsnForm')[0].reset();
                         updateQtyCount();
                         loadTable();
-                    }
-                    else if (response.status == 'fail') {
+                    } else if (response.status == 'fail') {
                         alert('Duplicate Data');
+                        $('#newIsnForm')[0].reset();
+                        $('#isn').focus();
                     } else if (response.status == 'empty') {
                         alert('ISN Cannot be Empty!');
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     } else {
                         alert('Failed');
                     }
@@ -186,6 +202,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         alert('Reset Failed');
                     } else if (response == 'unauthorized') {
                         alert('You are not authorized');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     }
                     updateQtyCount();
                     loadTable();
@@ -210,6 +228,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         alert('Reset Failed');
                     } else if (response == 'unauthorized') {
                         alert('You are not authorized');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     }
                 }
             });
@@ -231,6 +251,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         alert('Reset Failed');
                     } else if (response == 'unauthorized') {
                         alert('Remaining Qty is more than 0');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     }
                 }
             });
@@ -255,7 +277,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         document.getElementById("scanIsnBtn").disabled = true;
                         document.getElementById("grBtn").disabled = false;
                         $('#isnModal').modal('hide');
-                        alert('Scanning Complete!');
+                        $('#scanCompleteModal').modal('show');
                     } else {
                         document.getElementById("scanIsnBtn").disabled = false;
                         document.getElementById("grBtn").disabled = true;
@@ -316,7 +338,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 { data: 0 },
                 { data: 1 },
                 { data: 2 },
-                { data: 3 }
+                { data: 3 },
+                { data: 4 }
             ]
         });
 

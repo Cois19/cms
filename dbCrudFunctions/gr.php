@@ -1,43 +1,52 @@
 <?php
 include '../database/connect.php';
-include '../users/session.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $tdono = $_POST['tdono'];
 $reset_status = '';
 
-// Get qty count
-$query2 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.tdono = '$tdono' AND tisn.tstatus = 1 GROUP BY tisn.tdono";
-$result2 = mysqli_query($conn, $query2);
+session_start();
+$inactive_timeout = 900; // 15 minutes in seconds
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $inactive_timeout) {
+    session_unset(); // Unset all session variables if needed
+    session_destroy(); // Destroy the session if needed
 
-$qtyCount = '';
-
-if (mysqli_num_rows($result2) > 0) {
-    $row2 = mysqli_fetch_assoc($result2);
-    $qtyCount = $row2['qtyCount'];
+    $reset_status = 'timeout'; // Set response as "timeout" for session timeout
 } else {
-    // No rows found in tisn table, return the value of tqty instead
-    $query3 = "SELECT tqty FROM tdoc WHERE tdono = '$tdono'";
-    $result3 = mysqli_query($conn, $query3);
-    $row3 = mysqli_fetch_assoc($result3);
-    $qtyCount = $row3['tqty'];
-}
+    include '../users/session.php';
+    // Get qty count
+    $query2 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.tdono = '$tdono' AND tisn.tstatus = 1 GROUP BY tisn.tdono";
+    $result2 = mysqli_query($conn, $query2);
 
-if ($qtyCount != 0) {
-    $reset_status = 'unauthorized';
-} else {
-    $query9 = "UPDATE tdoc SET tstatus = 2, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE tdono = '$tdono'";
-    $result9 = mysqli_query($conn, $query9);
+    $qtyCount = '';
 
-    if ($result9) {
-        $reset_status = 'success';
-
-        // Insert into tlog
-        $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('GR COMPLETE', '$tdono', CURRENT_TIMESTAMP, '$uid')";
-        $result = mysqli_query($conn, $query);
-
+    if (mysqli_num_rows($result2) > 0) {
+        $row2 = mysqli_fetch_assoc($result2);
+        $qtyCount = $row2['qtyCount'];
     } else {
-        $reset_status = 'fail'; // Default value when an error occurs
+        // No rows found in tisn table, return the value of tqty instead
+        $query3 = "SELECT tqty FROM tdoc WHERE tdono = '$tdono'";
+        $result3 = mysqli_query($conn, $query3);
+        $row3 = mysqli_fetch_assoc($result3);
+        $qtyCount = $row3['tqty'];
+    }
+
+    if ($qtyCount != 0) {
+        $reset_status = 'unauthorized';
+    } else {
+        $query9 = "UPDATE tdoc SET tstatus = 2, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE tdono = '$tdono'";
+        $result9 = mysqli_query($conn, $query9);
+
+        if ($result9) {
+            $reset_status = 'success';
+
+            // Insert into tlog
+            $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('GR COMPLETE', '$tdono', CURRENT_TIMESTAMP, '$uid')";
+            $result = mysqli_query($conn, $query);
+
+        } else {
+            $reset_status = 'fail'; // Default value when an error occurs
+        }
     }
 }
 

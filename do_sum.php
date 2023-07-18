@@ -43,6 +43,7 @@ $hide = '';
                     <tr>
                         <th>NO</th>
                         <th>DO NUMBER</th>
+                        <th>ISN</th>
                         <th>PALLET ID</th>
                         <th>PART NO</th>
                         <th>PART NAME</th>
@@ -56,10 +57,10 @@ $hide = '';
                 </thead>
             </table>
         </div>
+        <?php include 'footer.php' ?>
     </div>
 
     <script>
-        
         $('#filterTableForm').submit(function (e) {
             e.preventDefault(); // Prevent form submission
 
@@ -72,10 +73,14 @@ $hide = '';
                 success: function (response) {
                     $('#filterTableModal').modal('hide');
 
-                    if (response.data !== null) {
-                        table.clear().rows.add(response.data).draw();
+                    if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
                     } else {
-                        table.clear().draw();
+                        if (response.data !== null) {
+                            table.clear().rows.add(response.data).draw();
+                        } else {
+                            table.clear().draw();
+                        }
                     }
 
                 }
@@ -129,17 +134,18 @@ $hide = '';
                 { data: 6 },
                 { data: 7 },
                 { data: 8 },
+                { data: 9 },
                 {
-                    data: 9,
+                    data: 10,
                     render: function (data, type, row) {
-                        if (row[9] === "INACTIVE") {
-                            return '<span class="badge text-bg-dark fs-6">' + row[9] + '</span>';
-                        } else if (row[9] === "ON GOING") {
-                            return '<span class="badge text-bg-warning fs-6">' + row[9] + '</span>';
-                        } else if (row[9] === "GR COMPLETE") {
-                            return '<span class="badge text-bg-success fs-6">' + row[9] + '</span>';
+                        if (row[10] === "INACTIVE") {
+                            return '<span class="badge text-bg-dark fs-6">' + row[10] + '</span>';
+                        } else if (row[10] === "ON GOING") {
+                            return '<span class="badge text-bg-warning fs-6">' + row[10] + '</span>';
+                        } else if (row[10] === "GR COMPLETE") {
+                            return '<span class="badge text-bg-success fs-6">' + row[10] + '</span>';
                         } else {
-                            return row[9];
+                            return row[10];
                         }
                     }
                 }

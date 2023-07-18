@@ -13,6 +13,10 @@
                         <input type="text" class="form-control" name="do" id="do" placeholder="DO" autofocus>
                     </div>
                     <div class="form-group mb-3">
+                        <label for="isn">ISN Number</label>
+                        <input type="text" class="form-control" name="isn" id="isn" placeholder="ISN" autofocus>
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="pno">Part Number</label>
                         <input type="text" class="form-control" name="pno" id="pno" placeholder="Part Number">
                     </div>

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
-    <a class="navbar-brand" href="do_list.php">Central Management System</a>
+    <a class="navbar-brand" href="do_list.php"><img src="assets/pic/logo ptsn.jpg" width="30" alt="logo ptsn" class="rounded-circle me-2">Central Management System</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -18,7 +18,7 @@
             Delivery Order
           </a>
           <ul class="dropdown-menu">
-            <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Create DO</button>
+            <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Add DO</button>
             </li>
             <li><button class="dropdown-item" onclick="window.location.href='do_sum.php'">DO Summary</button></li>
           </ul>

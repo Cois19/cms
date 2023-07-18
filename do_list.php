@@ -63,6 +63,7 @@ include 'users/session.php';
                 </tbody>
             </table>
         </div>
+        <?php include 'footer.php' ?>
     </div>
 
     <script>
@@ -165,8 +166,6 @@ include 'users/session.php';
         });
 
         $(document).ready(function () {
-            $("#doCard").hide();
-
             loadDoTable();
         });
 
