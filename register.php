@@ -3,7 +3,7 @@ include 'database/connect.php';
 include 'users/session.php';
 
 if ($utype == 3) {
-    header("Location: do_list.php");
+    header("Location: index.php");
 }
 ?>
 
@@ -166,6 +166,7 @@ if ($utype == 3) {
 
         <?php include 'dbCrudFunctions/bodyScripts.js' ?>
     </script>
+    <?php include 'styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

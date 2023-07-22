@@ -15,8 +15,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         $hideIfNot1 = "d-none";
     }
 } else {
-    
-    // header("Location: do_list.php");
+
+    // header("Location: index.php");
 }
 ?>
 
@@ -90,7 +90,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <p class="card-text mb-2">
                             <?php echo $row4['tpmodel']; ?>
                         </p>
-                    </div><div class="col-md-3 col-sm-12">
+                    </div>
+                    <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Date</h5>
                         <p class="card-text mb-2">
                             <?php echo $row4['tdate']; ?>
@@ -112,15 +113,15 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     </div>
                     <div class="col-md-3 col-sm-12">
                         <h5 class="card-title">Status</h5>
-                            <?php 
-                            if ($row4['tstatus'] == '0') {
-                                echo '<p class="card-text mb-2 fw-bold">INACTIVE</p>';
-                            } else if ($row4['tstatus'] == '1') {
-                                echo '<p class="card-text mb-2 fw-bold text-warning">ON GOING</p>';
-                            } else if ($row4['tstatus'] == '2') {
-                                echo '<p class="card-text mb-2 fw-bold text-success">GR COMPLETE</p>';
-                            }
-                            ?>
+                        <?php
+                        if ($row4['tstatus'] == '0') {
+                            echo '<p class="card-text mb-2 fw-bold">INACTIVE</p>';
+                        } else if ($row4['tstatus'] == '1') {
+                            echo '<p class="card-text mb-2 fw-bold text-warning">ON GOING</p>';
+                        } else if ($row4['tstatus'] == '2') {
+                            echo '<p class="card-text mb-2 fw-bold text-success">GR COMPLETE</p>';
+                        }
+                        ?>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap justify-content-between">
@@ -170,13 +171,17 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 dataType: 'json',
                 success: function (response) {
                     if (response.status == 'success') {
+                        playPassSound();
                         $('#newIsnForm')[0].reset();
+                        $('#isn').focus();
                         updateQtyCount();
                         loadTable();
                     } else if (response.status == 'fail') {
-                        alert('Duplicate Data');
                         $('#newIsnForm')[0].reset();
                         $('#isn').focus();
+                        playFailSound(function () {
+                            playDuplicateSound();
+                        });
                     } else if (response.status == 'empty') {
                         alert('ISN Cannot be Empty!');
                     } else if (response.status == 'timeout') {
@@ -221,7 +226,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 success: function (response) {
                     if (response == 'success') {
                         $('#deleteDoModal').modal('hide');
-                        var url = 'do_list.php';
+                        var url = 'index.php';
 
                         window.location.href = url;
                     } else if (response == 'fail') {
@@ -244,7 +249,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 success: function (response) {
                     if (response == 'success') {
                         $('#grModal').modal('hide');
-                        var url = 'do_list.php';
+                        var url = 'index.php';
 
                         window.location.reload();
                     } else if (response == 'fail') {
@@ -265,7 +270,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 data: { doId: <?php echo $doId; ?> },
                 dataType: 'json',
                 success: function (response) {
-                    // $('#qtyCount').text(response);
                     var remainingQty = $('.remaining-qty');
                     remainingQty.text('Remaining : ' + response.remainingQty);
                     remainingQty.addClass('text-danger fw-bold border border-danger rounded m-auto px-2');
@@ -274,6 +278,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     scannedQty.text('Scanned : ' + response.scannedQty);
                     scannedQty.addClass('text-success fw-bold border border-success rounded m-auto px-2');
                     if (response.remainingQty == 0) {
+                        setTimeout(function () {
+                            playDnCompleteSound();
+                        }, 2000);
+
                         document.getElementById("scanIsnBtn").disabled = true;
                         document.getElementById("grBtn").disabled = false;
                         $('#isnModal').modal('hide');
@@ -287,6 +295,42 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     console.error('AJAX error:', error);
                 }
             });
+        }
+
+        var passSound = new Audio('assets/audio/pass.mp3');
+        var failSound = new Audio('assets/audio/fail.mp3');
+        var duplicateSound = new Audio('assets/audio/duplicate.mp3');
+        var dnCompleteSound = new Audio('assets/audio/dn complete.mp3');
+        var wrongPnSound = new Audio('assets/audio/wrong pn.mp3');
+
+        function playPassSound(callback) {
+            passSound.play();
+            passSound.onended = function () {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            };
+        }
+
+        function playFailSound(callback) {
+            failSound.play();
+            failSound.onended = function () {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            };
+        }
+
+        function playDuplicateSound() {
+            duplicateSound.play();
+        }
+
+        function playDnCompleteSound() {
+            dnCompleteSound.play();
+        }
+
+        function playWrongPnSound() {
+            wrongPnSound.play();
         }
 
         var doId = <?php echo $doId; ?>;
@@ -350,6 +394,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 
         <?php include 'dbCrudFunctions/bodyScripts.js' ?>
     </script>
+    <?php include 'styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

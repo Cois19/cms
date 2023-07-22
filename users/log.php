@@ -3,7 +3,7 @@ session_start();
 include '../database/connect.php';
 
 if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
-    header("location:../do_list.php");
+    header("location:../index.php");
     exit();
 }
 

@@ -171,7 +171,7 @@ include 'users/session.php';
 
         <?php include 'dbCrudFunctions/bodyScripts.js' ?>
     </script>
-
+    <?php include 'styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

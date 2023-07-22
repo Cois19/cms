@@ -14,7 +14,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label for="isn">ISN Number</label>
-                        <input type="text" class="form-control" name="isn" id="isn" placeholder="ISN" autofocus>
+                        <input type="text" class="form-control" name="isn" id="isn" placeholder="ISN">
                     </div>
                     <div class="form-group mb-3">
                         <label for="pno">Part Number</label>
