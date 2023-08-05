@@ -88,6 +88,7 @@ $hide = '';
         });
 
         var table = $('#doSumTable').DataTable({
+            fixedHeader: true,
             responsive: true,
             dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [

@@ -113,6 +113,7 @@ if ($utype == 3) {
         }
 
         var table = $('#userTable').DataTable({
+            fixedHeader: true,
             responsive: true,
             // dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             // buttons: [
@@ -153,8 +154,9 @@ if ($utype == 3) {
                 { data: 5 },
                 {
                     data: null,
-                    render: function (data, type, row, meta) {
-                        return 'null';
+                    render: function (data, type, row) {
+                        var token = row[0];
+                        return '<button type="button" class="btn btn-sm btn-primary">EDIT</button>';
                     }
                 }
             ]

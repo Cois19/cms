@@ -111,6 +111,8 @@ if ($mode == 'isn') {
             $conditions[] = "DATE(tisn.cd) <= DATE('$end')";
         }
 
+        $conditions[] = "tisn.tstatus = 1";
+
         // Join the conditions with AND operator
         $whereClause = implode(' AND ', $conditions);
 

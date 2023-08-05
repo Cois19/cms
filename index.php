@@ -93,15 +93,8 @@ include 'users/session.php';
         }
 
         var table = $('#doTable').DataTable({
-            responsive: {
-                breakpoints: [
-                    { name: 'desktop', width: Infinity },
-                    { name: 'tablet-l', width: 1024 },
-                    { name: 'tablet-p', width: 768 },
-                    { name: 'mobile-l', width: 480 },
-                    { name: 'mobile-p', width: 320 }
-                ]
-            },
+            fixedHeader: true,
+            responsive: true,
             // dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             // buttons: [
             //     {

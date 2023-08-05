@@ -27,7 +27,7 @@
             url: "submit.php",
             data: { barcode: barcode },
             success: function (response) {
-                $("#result").html(response);
+                // $("#result").html(response);
                 $("#scannerForm")[0].reset(); // Clear the form input after successful submission
             },
             error: function (xhr, status, error) {

@@ -46,6 +46,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include 'modals/grM.php'; ?>
         <?php include 'modals/changePassM.php'; ?>
         <?php include 'modals/scanCompleteM.php'; ?>
+        <?php include 'modals/deleteISNM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -153,6 +154,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <th>PART NO</th>
                         <th>PART NAME</th>
                         <th>MODEL</th>
+                        <th colspan="1" rowspan="1"></th>
                     </tr>
                 </thead>
             </table>
@@ -186,6 +188,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         alert('ISN Cannot be Empty!');
                     } else if (response.status == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
+                    } else if (response.status == 'length') {
+                        playFailSound();
+                        $('#newIsnForm')[0].reset();
+                        $('#isn').focus();
                     } else {
                         alert('Failed');
                     }
@@ -238,7 +244,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     }
                 }
             });
-
         });
 
         $('#grConfirm').click(function () {
@@ -263,6 +268,27 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             });
         });
 
+        function deleteISN(isn) {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/deleteRowISN.php',
+                data: { isn: isn },
+                success: function (response) {
+                    if (response == 'success') {
+                        $('#deleteISNModal').modal('hide');
+                    } else if (response == 'fail') {
+                        alert('Delete Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('Admin only!');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    }
+                    updateQtyCount();
+                    loadTable();
+                }
+            });
+        }
+
         function updateQtyCount() {
             $.ajax({
                 type: 'POST',
@@ -280,7 +306,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     if (response.remainingQty == 0) {
                         setTimeout(function () {
                             playDnCompleteSound();
-                        }, 2000);
+                        }, 1000);
 
                         document.getElementById("scanIsnBtn").disabled = true;
                         document.getElementById("grBtn").disabled = false;
@@ -303,34 +329,34 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         var dnCompleteSound = new Audio('assets/audio/dn complete.mp3');
         var wrongPnSound = new Audio('assets/audio/wrong pn.mp3');
 
-        function playPassSound(callback) {
-            passSound.play();
-            passSound.onended = function () {
+        function playSound(sound, callback) {
+            var clone = sound.cloneNode(true);
+            clone.play();
+            clone.onended = function () {
                 if (typeof callback === 'function') {
                     callback();
                 }
             };
+        }
+
+        function playPassSound(callback) {
+            playSound(passSound, callback);
         }
 
         function playFailSound(callback) {
-            failSound.play();
-            failSound.onended = function () {
-                if (typeof callback === 'function') {
-                    callback();
-                }
-            };
+            playSound(failSound, callback);
         }
 
         function playDuplicateSound() {
-            duplicateSound.play();
+            playSound(duplicateSound);
         }
 
         function playDnCompleteSound() {
-            dnCompleteSound.play();
+            playSound(dnCompleteSound);
         }
 
         function playWrongPnSound() {
-            wrongPnSound.play();
+            playSound(wrongPnSound);
         }
 
         var doId = <?php echo $doId; ?>;
@@ -355,6 +381,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         }
 
         var table = $('#isnTable').DataTable({
+            fixedHeader: true,
             responsive: true,
             dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap me-3"<"remaining-qty me-2"><"scanned-qty">><"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [
@@ -383,7 +410,14 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 { data: 1 },
                 { data: 2 },
                 { data: 3 },
-                { data: 4 }
+                { data: 4 },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        var token = row[0];
+                        return '<button type="button" class="btn btn-sm btn-primary" onClick="deleteISN(\'' + token + '\')">DELETE</button>';
+                    }
+                }
             ]
         });
 
