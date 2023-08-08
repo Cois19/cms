@@ -17,19 +17,20 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     $upassword = md5($_POST['upassword']);
     $username = $_POST['username'];
     $usercost = $_POST['usercost'];
+    $usersection = $_POST['usection'];
     $useremail = $_POST['useremail'];
     $usertype = $_POST['usertype'];
     $remarks = $_POST['remarks'];
 
     // check if user already exists
-    $query2 = "SELECT uid FROM tuser WHERE uid = '$uid'";
+    $query2 = "SELECT uid FROM tuser WHERE uid = '$userid'";
     $result2 = mysqli_query($conn, $query2);
 
     if (mysqli_num_rows($result2) > 0) {
         $insert_status = 'duplicate';
     } else {
-        $query9 = "INSERT INTO tuser(uid, upass, uname, ucost, uemail, utype, remarks, ustatus, cd, cp)
-            VALUES('$userid', '$upassword', \"$username\", '$usercost', \"$useremail\", '$usertype', '$remarks', 1, CURRENT_TIMESTAMP, '$uid')";
+        $query9 = "INSERT INTO tuser(uid, upass, uname, ucost, usection, uemail, utype, remarks, ustatus, cd, cp)
+            VALUES('$userid', '$upassword', \"$username\", '$usercost', '$usersection', \"$useremail\", '$usertype', '$remarks', 1, CURRENT_TIMESTAMP, '$uid')";
         $result9 = mysqli_query($conn, $query9);
 
         if ($result9) {

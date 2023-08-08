@@ -10,7 +10,11 @@
                 <div class="modal-body">
                     <div class="form-group mb-3">
                         <label for="do">DO Number</label>
-                        <input type="text" class="form-control" name="do" id="do" placeholder="DO" autofocus>
+                        <input type="text" class="form-control" name="do" id="do" placeholder="DO Number" autofocus>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="pid">Pallet ID</label>
+                        <input type="text" class="form-control" name="pid" id="pid" placeholder="Pallet ID">
                     </div>
                     <div class="form-group mb-3">
                         <label for="isn">ISN Number</label>

@@ -53,8 +53,8 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $row = mysqli_fetch_assoc($result);
                 $que = $row['que'];
             } else {
-                $query1 = "INSERT INTO tisn(tdono, tisn, tpn, tstatus, tmodel, tvendor, tcost, cd, cp) 
-                    VALUES('$tdono', '$tisn', '$tpno', '1', '$tpmodel', '$tvendor', '$ucost', CURRENT_TIMESTAMP, '$uid')";
+                $query1 = "INSERT INTO tisn(tdono, tisn, tpn, tstatus, tmodel, tvendor, tcost, tdoc_que, cd, cp) 
+                    VALUES('$tdono', '$tisn', '$tpno', '1', '$tpmodel', '$tvendor', '$ucost', '$doId', CURRENT_TIMESTAMP, '$uid')";
                 $result1 = mysqli_query($conn, $query1);
 
                 if ($result1 != 1) {

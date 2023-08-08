@@ -7,7 +7,7 @@ $doId = $_POST['doId'];
 $response = array();
 
 // Get remaining qty count
-$query9 = "SELECT (tqty - COUNT(*)) AS remainingQty, (tqty - (tqty - COUNT(tisn.tdono))) AS scannedQty FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
+$query9 = "SELECT (tqty - COUNT(*)) AS remainingQty, (tqty - (tqty - COUNT(tisn.tdono))) AS scannedQty FROM tdoc JOIN tisn ON tdoc.que = tisn.tdoc_que WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
 $result9 = mysqli_query($conn, $query9);
 
 if ($result9) {

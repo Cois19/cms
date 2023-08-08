@@ -8,13 +8,13 @@ if ($mode == 'isn') {
     include '../users/session.php';
     $doId = $_POST['doId'];
 
-    // get tdono and tpn from tdoc table
-    $query7 = "SELECT tdono FROM tdoc WHERE que = $doId";
+    // get tpid from tdoc table
+    $query7 = "SELECT tpid FROM tdoc WHERE que = $doId";
     $result7 = mysqli_query($conn, $query7);
     $row7 = mysqli_fetch_assoc($result7);
-    $tdono = $row7['tdono'];
+    $tpid = $row7['tpid'];
 
-    $query2 = "SELECT tisn.que, tisn.tisn, tisn.tpn, tdoc.tpname, tisn.tmodel FROM tisn JOIN tdoc on tisn.tdono = tdoc.tdono WHERE tisn.tdono = '$tdono' AND tisn.tstatus = 1 ORDER BY que DESC";
+    $query2 = "SELECT tisn.que, tisn.tisn, tisn.tpn, tdoc.tpname, tisn.tmodel FROM tisn JOIN tdoc on tisn.tdoc_que = tdoc.que WHERE tisn.tdoc_que = $doId AND tisn.tstatus = 1 ORDER BY que DESC";
 
     if ($select_result2 = mysqli_query($conn, $query2)) {
         $response1 = array();
@@ -82,12 +82,17 @@ if ($mode == 'isn') {
         $start = $_POST['startDate'];
         $end = $_POST['endDate'];
         $tisn = $_POST['isn'];
+        $tpid = $_POST['pid'];
 
         // Initialize an empty array to hold the conditions
         $conditions = array();
 
         if (!empty($tdono)) {
             $conditions[] = "tdoc.tdono = '$tdono'";
+        }
+
+        if (!empty($tpid)) {
+            $conditions[] = "tdoc.tpid = '$tpid'";
         }
 
         if (!empty($tpno)) {
@@ -122,7 +127,7 @@ if ($mode == 'isn') {
                 WHEN tdoc.tstatus = 1 THEN 'ON GOING'
                 WHEN tdoc.tstatus = 2 THEN 'GR COMPLETE'
             END as 'status'
-            FROM tdoc JOIN tisn on tdoc.tdono = tisn.tdono";
+            FROM tdoc JOIN tisn on tdoc.que = tisn.tdoc_que";
 
         // Add the WHERE clause if there are conditions
         if (!empty($whereClause)) {

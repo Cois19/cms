@@ -268,14 +268,26 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             });
         });
 
+        // Move this event binding outside both functions and ensure it's bound only once
+        $('#confirmDeleteISNBtn').on('click', function () {
+            var isnToDelete = $(this).data('isn'); // Get the ISN from the data attribute
+            $('#deleteISNModal').modal('hide');
+            confirmDeleteISN(isnToDelete);
+        });
+
         function deleteISN(isn) {
+            $('#deleteISNModal').modal('show');
+            $('#confirmDeleteISNBtn').data('isn', isn); // Store the ISN in the data attribute
+        }
+
+        function confirmDeleteISN(isn) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/deleteRowISN.php',
                 data: { isn: isn },
                 success: function (response) {
                     if (response == 'success') {
-                        $('#deleteISNModal').modal('hide');
+                        // $('#deleteISNModal').modal('hide');
                     } else if (response == 'fail') {
                         alert('Delete Failed');
                     } else if (response == 'unauthorized') {
@@ -288,6 +300,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 }
             });
         }
+
 
         function updateQtyCount() {
             $.ajax({
@@ -415,7 +428,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="deleteISN(\'' + token + '\')">DELETE</button>';
+                        return '<button type="button" class="btn btn-sm btn-warning" onClick="deleteISN(\'' + token + '\')">DELETE</button>';
                     }
                 }
             ]

@@ -33,6 +33,21 @@
                             <option value="PG18">Pegatron</option>
                         </select>
                     </div>
+                    <div class="form-group mb-3" id="usectionParent">
+                        <label for="usection">Section</label>
+                        <?php
+                        $query = 'SELECT * FROM tsection';
+                        $result = mysqli_query($conn, $query);
+                        ?>
+                        <select type="text" class="form-control" name="usection" id="usection"
+                            placeholder="Section">
+                            <option value="" disabled selected>-- Select Section --</option>
+                            <?php
+                            while ($row = mysqli_fetch_assoc($result)) { ?>
+                                <option value="<?php echo $row['scode'] ?>"><?php echo $row['sname'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
                     <div class="form-group mb-3" id="utypeParent">
                         <label for="usertype">User Type</label>
                         <select type="text" class="form-control" name="usertype" id="usertype" placeholder="User Type">
@@ -72,6 +87,11 @@
 
         $('#usercost').select2({
             dropdownParent: $('#ucostParent'),
+            width: '100%'
+        });
+
+        $('#usection').select2({
+            dropdownParent: $('#usectionParent'),
             width: '100%'
         });
 

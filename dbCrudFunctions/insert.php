@@ -43,10 +43,10 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $row = mysqli_fetch_assoc($result);
             $que = $row['que'];
         } else {
-            if (strlen($palletid) == 16) {
+            if (strlen($palletid) == 16) { // PTB
                 $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
                 VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'PTB', '$ucost', CURRENT_TIMESTAMP, '$uid')";
-            } else if (strlen($palletid) == 8) {
+            } else if (strlen($palletid) == 8) { // SMT
                 $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
                 VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'SMT', '$ucost', CURRENT_TIMESTAMP, '$uid')";
             }
