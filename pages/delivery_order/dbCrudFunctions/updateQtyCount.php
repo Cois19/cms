@@ -1,6 +1,6 @@
 <?php
-include '../database/connect.php';
-include '../users/session.php';
+include '../../../database/connect.php';
+include '../../../users/session.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $doId = $_POST['doId'];

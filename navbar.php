@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
-    <a class="navbar-brand" href="index.php"><img src="assets/pic/logo ptsn.jpg" width="30" alt="logo ptsn" class="rounded-circle me-2">Central Management System</a>
+    <a class="navbar-brand" href="/vsite/cms/pages/delivery_order/index.php"><img src="/vsite/cms/assets/pic/logo ptsn.jpg" width="30" alt="logo ptsn" class="rounded-circle me-2">Central Management System</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -20,7 +20,18 @@
           <ul class="dropdown-menu">
             <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Add DO</button>
             </li>
-            <li><button class="dropdown-item" onclick="window.location.href='do_sum.php'">DO Summary</button></li>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/delivery_order/do_sum.php'">DO Summary</button></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Inventory
+          </a>
+          <ul class="dropdown-menu">
+            <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addPeriodModal">Add New Period</button>
+            </li>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/inventory/period_list.php'">Period List</button>
+            </li>
           </ul>
         </li>
         <li class="nav-item dropdown">
@@ -28,7 +39,7 @@
             User Management
           </a>
           <ul class="dropdown-menu">
-            <li><button class="dropdown-item" onclick="window.location.href='register.php'" <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Add User</button>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/register.php'" <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Add User</button>
             </li>
             <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePassModal">Change Password</button></li>
           </ul>

@@ -1,5 +1,5 @@
 <?php
-include '../database/connect.php';
+include '../../../database/connect.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $isn = $_POST['isn'];
@@ -13,7 +13,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
     $delete_status = 'timeout'; // Set response as "timeout" for session timeout
 } else {
-    include '../users/session.php';
+    include '../../../users/session.php';
     if ($utype != 1) {
         $delete_status = 'unauthorized';
     } else {

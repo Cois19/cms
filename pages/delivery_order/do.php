@@ -1,6 +1,6 @@
 <?php
-include 'database/connect.php';
-include 'users/session.php';
+include '../../database/connect.php';
+include '../../users/session.php';
 
 $doId = $_GET['id'];
 $hideIfNot1 = '';
@@ -28,25 +28,26 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Order Details</title>
-    <?php include 'scripts.php' ?>
+    <?php include '../../scripts.php' ?>
 </head>
 
 <body>
     <!-- Navbar -->
-    <?php include 'navbar.php' ?>
+    <?php include '../../navbar.php' ?>
     <div class="mb-3"></div>
     <div class="container">
         <!-- Modals -->
-        <?php include 'modals/create.php'; ?>
-        <?php include 'modals/edit.php'; ?>
-        <?php include 'modals/uploading.php'; ?>
-        <?php include 'modals/isn.php'; ?>
-        <?php include 'modals/resetM.php'; ?>
-        <?php include 'modals/deleteDoM.php'; ?>
-        <?php include 'modals/grM.php'; ?>
-        <?php include 'modals/changePassM.php'; ?>
-        <?php include 'modals/scanCompleteM.php'; ?>
-        <?php include 'modals/deleteISNM.php'; ?>
+        <?php include '../../modals/delivery_order/create.php'; ?>
+        <?php include '../../modals/edit.php'; ?>
+        <?php include '../../modals/uploading.php'; ?>
+        <?php include '../../modals/delivery_order/isn.php'; ?>
+        <?php include '../../modals/delivery_order/resetM.php'; ?>
+        <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
+        <?php include '../../modals/delivery_order/grM.php'; ?>
+        <?php include '../../modals/changePassM.php'; ?>
+        <?php include '../../modals/delivery_order/scanCompleteM.php'; ?>
+        <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
+        <?php include '../../modals/inventory/addPeriodM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -159,7 +160,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 </thead>
             </table>
         </div>
-        <?php include 'footer.php' ?>
+        <?php include '../../footer.php' ?>
     </div>
 
     <script>
@@ -250,7 +251,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/gr.php',
-                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
+                data: { doId: <?php echo "'" . $doId . "'"; ?> },
                 success: function (response) {
                     if (response == 'success') {
                         $('#grModal').modal('hide');
@@ -336,11 +337,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             });
         }
 
-        var passSound = new Audio('assets/audio/pass.mp3');
-        var failSound = new Audio('assets/audio/fail.mp3');
-        var duplicateSound = new Audio('assets/audio/duplicate.mp3');
-        var dnCompleteSound = new Audio('assets/audio/dn complete.mp3');
-        var wrongPnSound = new Audio('assets/audio/wrong pn.mp3');
+        var passSound = new Audio('/vsite/cms/assets/audio/pass.mp3');
+        var failSound = new Audio('/vsite/cms/assets/audio/fail.mp3');
+        var duplicateSound = new Audio('/vsite/cms/assets/audio/duplicate.mp3');
+        var dnCompleteSound = new Audio('/vsite/cms/assets/audio/dn complete.mp3');
+        var wrongPnSound = new Audio('/vsite/cms/assets/audio/wrong pn.mp3');
 
         function playSound(sound, callback) {
             var clone = sound.cloneNode(true);
@@ -439,9 +440,9 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             loadTable();
         });
 
-        <?php include 'dbCrudFunctions/bodyScripts.js' ?>
+        <?php include '../../dbCrudFunctions/bodyScripts.js' ?>
     </script>
-    <?php include 'styles/tableOverride.php' ?>
+    <?php include '../../styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

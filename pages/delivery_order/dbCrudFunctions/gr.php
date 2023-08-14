@@ -1,8 +1,8 @@
 <?php
-include '../database/connect.php';
+include '../../../database/connect.php';
 date_default_timezone_set("Asia/Jakarta");
 
-$tdono = $_POST['tdono'];
+$doId = $_POST['doId'];
 $reset_status = '';
 
 session_start();
@@ -13,9 +13,9 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
     $reset_status = 'timeout'; // Set response as "timeout" for session timeout
 } else {
-    include '../users/session.php';
+    include '../../../users/session.php';
     // Get qty count
-    $query2 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.tdono = tisn.tdono WHERE tdoc.tdono = '$tdono' AND tisn.tstatus = 1 GROUP BY tisn.tdono";
+    $query2 = "SELECT (tqty - COUNT(*)) AS qtyCount FROM tdoc JOIN tisn ON tdoc.que = tisn.tdoc_que WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdoc_que";
     $result2 = mysqli_query($conn, $query2);
 
     $qtyCount = '';
@@ -25,7 +25,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
         $qtyCount = $row2['qtyCount'];
     } else {
         // No rows found in tisn table, return the value of tqty instead
-        $query3 = "SELECT tqty FROM tdoc WHERE tdono = '$tdono'";
+        $query3 = "SELECT tqty FROM tdoc WHERE que = $doId";
         $result3 = mysqli_query($conn, $query3);
         $row3 = mysqli_fetch_assoc($result3);
         $qtyCount = $row3['tqty'];
@@ -34,14 +34,14 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     if ($qtyCount != 0) {
         $reset_status = 'unauthorized';
     } else {
-        $query9 = "UPDATE tdoc SET tstatus = 2, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE tdono = '$tdono'";
+        $query9 = "UPDATE tdoc SET tstatus = 2, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE que = $doId";
         $result9 = mysqli_query($conn, $query9);
 
         if ($result9) {
             $reset_status = 'success';
 
             // Insert into tlog
-            $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('GR COMPLETE', '$tdono', CURRENT_TIMESTAMP, '$uid')";
+            $query = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('GR COMPLETE', '$doId', CURRENT_TIMESTAMP, '$uid')";
             $result = mysqli_query($conn, $query);
 
         } else {

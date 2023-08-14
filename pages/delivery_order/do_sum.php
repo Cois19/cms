@@ -1,6 +1,6 @@
 <?php
-include 'database/connect.php';
-include 'users/session.php';
+include '../../database/connect.php';
+include '../../users/session.php';
 
 $hide = '';
 
@@ -14,24 +14,25 @@ $hide = '';
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Order Summary</title>
-    <?php include 'scripts.php' ?>
+    <?php include '../../scripts.php' ?>
 </head>
 
 <body>
     <!-- Navbar -->
-    <?php include 'navbar.php' ?>
+    <?php include '../../navbar.php' ?>
     <div class="mb-3"></div>
     <div class="container">
         <!-- Modals -->
-        <?php include 'modals/create.php'; ?>
-        <?php include 'modals/edit.php'; ?>
-        <?php include 'modals/uploading.php'; ?>
-        <?php include 'modals/isn.php'; ?>
-        <?php include 'modals/resetM.php'; ?>
-        <?php include 'modals/deleteDoM.php'; ?>
-        <?php include 'modals/grM.php'; ?>
-        <?php include 'modals/filterTableM.php'; ?>
-        <?php include 'modals/changePassM.php'; ?>
+        <?php include '../../modals/delivery_order/create.php'; ?>
+        <?php include '../../modals/edit.php'; ?>
+        <?php include '../../modals/uploading.php'; ?>
+        <?php include '../../modals/delivery_order/isn.php'; ?>
+        <?php include '../../modals/delivery_order/resetM.php'; ?>
+        <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
+        <?php include '../../modals/delivery_order/grM.php'; ?>
+        <?php include '../../modals/delivery_order/filterTableM.php'; ?>
+        <?php include '../../modals/changePassM.php'; ?>
+        <?php include '../../modals/inventory/addPeriodM.php'; ?>
 
         <h2>DO Summary</h2>
         <hr>
@@ -57,7 +58,7 @@ $hide = '';
                 </thead>
             </table>
         </div>
-        <?php include 'footer.php' ?>
+        <?php include '../../footer.php' ?>
     </div>
 
     <script>
@@ -156,9 +157,9 @@ $hide = '';
         $(document).ready(function () {
         });
 
-        <?php include 'dbCrudFunctions/bodyScripts.js' ?>
+        <?php include '../../dbCrudFunctions/bodyScripts.js' ?>
     </script>
-    <?php include 'styles/tableOverride.php' ?>
+    <?php include '../../styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

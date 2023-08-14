@@ -3,7 +3,7 @@ session_start();
 include '../database/connect.php';
 
 if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
-    header("location:../index.php");
+    header("location:../pages/delivery_order/index.php");
     exit();
 }
 ?>
@@ -78,7 +78,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
                 if (data === "success") {
                     $("#useridLogin").val("");
                     $("#passwordLogin").val("");
-                    window.location.href = "../index.php";
+                    window.location.href = "../pages/delivery_order/index.php";
                 } else {
                     $("#error-message").html("Invalid username or password.");
                 }

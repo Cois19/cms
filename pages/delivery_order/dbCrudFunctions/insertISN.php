@@ -1,5 +1,5 @@
 <?php
-include '../database/connect.php';
+include '../../../database/connect.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $response = '';
@@ -14,7 +14,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     $response = 'timeout'; // Set response as "timeout" for session timeout
     $que = 'timeout';
 } else {
-    include '../users/session.php';
+    include '../../../users/session.php';
     $doId = $_POST['doId'];
     $tisn = $_POST['isn'];
 

@@ -24,14 +24,14 @@ $('#newDoForm').submit(function (e) {
 
     $.ajax({
         type: 'POST',
-        url: 'dbCrudFunctions/insert.php',
-        data: $(this).serialize(),
+        url: '/vsite/cms/dbCrudFunctions/insert.php',
+        data: $(this).serialize() + '&mode=dorder',
         dataType: 'json',
         success: function (response) {
             if (response.status == 'success') {
                 $('#newDoForm')[0].reset();
                 $('#createModal').modal('hide');
-                var url = 'do.php?id=' + response.que;
+                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que;
 
                 window.location.href = url;
             } else if (response.status == 'empty') {
@@ -40,9 +40,48 @@ $('#newDoForm').submit(function (e) {
             } else if (response.status == 'fail') {
                 $('#newDoForm')[0].reset();
                 $('#createModal').modal('hide');
-                var url = 'do.php?id=' + response.que;
+                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que;
 
                 window.location.href = url;
+            } else if (response.status == 'timeout') {
+                window.location.href = '/vsite/cms/users/login.php';
+            } else {
+                alert('Failed');
+            }
+
+
+        }
+    });
+});
+
+$('#addPeriodForm').submit(function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        type: 'POST',
+        url: '/vsite/cms/dbCrudFunctions/insert.php',
+        data: $(this).serialize() + '&mode=period',
+        dataType: 'json',
+        success: function (response) {
+            if (response.status == 'success') {
+                // $('#addPeriodForm').reset();
+                // $('#addPeriodModal').modal('hide');
+                var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                window.location.href = url;
+                // alert('good');
+            } else if (response.status == 'empty') {
+                alert('Period Fields Cannot be Empty!');
+                $('#period').focus();
+            } else if (response.status == 'length') {
+                alert('Period Name Should Have 5 Characters!');
+            } else if (response.status == 'fail') {
+                // $('#addPeriodForm').reset();
+                // $('#createModal').modal('hide');
+                // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                // window.location.href = url;
+                alert('Active Period in Session!');
             } else if (response.status == 'timeout') {
                 window.location.href = '/vsite/cms/users/login.php';
             } else {

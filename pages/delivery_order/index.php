@@ -1,6 +1,6 @@
 <?php
-include 'database/connect.php';
-include 'users/session.php';
+include '../../database/connect.php';
+include '../../users/session.php';
 ?>
 
 <!DOCTYPE html>
@@ -11,21 +11,20 @@ include 'users/session.php';
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Order List</title>
-    <?php include 'scripts.php' ?>
+    <?php include '../../scripts.php' ?>
 </head>
 
 <body>
     <!-- Navbar -->
-    <?php include 'navbar.php' ?>
+    <?php include '../../navbar.php' ?>
     <div class="mb-3"></div>
     <div class="container">
 
         <!-- Modals -->
-        <?php include 'modals/create.php'; ?>
-        <?php include 'modals/edit.php'; ?>
-        <?php include 'modals/uploading.php'; ?>
-        <?php include 'modals/isn.php'; ?>
-        <?php include 'modals/changePassM.php'; ?>
+        <?php include '../../modals/delivery_order/create.php'; ?>
+        <?php include '../../modals/delivery_order/isn.php'; ?>
+        <?php include '../../modals/changePassM.php'; ?>
+        <?php include '../../modals/inventory/addPeriodM.php'; ?>
 
         <h2>DO List</h2>
         <hr>
@@ -63,7 +62,7 @@ include 'users/session.php';
                 </tbody>
             </table>
         </div>
-        <?php include 'footer.php' ?>
+        <?php include '../../footer.php' ?>
     </div>
 
     <script>
@@ -162,9 +161,9 @@ include 'users/session.php';
             loadDoTable();
         });
 
-        <?php include 'dbCrudFunctions/bodyScripts.js' ?>
+        <?php include '../../dbCrudFunctions/bodyScripts.js' ?>
     </script>
-    <?php include 'styles/tableOverride.php' ?>
+    <?php include '../../styles/tableOverride.php' ?>
 </body>
 
 <?php mysqli_close($conn); ?>

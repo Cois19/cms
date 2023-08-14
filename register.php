@@ -26,14 +26,9 @@ if ($utype == 3) {
 
         <!-- Modals -->
         <?php include 'modals/addUserM.php'; ?>
-        <?php include 'modals/create.php'; ?>
-        <?php include 'modals/edit.php'; ?>
-        <?php include 'modals/uploading.php'; ?>
-        <?php include 'modals/isn.php'; ?>
-        <?php include 'modals/resetM.php'; ?>
-        <?php include 'modals/deleteDoM.php'; ?>
-        <?php include 'modals/grM.php'; ?>
         <?php include 'modals/changePassM.php'; ?>
+        <?php include 'modals/delivery_order/create.php'; ?>
+        <?php include 'modals/inventory/addPeriodM.php'; ?>
 
         <h2>User Management</h2>
         <hr>
@@ -47,6 +42,7 @@ if ($utype == 3) {
                         <th>USER ID</th>
                         <th>NAME</th>
                         <th>COST CENTER</th>
+                        <th>SECTION</th>
                         <th>EMAIL</th>
                         <th>USER TYPE</th>
                         <th>REMARKS</th>
@@ -66,9 +62,11 @@ if ($utype == 3) {
             var userid = $('#userid').val();
             var upassword = $('#upassword').val();
             var username = $('#username').val();
+            var usection = $('#usection').val();
 
-            if (userid == null || userid == '' || upassword == null || upassword == '' || username == null || username == '') {
-                alert('User ID, Password and Username Cannot be Empty!');
+            if (userid == null || userid == '' || upassword == null || upassword == '' || username == null || username == ''
+                || usection == null || usection == '') {
+                alert('User ID, Password, Username and Section Cannot be Empty!');
                 return;
             }
 
@@ -152,6 +150,7 @@ if ($utype == 3) {
                 { data: 3 },
                 { data: 4 },
                 { data: 5 },
+                { data: 6 },
                 {
                     data: null,
                     render: function (data, type, row) {
