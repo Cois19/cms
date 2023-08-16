@@ -48,6 +48,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include '../../modals/delivery_order/scanCompleteM.php'; ?>
         <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/inventory/deactivatePeriodM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -102,13 +103,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     <div class="btn-group mb-3 mb-lg-0 <?php echo $hideIfNot1 ?>">
                         <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#importPartModal"
                             class="btn btn-primary">Import Part</button>
-                        <!-- <button id="grBtn" href="#" data-bs-toggle="modal" data-bs-target="#grModal"
-                            class="btn btn-success" disabled>Good Received</button> -->
                     </div>
                     <div class="btn-group <?php echo $hideIfNot1 ?>">
-                        <!-- <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger"
-                            <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Reset
-                            ISN</button> -->
                         <button href="#" data-bs-toggle="modal" data-bs-target="#deactivatePeriodModal" class="btn btn-danger"
                             <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Deactivate Period</button>
                     </div>
@@ -119,6 +115,29 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     </div>
 
     <script>
+        $('#deletePeriodBtn').click(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/delete.php',
+                data: { que: <?php echo "'" . $que . "'"; ?> },
+                success: function (response) {
+                    if (response == 'success') {
+                        $('#deactivatePeriodModal').modal('hide');
+                        var url = 'period_list.php';
+
+                        window.location.href = url;
+                    } else if (response == 'fail') {
+                        alert('Reset Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('You are not authorized');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    }
+                }
+            });
+        });
 
         $(document).ready(function () {
             // updateQtyCount();

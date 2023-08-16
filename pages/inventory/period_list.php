@@ -26,7 +26,7 @@ include '../../users/session.php';
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
 
-        <h2>DO List</h2>
+        <h2>Period List</h2>
         <hr>
         <div class="table-responsive">
             <table id="periodTable" class="table">
@@ -34,49 +34,33 @@ include '../../users/session.php';
                     <tr>
                         <th>NO</th>
                         <th>QUE</th>
-                        <th>DO NUMBER</th>
-                        <th>PALLET ID</th>
-                        <th>PART NO</th>
-                        <th>PART NAME</th>
-                        <th>MODEL</th>
-                        <th>QTY</th>
-                        <th>INCOMING</th>
+                        <th>PERIOD</th>
+                        <th>START</th>
+                        <th>END</th>
+                        <th>DESCRIPTION</th>
+                        <th>REMARKS</th>
                         <th>STATUS</th>
+                        <th>CD</th>
                         <th colspan="1" rowspan="1"></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td colspan="1" rowspan="1"></td>
-                    </tr>
-                </tbody>
             </table>
         </div>
         <?php include '../../footer.php' ?>
     </div>
 
     <script>
-        function loadISN(tdono) {
-            var url = 'do.php?id=' + tdono;
+        function loadPeriod(que) {
+            var url = 'period.php?id=' + que;
 
             window.location.href = url;
         }
 
-        function loadDoTable() {
+        function loadPeriodTable() {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/table.php',
-                data: { mode: 'do' },
+                data: { mode: 'period' },
                 dataType: 'json',
                 success: function (response) {
                     if (response.data) {
@@ -91,7 +75,7 @@ include '../../users/session.php';
             });
         }
 
-        var table = $('#doTable').DataTable({
+        var table = $('#periodTable').DataTable({
             fixedHeader: true,
             responsive: true,
             // dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
@@ -131,34 +115,31 @@ include '../../users/session.php';
                 { data: 3 },
                 { data: 4 },
                 { data: 5 },
-                { data: 6 },
-                { data: 7 },
                 {
-                    data: 8,
+                    data: 6,
                     render: function (data, type, row) {
-                        if (row[8] === "INACTIVE") {
-                            return '<span class="badge text-bg-dark fs-6">' + row[8] + '</span>';
-                        } else if (row[8] === "ON GOING") {
-                            return '<span class="badge text-bg-warning fs-6">' + row[8] + '</span>';
-                        } else if (row[8] === "GR COMPLETE") {
-                            return '<span class="badge text-bg-success fs-6">' + row[8] + '</span>';
+                        if (row[6] === "INACTIVE") {
+                            return '<span class="badge text-bg-dark fs-6">' + row[6] + '</span>';
+                        } else if (row[6] === "ACTIVE") {
+                            return '<span class="badge text-bg-danger fs-6">' + row[6] + '</span>';
                         } else {
-                            return row[8];
+                            return row[6];
                         }
                     }
                 },
+                { data: 7 },
                 {
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadISN(\'' + token + '\')">ACTION</button>';
+                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadPeriod(\'' + token + '\')">ACTION</button>';
                     }
                 }
             ]
         });
-
+        
         $(document).ready(function () {
-            loadDoTable();
+            loadPeriodTable();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>
