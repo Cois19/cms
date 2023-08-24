@@ -49,110 +49,127 @@ $hide = '';
                         <th>PART NO</th>
                         <th>PART NAME</th>
                         <th>MODEL</th>
-                        <th>QTY</th>
-                        <th>BOX COUNT</th>
                         <th>DATE</th>
                         <th>INCOMING</th>
                         <th>STATUS</th>
                     </tr>
                 </thead>
+                <tbody></tbody>
             </table>
         </div>
         <?php include '../../footer.php' ?>
     </div>
 
     <script>
+        // $('#filterTableForm').submit(function (e) {
+        //     e.preventDefault(); // Prevent form submission
+
+        //     // Send form data using Ajax
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: 'dbCrudFunctions/table.php',
+        //         serverSide: true,
+        //         data: $(this).serialize() + '&mode=sum',
+        //         dataType: 'json',
+        //         success: function (response) {
+        //             $('#filterTableModal').modal('hide');
+
+        //             if (response.status == 'timeout') {
+        //                 window.location.href = '/vsite/cms/users/login.php';
+        //             } else {
+        //                 if (response.data !== null) {
+        //                     table.clear().rows.add(response.data).draw();
+        //                 } else {
+        //                     table.clear().draw();
+        //                 }
+        //             }
+
+        //         }
+        //     });
+        // });
+
         $('#filterTableForm').submit(function (e) {
             e.preventDefault(); // Prevent form submission
-
-            // Send form data using Ajax
-            $.ajax({
-                type: 'POST',
-                url: 'dbCrudFunctions/table.php',
-                data: $(this).serialize() + '&mode=sum',
-                dataType: 'json',
-                success: function (response) {
-                    $('#filterTableModal').modal('hide');
-
-                    if (response.status == 'timeout') {
-                        window.location.href = '/vsite/cms/users/login.php';
-                    } else {
-                        if (response.data !== null) {
-                            table.clear().rows.add(response.data).draw();
-                        } else {
-                            table.clear().draw();
-                        }
-                    }
-
-                }
-            });
+            table.draw();
         });
 
         var table = $('#doSumTable').DataTable({
-            fixedHeader: true,
-            responsive: true,
-            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
-            buttons: [
+            "lengthMenu": [
+                [10, 25, 50, 100], // You can adjust the options as needed
+                [10, 25, 50, 100]
+            ],
+            "dom": '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap me-3"<"remaining-qty me-2"><"scanned-qty">><"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            "buttons": [
                 {
-                    extend: 'collection',
-                    text: 'Export',
-                    buttons: [
-                        'copy',
-                        'excel',
-                        'csv',
-                        'pdf',
-                        'print'
+                    "extend": 'collection',
+                    "text": 'Export',
+                    "buttons": [
+                        {
+                            "extend": 'copy',
+                            "exportOptions": {
+                                "modifier": {
+                                    "page": 'all'
+                                }
+                            }
+                        },
+                        {
+                            "extend": 'excel',
+                            "exportOptions": {
+                                "modifier": {
+                                    "page": 'all'
+                                }
+                            }
+                        },
+                        {
+                            "extend": 'csv',
+                            "exportOptions": {
+                                "modifier": {
+                                    "page": 'all'
+                                }
+                            }
+                        },
+                        {
+                            "extend": 'pdf',
+                            "exportOptions": {
+                                "modifier": {
+                                    "page": 'all'
+                                }
+                            }
+                        },
+                        {
+                            "extend": 'print',
+                            "exportOptions": {
+                                "modifier": {
+                                    "page": 'all'
+                                }
+                            }
+                        }
                     ]
                 }
             ],
-            // order: [[0, 'desc']],
-            columnDefs: [
-                {
-                    target: 7,
-                    visible: false,
-                    searchable: false
-                },
-                {
-                    target: 8,
-                    visible: false,
-                    searchable: false
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "dbCrudFunctions/table.php",
+                "type": "POST",
+                "data": {
+                    "mode": "sum" // Include the additional data here
                 }
-            ],
-            columns: [
-                {
-                    data: null,
-                    render: function (data, type, row, meta) {
-                        var startNumber = 1;
-                        var currentNumber = meta.row + startNumber;
-                        return currentNumber;
-                    }
-                },
-                { data: 0 },
-                { data: 1 },
-                { data: 2 },
-                { data: 3 },
-                { data: 4 },
-                { data: 5 },
-                { data: 6 },
-                { data: 7 },
-                { data: 8 },
-                { data: 9 },
-                {
-                    data: 10,
-                    render: function (data, type, row) {
-                        if (row[10] === "INACTIVE") {
-                            return '<span class="badge text-bg-dark fs-6">' + row[10] + '</span>';
-                        } else if (row[10] === "ON GOING") {
-                            return '<span class="badge text-bg-warning fs-6">' + row[10] + '</span>';
-                        } else if (row[10] === "GR COMPLETE") {
-                            return '<span class="badge text-bg-success fs-6">' + row[10] + '</span>';
-                        } else {
-                            return row[10];
-                        }
-                    }
-                }
+            },
+            "columns": [
+                { "data": "no" },
+                { "data": "tdono" },
+                { "data": "tisn" },
+                { "data": "tpid" },
+                { "data": "tpno" },
+                { "data": "tpname" },
+                { "data": "tpmodel" },
+                { "data": "tdate" },
+                { "data": "cd" },
+                { "data": "status" }
             ]
         });
+
 
         $(document).ready(function () {
         });

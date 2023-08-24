@@ -38,17 +38,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <div class="container">
         <!-- Modals -->
         <?php include '../../modals/delivery_order/create.php'; ?>
-        <?php include '../../modals/edit.php'; ?>
-        <?php include '../../modals/uploading.php'; ?>
-        <?php include '../../modals/delivery_order/isn.php'; ?>
-        <?php include '../../modals/delivery_order/resetM.php'; ?>
-        <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
-        <?php include '../../modals/delivery_order/grM.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
-        <?php include '../../modals/delivery_order/scanCompleteM.php'; ?>
-        <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/inventory/deactivatePeriodM.php'; ?>
+        <?php include '../../modals/inventory/addPartMasterM.php'; ?>
+        <?php include '../../modals/inventory/addAreaM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -101,15 +95,52 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 </div>
                 <div class="d-flex flex-wrap justify-content-between">
                     <div class="btn-group mb-3 mb-lg-0 <?php echo $hideIfNot1 ?>">
-                        <button id="scanIsnBtn" href="#" data-bs-toggle="modal" data-bs-target="#importPartModal"
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#addPartMasterModal"
                             class="btn btn-primary">Import Part</button>
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#addAreaModal"
+                            class="btn btn-primary">Import Area</button>
                     </div>
                     <div class="btn-group <?php echo $hideIfNot1 ?>">
-                        <button href="#" data-bs-toggle="modal" data-bs-target="#deactivatePeriodModal" class="btn btn-danger"
-                            <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Deactivate Period</button>
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#deactivatePeriodModal"
+                            class="btn btn-danger" <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Deactivate
+                            Period</button>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="row mt-5">
+            <form method="post" id="addPeriodForm" class="col-6">
+                <h4>Inventory Form</h4>
+                <hr>
+                <div class="form-group mb-3">
+                    <label for="areacode">Area Code</label>
+                    <input type="text" class="form-control" name="areacode" id="areacode" placeholder="Area Code"
+                        autofocus>
+                </div>
+                <div class="row">
+                    <div class="form-group mb-3 col-6">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" class="form-control" name="startDate" id="startDate"
+                            placeholder="Start Date">
+                    </div>
+                    <div class="form-group mb-3 col-6">
+                        <label for="endDate">End Date</label>
+                        <input type="date" class="form-control" name="endDate" id="endDate" placeholder="End Date">
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="description">Description</label>
+                    <input type="text" class="form-control" name="description" id="description"
+                        placeholder="Description">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="p_remarks">Remarks</label>
+                    <input type="text" class="form-control" name="p_remarks" id="p_remarks" placeholder="Remarks">
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="filterSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
+            </form>
         </div>
         <?php include '../../footer.php' ?>
     </div>
@@ -135,6 +166,96 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     } else if (response == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
                     }
+                }
+            });
+        });
+
+        $('#addPartMasterForm').submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            var formData = new FormData();
+            formData.append('partmaster', $('#partmaster')[0].files[0]); // Add the file input
+            formData.append('mode', 'importpart');
+            formData.append('period_que', '<?php echo $que; ?>');
+
+            $.ajax({
+                url: '/vsite/cms/dbCrudFunctions/insert.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'success') {
+                        // $('#addPeriodForm').reset();
+                        // $('#addPeriodModal').modal('hide');
+                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                        // window.location.href = url;
+                        alert('good');
+                    } else if (response.status == 'empty') {
+                        alert('Please Select a File!');
+                    } else if (response.status == 'fail') {
+                        // $('#addPeriodForm').reset();
+                        // $('#createModal').modal('hide');
+                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                        // window.location.href = url;
+                        alert('Part Already Exists!');
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else {
+                        alert('Failed');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error('AJAX error:', textStatus, errorThrown);
+                    console.log('Response:', xhr.responseText);
+                }
+            });
+        });
+
+        $('#addAreaForm').submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            var formData = new FormData();
+            formData.append('area', $('#area')[0].files[0]); // Add the file input
+            formData.append('mode', 'importarea');
+            formData.append('period_que', '<?php echo $que; ?>');
+
+            $.ajax({
+                url: '/vsite/cms/dbCrudFunctions/insert.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'success') {
+                        // $('#addPeriodForm').reset();
+                        // $('#addPeriodModal').modal('hide');
+                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                        // window.location.href = url;
+                        alert('good');
+                    } else if (response.status == 'empty') {
+                        alert('Please Select a File!');
+                    } else if (response.status == 'fail') {
+                        // $('#addPeriodForm').reset();
+                        // $('#createModal').modal('hide');
+                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+
+                        // window.location.href = url;
+                        alert('Part Already Exists!');
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else {
+                        alert('Failed');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error('AJAX error:', textStatus, errorThrown);
+                    console.log('Response:', xhr.responseText);
                 }
             });
         });
