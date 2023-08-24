@@ -113,30 +113,38 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             <form method="post" id="addPeriodForm" class="col-6">
                 <h4>Inventory Form</h4>
                 <hr>
-                <div class="form-group mb-3">
+                <div class="form-group mb-3" id="areacodeParent">
                     <label for="areacode">Area Code</label>
-                    <input type="text" class="form-control" name="areacode" id="areacode" placeholder="Area Code"
-                        autofocus>
-                </div>
-                <div class="row">
-                    <div class="form-group mb-3 col-6">
-                        <label for="startDate">Start Date</label>
-                        <input type="date" class="form-control" name="startDate" id="startDate"
-                            placeholder="Start Date">
-                    </div>
-                    <div class="form-group mb-3 col-6">
-                        <label for="endDate">End Date</label>
-                        <input type="date" class="form-control" name="endDate" id="endDate" placeholder="End Date">
-                    </div>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="description">Description</label>
-                    <input type="text" class="form-control" name="description" id="description"
-                        placeholder="Description">
+                    <select class="form-select" name="areacode" id="areacode">
+                        <option disabled selected>Select Area Code</option>
+                        <?php
+                        $sql1 = "SELECT areacode FROM tarea";
+                        $areas = mysqli_query($conn, $sql1);
+                        while ($area = mysqli_fetch_array($areas, MYSQLI_ASSOC)):
+                            ;
+                            ?>
+                            <option value="<?php echo $area['areacode']; ?>">
+                                <?php echo $area['areacode']; ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
                 </div>
                 <div class="form-group mb-3">
-                    <label for="p_remarks">Remarks</label>
-                    <input type="text" class="form-control" name="p_remarks" id="p_remarks" placeholder="Remarks">
+                    <label for="tagno">Tag No</label>
+                    <input type="text" class="form-control" name="tagno" id="tagno" placeholder="Tag No">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="subloc">Sub Location</label>
+                    <input type="text" class="form-control" name="subloc" id="subloc" placeholder="Sub Location">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="partno">Part No</label>
+                    <input type="text" class="form-control" name="partno" id="partno" placeholder="Part No">
+                </div>
+                <p id="partNoVerification"></p>
+                <div class="form-group mb-3">
+                    <label for="qty">Quantity</label>
+                    <input type="number" class="form-control" name="qty" id="qty" placeholder="Quantity">
                 </div>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button id="filterSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
@@ -258,6 +266,72 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     console.log('Response:', xhr.responseText);
                 }
             });
+        });
+
+        $('#areacode').on('change', function () {
+            // retrieve the selected value
+            var selectedAreaCode = $(this).val();
+
+            // make an AJAX request to fetch the sixtypartnumbers for the selected model
+            $.ajax({
+                url: 'dbCrudFunctions/getTagNo.php',
+                data: {
+                    areaCode: selectedAreaCode,
+                    que: <?php echo "'" . $que . "'"; ?>
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'success') {
+                        // clear the previous value
+                        $('#tagno').empty();
+
+                        // add the new value
+                        $('#tagno').val(response.data);
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else {
+                        alert('Failed!');
+                    }
+                }
+            });
+        });
+
+        $("#partno").keyup(function () {
+            // retrieve the selected value
+            var selectedPartNo = $(this).val();
+
+            // make an AJAX request to fetch the sixtypartnumbers for the selected model
+            $.ajax({
+                url: 'dbCrudFunctions/checkPartNo.php',
+                data: {
+                    partNo: selectedPartNo
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'fail') {
+                        // add the new value
+                        $('#partNoVerification').text('PART NO EXISTS!');
+                        $("#partNoVerification").removeClass("badge text-bg-danger");
+                        $("#partNoVerification").addClass("badge text-bg-success");
+                    } else if (response.status == 'success') {
+                        // add the new value
+                        $('#partNoVerification').text('PART NO DOESN\'T EXIST!');
+                        $("#partNoVerification").removeClass("badge text-bg-success");
+                        $("#partNoVerification").addClass("badge text-bg-danger");
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else {
+                        alert('Failed!');
+                    }
+                }
+            });
+        });
+
+        $('#areacode').select2({
+            dropdownParent: $('#areacodeParent'),
+            width: '100%'
         });
 
         $(document).ready(function () {
