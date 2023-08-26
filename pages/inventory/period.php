@@ -315,11 +315,13 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         $('#partNoVerification').text('PART NO EXISTS!');
                         $("#partNoVerification").removeClass("badge text-bg-danger");
                         $("#partNoVerification").addClass("badge text-bg-success");
+                        $("#partNoVerification").append(' <i class="bi bi-check-lg"></i>');
                     } else if (response.status == 'success') {
                         // add the new value
                         $('#partNoVerification').text('PART NO DOESN\'T EXIST!');
                         $("#partNoVerification").removeClass("badge text-bg-success");
                         $("#partNoVerification").addClass("badge text-bg-danger");
+                        $("#partNoVerification").append(' <i class="bi bi-x-lg"></i>');
                     } else if (response.status == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
                     } else {
