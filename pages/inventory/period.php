@@ -11,12 +11,13 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     $row4 = mysqli_fetch_assoc($result4);
     // $tdono = $row4['tdono'];
 
-    // if ($row4['tstatus'] != 1) {
-    //     $hideIfNot1 = "d-none";
-    // }
+    if ($row4['status'] != 1) {
+        header("Location: period_list.php");
+        // $hideIfNot1 = "d-none";
+    }
 } else {
 
-    // header("Location: index.php");
+
 }
 ?>
 
@@ -110,7 +111,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         </div>
 
         <div class="row mt-5">
-            <form method="post" id="addPeriodForm" class="col-6">
+            <form method="post" id="printForm" class="col-6">
                 <h4>Inventory Form</h4>
                 <hr>
                 <div class="form-group mb-3" id="areacodeParent">
@@ -118,7 +119,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     <select class="form-select" name="areacode" id="areacode">
                         <option disabled selected>Select Area Code</option>
                         <?php
-                        $sql1 = "SELECT areacode FROM tarea";
+                        $sql1 = "SELECT areacode FROM tarea WHERE tperiodque = $que";
                         $areas = mysqli_query($conn, $sql1);
                         while ($area = mysqli_fetch_array($areas, MYSQLI_ASSOC)):
                             ;
@@ -142,12 +143,17 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     <input type="text" class="form-control" name="partno" id="partno" placeholder="Part No">
                 </div>
                 <p id="partNoVerification"></p>
-                <div class="form-group mb-3">
-                    <label for="qty">Quantity</label>
-                    <input type="number" class="form-control" name="qty" id="qty" placeholder="Quantity">
+                <div class="row">
+                    <div class="form-group mb-3 col-6">
+                        <label for="qty">Quantity</label>
+                        <input type="text" class="form-control" name="qty" id="qty" placeholder="Quantity">
+                    </div>
+                    <div class="form-group mb-3 col-6" id="uomParent">
+                        <label for="uom">UOM</label>
+                        <select class="form-select" name="uom" id="uom"></select>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="filterSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
+                <button id="printBtn" type="submit" class="btn btn-success">Print</button>
             </form>
         </div>
         <?php include '../../footer.php' ?>
@@ -268,11 +274,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             });
         });
 
-        $('#areacode').on('change', function () {
-            // retrieve the selected value
-            var selectedAreaCode = $(this).val();
-
-            // make an AJAX request to fetch the sixtypartnumbers for the selected model
+        function fetchTagNumbers(selectedAreaCode) {
             $.ajax({
                 url: 'dbCrudFunctions/getTagNo.php',
                 data: {
@@ -283,10 +285,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 dataType: 'json',
                 success: function (response) {
                     if (response.status == 'success') {
-                        // clear the previous value
                         $('#tagno').empty();
-
-                        // add the new value
                         $('#tagno').val(response.data);
                     } else if (response.status == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
@@ -295,6 +294,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     }
                 }
             });
+        }
+
+        $('#areacode').on('change', function () {
+            var selectedAreaCode = $(this).val();
+            fetchTagNumbers(selectedAreaCode);
         });
 
         $("#partno").keyup(function () {
@@ -305,23 +309,26 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 url: 'dbCrudFunctions/checkPartNo.php',
                 data: {
-                    partNo: selectedPartNo
+                    partNo: selectedPartNo,
+                    que: <?php echo "'" . $que . "'"; ?>
                 },
                 type: 'POST',
                 dataType: 'json',
                 success: function (response) {
-                    if (response.status == 'fail') {
+                    if (response.status == 'success') {
                         // add the new value
-                        $('#partNoVerification').text('PART NO EXISTS!');
+                        $('#partNoVerification').text('PART NUMBER EXISTS!');
                         $("#partNoVerification").removeClass("badge text-bg-danger");
                         $("#partNoVerification").addClass("badge text-bg-success");
                         $("#partNoVerification").append(' <i class="bi bi-check-lg"></i>');
-                    } else if (response.status == 'success') {
+                        $("#uom").html(response.uom);
+                    } else if (response.status == 'fail') {
                         // add the new value
-                        $('#partNoVerification').text('PART NO DOESN\'T EXIST!');
+                        $('#partNoVerification').text('PART NUMBER DOESN\'T EXIST!');
                         $("#partNoVerification").removeClass("badge text-bg-success");
                         $("#partNoVerification").addClass("badge text-bg-danger");
                         $("#partNoVerification").append(' <i class="bi bi-x-lg"></i>');
+                        $("#uom").html('');
                     } else if (response.status == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
                     } else {
@@ -331,8 +338,47 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             });
         });
 
+        $('#printForm').submit(function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            $.ajax({
+                url: '/vsite/cms/dbCrudFunctions/insert.php', // PHP script to process the form data
+                type: 'POST',
+                data: $(this).serialize() + '&mode=inventorytag' + '&period_que=<?php echo $que; ?>',
+                dataType: 'json',
+                success: function (response) {
+                    // Open a new browser tab with the table
+                    if (response.status == 'success') {
+                        window.open('inventory_tag.php?id=' + response.que, '_blank');
+                        fetchTagNumbers($('#areacode').val());
+                        $('#subloc').val('');
+                        $('#partno').val('');
+                        $('#qty').val('');
+                        $('#uom').val('');
+                    } else if (response.status == 'empty') {
+                        alert('Fields Cannot Be Empty!');
+                    } else if (response.status == 'fail') {
+                        alert('Part No Doesn\'t Exist!');
+                    } else if (response.status == 'tagnoduplicate') {
+                        alert('Duplicate Tag No! Please Try Again');
+                        fetchTagNumbers($('#areacode').val());
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else {
+                        alert('failed');
+                    }
+
+                }
+            });
+        });
+
         $('#areacode').select2({
             dropdownParent: $('#areacodeParent'),
+            width: '100%'
+        });
+
+        $('#uom').select2({
+            dropdownParent: $('#uomParent'),
             width: '100%'
         });
 

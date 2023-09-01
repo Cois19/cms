@@ -245,6 +245,58 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $response = "empty";
             $que = "empty";
         }
+    } else if ($mode == 'inventorytag') {
+        if (!empty($_POST['areacode']) && !empty($_POST['tagno']) && !empty($_POST['subloc']) && !empty($_POST['partno']) && !empty($_POST['qty']) && !empty($_POST['uom'])) {
+            $period_que = $_POST['period_que'];
+            $areacode = $_POST['areacode'];
+            $tagno = $_POST['tagno'];
+            $subloc = $_POST['subloc'];
+            $partno = $_POST['partno'];
+            $qty = $_POST['qty'];
+            $uom = $_POST['uom'];
+
+            // Check if part no exists
+            $query = "SELECT partno FROM tpartmaster WHERE partno = '$partno' AND tperiodque = $period_que";
+            $result = mysqli_query($conn, $query);
+
+            if (mysqli_num_rows($result) == 0) {
+                // part no doesn't exist
+                $response = "fail";
+            } else {
+                // Check if part no exists
+                $query5 = "SELECT tagno FROM tinventorytag WHERE tagno = '$tagno' AND tperiodque = $period_que";
+                $result5 = mysqli_query($conn, $query5);
+
+                if (mysqli_num_rows($result5) > 0) {
+                    // part no doesn't exist
+                    $response = "tagnoduplicate";
+                } else {
+                    $query1 = "INSERT INTO tinventorytag(areacode, tagno, subloc, partno, qty, uom, tperiodque, cd, cp) 
+                    VALUES('$areacode', '$tagno', '$subloc', '$partno', '$qty', '$uom', '$period_que', CURRENT_TIMESTAMP, '$uid')";
+                    $result1 = mysqli_query($conn, $query1);
+
+                    if ($result1 != 1) {
+                        error_log("Error in insert query: " . mysqli_error($conn));
+                    } else {
+                        // Data inserted successfully, set response as "success"
+                        $response = "success";
+
+                        // Insert into tlog
+                        $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INSERT INVENTORY TAG', '$tagno', CURRENT_TIMESTAMP, '$uid')";
+                        $result2 = mysqli_query($conn, $query2);
+
+                        // Retrieve que for the newly inserted data
+                        $query3 = "SELECT que FROM tinventorytag WHERE tagno = '$tagno' and tperiodque = $period_que LIMIT 1";
+                        $result3 = mysqli_query($conn, $query3);
+                        $row = mysqli_fetch_assoc($result3);
+                        $que = $row['que'];
+                    }
+                }
+            }
+        } else {
+            $response = "empty";
+            $que = "empty";
+        }
     }
 
 
