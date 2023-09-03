@@ -33,24 +33,68 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 </head>
 
 <body>
-    <div class="mb-3"></div>
-    <div class="container">
+    <div class="container mt-3 border border-dark">
 
-        <div class="col-8 border">
-            <div class="row">
-                <div class="col-7">PT. SAT NUSAPERSADA Tbk</div>
-                <div class="col-5 p-0">Period : 2019-12</div>
+        <div class="row">
+            <div class="col-7"><strong>PT. SAT NUSAPERSADA Tbk</strong></div>
+            <div class="col-2 text-end"><strong>Period</strong> :</div>
+            <div class="col-3 ps-0">2019-12</div>
+        </div>
+        <div class="row">
+            <div class="col-7"><strong>PEGATRON Dept</strong></div>
+            <div class="col-2 text-end"><strong>Tag No</strong> :
+
             </div>
-            <div class="row">
-                <div class="col-7">PEGATRON Dept</div>
-                <div class="col-5 p-0">Tag No :
-                    <?php echo $row4['tagno']; ?>
+            <div class="col-3 ps-0">
+                <?php echo $row4['tagno']; ?>
+            </div>
+        </div>
+        <div class="row text-center border-bottom border-dark">
+            <h5><strong>INVENTORY TAG</strong></h5>
+        </div>
+        <div class="row">
+            <div class="col-4 text-end"><strong>Part No</strong> : </div>
+            <div class="col-8 ps-0">
+                <?php echo $row4['partno']; ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-end"><strong>Part Name</strong> : </div>
+            <div class="col-8 ps-0">
+                <?php echo $row4['partno']; ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-end"><strong>Area</strong> : </div>
+            <div class="col-8 ps-0">
+                <?php echo $row4['partno']; ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-end"><strong>Sub Loc</strong> : </div>
+            <div class="col-8 ps-0">
+                <?php echo $row4['partno']; ?>
+            </div>
+        </div>
+        <div class="row p-1 d-flex justify-content-between">
+            <div class="col-8 border border-dark"><strong>Quantity</strong> : </div>
+            <div class="col-3 border border-dark"><strong>UOM</strong> : </div>
+        </div>
+        <div class="p-1">
+            <div class="row border border-dark">
+                <div class="row">
+                    <div class="col-2 text-end"><strong>Remark</strong> : </div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
+                </div>
+                <div class="row">
+                    <div class="col-2"></div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
+                </div>
+                <div class="row">
+                    <div class="col-2"></div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
                 </div>
             </div>
-            <div class="col-12 text-center">
-                INVENTORY TAG
-            </div>
-            <hr>
         </div>
 
     </div>

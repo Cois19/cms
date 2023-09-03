@@ -77,67 +77,115 @@ if ($mode == 'isn') {
     } else {
         include '../../../users/session.php';
 
-        // Define your query
-        $query = "SELECT (@row_number:=@row_number + 1) AS no, tdoc.tdono, tisn.tisn, tdoc.tpid, tdoc.tpno, tdoc.tpname, tdoc.tpmodel, tdoc.tdate, tisn.cd,
+        $tdono = $_POST['do'];
+        $tisn = $_POST['isn'];
+        $tpid = $_POST['pid'];
+        $tpno = $_POST['pno'];
+        $tpname = $_POST['pna'];
+        $cp = $_POST['pic'];
+        $start = $_POST['startDate'];
+        $end = $_POST['endDate'];
+
+        // Initialize an empty array to hold the conditions
+        $conditions = array();
+
+        if (!empty($tdono)) {
+            $conditions[] = "tdoc.tdono = '$tdono'";
+        }
+
+        if (!empty($tisn)) {
+            $conditions[] = "tisn.tisn = '$tisn'";
+        }
+
+        if (!empty($tpid)) {
+            $conditions[] = "tdoc.tpid = '$tpid'";
+        }
+
+        if (!empty($tpno)) {
+            $conditions[] = "tdoc.tpno = '$tpno'";
+        }
+
+        if (!empty($tpname)) {
+            $conditions[] = "tdoc.tpname = '$tpname'";
+        }
+
+        if (!empty($cp)) {
+            $conditions[] = "tisn.cp = '$cp'";
+        }
+
+        // Handle the start and end date conditions separately
+        if (!empty($start) && !empty($end)) {
+            $conditions[] = "DATE(tisn.cd) BETWEEN DATE('$start') AND DATE('$end')";
+        } elseif (!empty($start)) {
+            $conditions[] = "DATE(tisn.cd) >= DATE('$start')";
+        } elseif (!empty($end)) {
+            $conditions[] = "DATE(tisn.cd) <= DATE('$end')";
+        }
+
+        $conditions[] = "tisn.tstatus = 1 AND tdoc.tstatus != 0";
+
+        // Join the conditions with AND operator
+        $whereClause = implode(' AND ', $conditions);
+
+        $query2 = "SELECT tdoc.tdono, tisn.tisn, tdoc.tpid, tdoc.tpno, tdoc.tpname, tdoc.tpmodel, tdoc.tdate, tisn.cd, tuser.uname,
                     CASE
                         WHEN tdoc.tstatus = 0 THEN 'INACTIVE'
                         WHEN tdoc.tstatus = 1 THEN 'ON GOING'
                         WHEN tdoc.tstatus = 2 THEN 'GR COMPLETE'
                     END as 'status'
                     FROM tdoc JOIN tisn on tdoc.que = tisn.tdoc_que
-                    CROSS JOIN (SELECT @row_number := 0) AS init
-                    WHERE tisn.tstatus = 1 AND tdoc.tstatus != 0";
+                    JOIN tuser ON tisn.cp = tuser.uid";
 
-
-        // Implement filtering, if needed
-        if (isset($_POST['search']['value']) && $_POST['search']['value'] != '') {
-            $searchValue = $_POST['search']['value'];
-            $query .= " AND (tdoc.tdono LIKE '%$searchValue%' OR tisn.tisn LIKE '%$searchValue%' OR tdoc.tpid LIKE '%$searchValue%' OR tdoc.tpno LIKE '%$searchValue%' OR tdoc.tpname LIKE '%$searchValue%' OR tdoc.tpmodel LIKE '%$searchValue%' OR tdoc.tdate LIKE '%$searchValue%' OR tisn.cd LIKE '%$searchValue%' OR tdoc.tstatus LIKE '%$searchValue%')";
+        // Add the WHERE clause if there are conditions
+        if (!empty($whereClause)) {
+            $query2 .= " WHERE $whereClause";
         }
 
-        // Implement ordering
-        $orderColumnIndex = $_POST['order'][0]['column'];
-        $orderDirection = $_POST['order'][0]['dir'];
-        $orderColumn = ['no', 'tdono', 'tisn', 'tpid', 'tpno', 'tpname', 'tpmodel', 'tdate', 'cd', 'tstatus'][$orderColumnIndex];
-        $query .= " ORDER BY $orderColumn $orderDirection";
+        $query2 .= " ORDER BY tisn.cd DESC";
 
-        // Implement paging
-        $start = $_POST['start'];
-        $length = $_POST['length'];
-        $query .= " LIMIT $start, $length";
+        if ($select_result2 = mysqli_query($conn, $query2)) {
+            $response1 = array();
+            while ($row = mysqli_fetch_assoc($select_result2)) {
+                $response1[] = array_values($row);
+            }
 
-        // echo ($query);
-        // var_dump($query);
-        // Execute the query and fetch data
-        $result = mysqli_query($conn, $query);
-        $data = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $data[] = $row;
+            if (empty($response1)) {
+                $response = array(
+                    'data' => null
+                );
+            } else {
+                $response = array(
+                    'data' => $response1
+                );
+            }
+        } else {
+            $response = array(
+                'status' => 500,
+                'message' => 'Error: ' . mysqli_error($conn)
+            );
         }
 
-        // Get the total count before filtering
-        $totalCountQuery = "SELECT COUNT(*) as count FROM tdoc JOIN tisn on tdoc.que = tisn.tdoc_que WHERE tisn.tstatus = 1";
-        $totalCountResult = mysqli_query($conn, $totalCountQuery);
-        $totalCountRow = mysqli_fetch_assoc($totalCountResult);
-        $totalRecords = $totalCountRow['count'];
+        if ($select_result2 = mysqli_query($conn, $query2)) {
+            $response1 = array();
+            while ($row = mysqli_fetch_assoc($select_result2)) {
+                $response1[] = array_values($row);
+            }
 
-        // Get the total count after filtering
-        $totalFilteredQuery = "SELECT COUNT(*) as count FROM tdoc JOIN tisn on tdoc.que = tisn.tdoc_que WHERE tisn.tstatus = 1";
-        if (isset($_POST['search']['value']) && $_POST['search']['value'] != '') {
-            $totalFilteredQuery .= " AND (tdoc.tdono LIKE '%$searchValue%' OR tisn.tisn LIKE '%$searchValue%' OR tdoc.tpid LIKE '%$searchValue%' OR tdoc.tpno LIKE '%$searchValue%' OR tdoc.tpname LIKE '%$searchValue%' OR tdoc.tpmodel LIKE '%$searchValue%' OR tdoc.tdate LIKE '%$searchValue%' OR tisn.cd LIKE '%$searchValue%' OR tdoc.tstatus LIKE '%$searchValue%')";
+            if (empty($response1)) {
+                $response = array(
+                    'data' => null
+                );
+            } else {
+                $response = array(
+                    'data' => $response1
+                );
+            }
+        } else {
+            $response = array(
+                'status' => 500,
+                'message' => 'Error: ' . mysqli_error($conn)
+            );
         }
-        $totalFilteredResult = mysqli_query($conn, $totalFilteredQuery);
-        $totalFilteredRow = mysqli_fetch_assoc($totalFilteredResult);
-        $totalFilteredRecords = $totalFilteredRow['count'];
-
-        // Prepare data for DataTables
-        $response = [
-            "draw" => intval($_POST['draw']),
-            "recordsTotal" => $totalRecords,
-            "recordsFiltered" => $totalFilteredRecords,
-            "data" => $data,
-            "query" => $query
-        ];
     }
 } else if ($mode == 'user') {
     include '../../../users/session.php';

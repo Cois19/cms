@@ -13,12 +13,12 @@
                         <input type="text" class="form-control" name="do" id="do" placeholder="DO Number" autofocus>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="pid">Pallet ID</label>
-                        <input type="text" class="form-control" name="pid" id="pid" placeholder="Pallet ID">
-                    </div>
-                    <div class="form-group mb-3">
                         <label for="isn">ISN Number</label>
                         <input type="text" class="form-control" name="isn" id="isn" placeholder="ISN">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="pid">Pallet ID</label>
+                        <input type="text" class="form-control" name="pid" id="pid" placeholder="Pallet ID">
                     </div>
                     <div class="form-group mb-3">
                         <label for="pno">Part Number</label>
@@ -27,6 +27,10 @@
                     <div class="form-group mb-3">
                         <label for="pna">Part Name</label>
                         <input type="text" class="form-control" name="pna" id="pna" placeholder="Part Name">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="pic">PIC</label>
+                        <input type="text" class="form-control" name="pic" id="pic" placeholder="PIC">
                     </div>
                     <div class="row">
                         <div class="form-group mb-3 col-6">
