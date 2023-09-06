@@ -1,9 +1,6 @@
 <?php
 include '../database/connect.php';
-date_default_timezone_set("Asia/Jakarta");
-require '../vendor/autoload.php'; // Include PhpSpreadsheet autoload file
-
-use PhpOffice\PhpSpreadsheet\IOFactory;
+date_default_timezone_set("Asia/Jakarta");  
 
 $response = '';
 $que = '';

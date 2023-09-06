@@ -32,6 +32,8 @@
             </li>
             <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/inventory/period_list.php'">Period List</button>
             </li>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/inventory/reporting.php'">Summary</button>
+            </li>
           </ul>
         </li>
         <li class="nav-item dropdown">
@@ -48,7 +50,7 @@
       <span class="text-light">Welcome,
         <?php echo $uname; ?>
       </span>
-      <button style="margin-left: 10px" class="btn btn-danger" onclick="location.href='users/logout.php'">Exit</button>
+      <button style="margin-left: 10px" class="btn btn-danger" onclick="location.href='/vsite/cms/users/logout.php'">Exit</button>
     </div>
   </div>
 </nav>

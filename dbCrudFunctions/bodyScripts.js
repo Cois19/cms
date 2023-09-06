@@ -59,7 +59,7 @@ $('#addPeriodForm').submit(function (e) {
 
     $.ajax({
         type: 'POST',
-        url: '/vsite/cms/dbCrudFunctions/insert.php',
+        url: '/vsite/cms/dbCrudFunctions/insert_test.php',
         data: $(this).serialize() + '&mode=period',
         dataType: 'json',
         success: function (response) {

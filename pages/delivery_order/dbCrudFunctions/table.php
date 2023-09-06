@@ -164,28 +164,6 @@ if ($mode == 'isn') {
                 'message' => 'Error: ' . mysqli_error($conn)
             );
         }
-
-        if ($select_result2 = mysqli_query($conn, $query2)) {
-            $response1 = array();
-            while ($row = mysqli_fetch_assoc($select_result2)) {
-                $response1[] = array_values($row);
-            }
-
-            if (empty($response1)) {
-                $response = array(
-                    'data' => null
-                );
-            } else {
-                $response = array(
-                    'data' => $response1
-                );
-            }
-        } else {
-            $response = array(
-                'status' => 500,
-                'message' => 'Error: ' . mysqli_error($conn)
-            );
-        }
     }
 } else if ($mode == 'user') {
     include '../../../users/session.php';

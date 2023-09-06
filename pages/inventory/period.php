@@ -193,7 +193,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             formData.append('period_que', '<?php echo $que; ?>');
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert.php',
+                url: '/vsite/cms/dbCrudFunctions/insert_test.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
@@ -238,7 +238,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             formData.append('period_que', '<?php echo $que; ?>');
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert.php',
+                url: '/vsite/cms/dbCrudFunctions/insert_test.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
@@ -342,7 +342,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             event.preventDefault(); // Prevent form submission
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert.php', // PHP script to process the form data
+                url: '/vsite/cms/dbCrudFunctions/insert_test.php', // PHP script to process the form data
                 type: 'POST',
                 data: $(this).serialize() + '&mode=inventorytag' + '&period_que=<?php echo $que; ?>',
                 dataType: 'json',

@@ -82,7 +82,6 @@ $hide = '';
                             table.clear().draw();
                         }
                     }
-
                 }
             });
         });

@@ -5,7 +5,11 @@ include '../../users/session.php';
 $que = $_GET['id'];
 $hideIfNot1 = '';
 
-$query4 = "SELECT * FROM tinventorytag WHERE que = $que";
+$query4 = "SELECT DATE_FORMAT(tperiod.periodstart, '%Y-%m') AS periodname, tinventorytag.tagno, tinventorytag.partno, tpartmaster.partdesc, tarea.areaname, tinventorytag.subloc, tinventorytag.qty, tinventorytag.uom
+            FROM tinventorytag JOIN tperiod ON tperiod.que = tinventorytag.tperiodque
+            JOIN tpartmaster ON tpartmaster.partno = tinventorytag.partno
+            JOIN tarea ON tarea.areacode = tinventorytag.areacode
+            WHERE tinventorytag.que = $que";
 $result4 = mysqli_query($conn, $query4);
 if ($result4 && mysqli_num_rows($result4) > 0) {
     $row4 = mysqli_fetch_assoc($result4);
@@ -33,75 +37,131 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 </head>
 
 <body>
-    <div class="container mt-3 border border-dark">
+    <div class="container mt-3 border border-dark text-dark">
 
         <div class="row">
-            <div class="col-7"><strong>PT. SAT NUSAPERSADA Tbk</strong></div>
-            <div class="col-2 text-end"><strong>Period</strong> :</div>
-            <div class="col-3 ps-0">2019-12</div>
+            <div class="col-12 fs-5"><strong>PT. SAT NUSAPERSADA Tbk</strong></div>
         </div>
         <div class="row">
-            <div class="col-7"><strong>PEGATRON Dept</strong></div>
-            <div class="col-2 text-end"><strong>Tag No</strong> :
-
+            <div class="col-12 fs-5"><strong>PEGATRON Dept</strong></div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-12 fs-5"><strong>Period</strong> :
+                <?php echo $row4['periodname']; ?>
             </div>
-            <div class="col-3 ps-0">
+        </div>
+        <div class="row">
+            <div class="col-12 fs-5"><strong>Tag No</strong> :
                 <?php echo $row4['tagno']; ?>
             </div>
         </div>
+        <br>
         <div class="row text-center border-bottom border-dark">
-            <h5><strong>INVENTORY TAG</strong></h5>
+            <h4><strong>INVENTORY TAG</strong></h4>
         </div>
-        <div class="row">
+        <div class="row fs-5">
             <div class="col-4 text-end"><strong>Part No</strong> : </div>
             <div class="col-8 ps-0">
                 <?php echo $row4['partno']; ?>
             </div>
         </div>
-        <div class="row">
+        <div class="row fs-5">
             <div class="col-4 text-end"><strong>Part Name</strong> : </div>
             <div class="col-8 ps-0">
-                <?php echo $row4['partno']; ?>
+                <?php echo $row4['partdesc']; ?>
             </div>
         </div>
-        <div class="row">
+        <div class="row fs-5">
             <div class="col-4 text-end"><strong>Area</strong> : </div>
             <div class="col-8 ps-0">
-                <?php echo $row4['partno']; ?>
+                <?php echo $row4['areaname']; ?>
             </div>
         </div>
-        <div class="row">
+        <div class="row fs-5">
             <div class="col-4 text-end"><strong>Sub Loc</strong> : </div>
             <div class="col-8 ps-0">
-                <?php echo $row4['partno']; ?>
+                <?php echo $row4['subloc']; ?>
             </div>
         </div>
         <div class="row p-1 d-flex justify-content-between">
-            <div class="col-8 border border-dark"><strong>Quantity</strong> : </div>
-            <div class="col-3 border border-dark"><strong>UOM</strong> : </div>
+            <div class="col-8 border border-dark"><strong>Quantity</strong> :
+                <?php echo $row4['qty']; ?>
+            </div>
+            <div class="col-3 border border-dark"><strong>UOM</strong> :
+                <?php echo $row4['uom']; ?>
+            </div>
         </div>
         <div class="p-1">
             <div class="row border border-dark">
                 <div class="row">
-                    <div class="col-2 text-end"><strong>Remark</strong> : </div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
+                    <div class="col-4 fs-5"><strong>Remark</strong> : </div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+                        . . . . . . . . .</div>
                 </div>
                 <div class="row">
-                    <div class="col-2"></div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
+                    <div class="col-4"></div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+                        . . . . . . . . .</div>
                 </div>
                 <div class="row">
-                    <div class="col-2"></div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</div>
+                    <div class="col-4"></div>
+                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+                        . . . . . . . . .</div>
                 </div>
             </div>
         </div>
+        <div class="row p-1 text-center">
+            <div class="col-6 border border-dark">
+                <div class="row">
+                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                        <strong>Prepared</strong>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                        <strong><em>(Store)</em></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 border border-dark">
+                <div class="row">
+                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                        <strong>Auditor1</strong>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                        <strong><em>(PTSN)</em></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row p-1 text-center">
+            <div class="col-6 border border-dark">
+                <div class="row">
+                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                        <strong>Auditor2</strong>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                        <strong><em>(PEGATRON)</em></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 border border-dark">
+                <div class="row">
+                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                        <strong>Auditor3</strong>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                        <strong><em>(PEGATRON)</em></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row"><em>* Mohon Tulis Nama Lengkap</em></div>
 
     </div>
 
     <script>
         $(document).ready(function () {
-            // window.print();
+            window.print();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>
