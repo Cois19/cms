@@ -4,11 +4,19 @@ include '../../../users/session.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $doId = $_POST['doId'];
+$doStatus = $_POST['doStatus'];
 $response = array();
 
-// Get remaining qty count
-$query9 = "SELECT (tqty - COUNT(*)) AS remainingQty, (tqty - (tqty - COUNT(tisn.tdono))) AS scannedQty FROM tdoc JOIN tisn ON tdoc.que = tisn.tdoc_que WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
-$result9 = mysqli_query($conn, $query9);
+if ($doStatus == 1) {
+    // Get remaining qty count
+    $query9 = "SELECT (tqty - COUNT(*)) AS remainingQty, (tqty - (tqty - COUNT(tisn.tdono))) AS scannedQty FROM tdoc JOIN tisn ON tdoc.que = tisn.tdoc_que WHERE tdoc.que = $doId AND tisn.tstatus = 1 GROUP BY tisn.tdono";
+    $result9 = mysqli_query($conn, $query9);
+} else if ($doStatus == 2) {
+    // Get remaining qty count
+    $query9 = "SELECT (tqty - COUNT(*)) AS remainingQty, (tqty - (tqty - COUNT(tisn_sum.tdono))) AS scannedQty FROM tdoc JOIN tisn_sum ON tdoc.que = tisn_sum.tdoc_que WHERE tdoc.que = $doId AND tisn_sum.tstatus = 1 GROUP BY tisn_sum.tdono";
+    $result9 = mysqli_query($conn, $query9);
+}
+
 
 if ($result9) {
     if (mysqli_num_rows($result9) > 0) {

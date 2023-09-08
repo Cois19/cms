@@ -3,6 +3,8 @@ include '../../database/connect.php';
 include '../../users/session.php';
 
 $doId = $_GET['id'];
+$pid = $_GET['pid'];
+$pno = $_GET['pno'];
 $hideIfNot1 = '';
 
 $query4 = "SELECT * FROM tdoc WHERE que = $doId";
@@ -170,7 +172,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/insertISN.php',
-                data: $(this).serialize() + '&doId=<?php echo $doId; ?>',
+                data: $(this).serialize() + '&doId=<?php echo $doId; ?>' + '&pid=<?php echo $pid; ?>' + '&pno=<?php echo $pno; ?>',
                 dataType: 'json',
                 success: function (response) {
                     if (response.status == 'success') {
@@ -193,6 +195,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         playFailSound();
                         $('#newIsnForm')[0].reset();
                         $('#isn').focus();
+                    } else if (response.status == 'wrongisn') {
+                        playFailSound(function () {
+                            playInvalidIsnSound();
+                        });
                     } else {
                         alert('Failed');
                     }
@@ -206,7 +212,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/reset.php',
-                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
+                data: { doId: <?php echo "'" . $doId . "'"; ?> },
                 success: function (response) {
                     if (response == 'success') {
                         $('#resetModal').modal('hide');
@@ -307,7 +313,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/updateQtyCount.php',
-                data: { doId: <?php echo $doId; ?> },
+                data: {
+                    doId: <?php echo $doId; ?>,
+                    doStatus: <?php echo $row4['tstatus'] ?>
+                },
                 dataType: 'json',
                 success: function (response) {
                     var remainingQty = $('.remaining-qty');
@@ -342,6 +351,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         var duplicateSound = new Audio('/vsite/cms/assets/audio/duplicate.mp3');
         var dnCompleteSound = new Audio('/vsite/cms/assets/audio/dn complete.mp3');
         var wrongPnSound = new Audio('/vsite/cms/assets/audio/wrong pn.mp3');
+        var invalidIsn = new Audio('/vsite/cms/assets/audio/invalid isn.mp3');
 
         function playSound(sound, callback) {
             var clone = sound.cloneNode(true);
@@ -373,13 +383,15 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             playSound(wrongPnSound);
         }
 
-        var doId = <?php echo $doId; ?>;
+        function playInvalidIsnSound() {
+            playSound(invalidIsn);
+        }
 
         function loadTable() {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/table.php',
-                data: { mode: 'isn', doId: doId },
+                data: { mode: 'isn', doId: <?php echo $doId; ?>, doStatus: <?php echo $row4['tstatus'] ?> },
                 dataType: 'json',
                 success: function (response) {
                     if (response.data) {

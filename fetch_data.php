@@ -27,8 +27,24 @@ if (isset($_POST['shipment_list_id'])) {
         // Error handling if the request fails
         echo 'Error: Unable to fetch data from the API.';
     } else {
-        // Display the API response in the browser
-        echo $response;
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Extract the data within the 'DATA' field
+        $data = json_decode($responseData['DATA'], true);
+
+        // Loop through the shippingNoticeDetails and insert into MySQL table
+        foreach ($data[0]['shippingNoticeDetails'] as $shippingNotice) {
+            $shippingNoticeId = $shippingNotice['shippingNoticeId'];
+            $messageDetailSN = $shippingNotice['messageDetailSN'];
+            $partNumber = $shippingNotice['partNumber'];
+            $CustomerpartNumber = $shippingNotice['CustomerpartNumber'];
+            $CustomerProject = $shippingNotice['CustomerProject'];
+
+            echo $shippingNoticeId . ' ' . $messageDetailSN . ' ' . $partNumber;
+            echo '<br>';
+        }
+
     }
 } else {
     echo 'Missing shipment_list_id parameter in the query string.';

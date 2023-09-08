@@ -66,11 +66,11 @@ include '../../users/session.php';
     </div>
 
     <script>
-        function loadISN(tdono) {
-            var url = 'do.php?id=' + tdono;
-
+        function loadISN(que, pid, pno) {
+            var url = 'do.php?id=' + que + '&pid=' + pid + '&pno=' + pno;
             window.location.href = url;
         }
+
 
         function loadDoTable() {
             $.ajax({
@@ -150,8 +150,10 @@ include '../../users/session.php';
                 {
                     data: null,
                     render: function (data, type, row) {
-                        var token = row[0];
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadISN(\'' + token + '\')">ACTION</button>';
+                        var que = row[0];
+                        var pid = row[2];
+                        var pno = row[3];
+                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadISN(\'' + que + '\', \'' + pid + '\', \'' + pno + '\')">ACTION</button>';
                     }
                 }
             ]

@@ -19,19 +19,19 @@ $('#changePassForm').submit(function (e) {
     });
 });
 
-$('#newDoForm').submit(function (e) {
-    e.preventDefault();
-
+$('#doSubmitBtn').click(function (e) {
     $.ajax({
         type: 'POST',
         url: '/vsite/cms/dbCrudFunctions/insert.php',
-        data: $(this).serialize() + '&mode=dorder',
+        data: $('#newDoForm').serialize() + '&mode=dorder',
         dataType: 'json',
         success: function (response) {
             if (response.status == 'success') {
                 $('#newDoForm')[0].reset();
                 $('#createModal').modal('hide');
-                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que;
+                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
+                    '&pid=' + response.tpid +
+                    '&pno=' + response.tpno;
 
                 window.location.href = url;
             } else if (response.status == 'empty') {
@@ -40,7 +40,9 @@ $('#newDoForm').submit(function (e) {
             } else if (response.status == 'fail') {
                 $('#newDoForm')[0].reset();
                 $('#createModal').modal('hide');
-                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que;
+                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
+                    '&pid=' + response.tpid +
+                    '&pno=' + response.tpno;
 
                 window.location.href = url;
             } else if (response.status == 'timeout') {

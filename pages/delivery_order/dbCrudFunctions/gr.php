@@ -34,8 +34,17 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     if ($qtyCount != 0) {
         $reset_status = 'unauthorized';
     } else {
+        // Update DO status to complete
         $query9 = "UPDATE tdoc SET tstatus = 2, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE que = $doId";
         $result9 = mysqli_query($conn, $query9);
+
+        // Insert into tisn_sum
+        $query10 = "INSERT INTO tisn_sum (tdono, tisn, tpn, tmodel, tvendor, tcost, tstatus, tdoc_que, cp, cd) SELECT tdono, tisn, tpn, tmodel, tvendor, tcost, tstatus, tdoc_que, cp, cd FROM tisn WHERE tisn.tdoc_que = $doId";
+        $result10 = mysqli_query($conn, $query10);
+
+        // Delete from tisn
+        $query11 = "DELETE FROM tisn WHERE tisn.tdoc_que = $doId";
+        $result11 = mysqli_query($conn, $query11);
 
         if ($result9) {
             $reset_status = 'success';

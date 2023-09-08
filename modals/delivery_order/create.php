@@ -8,13 +8,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3">
+                        <label for="shipping">Shipping ID</label>
+                        <input type="text" class="form-control" name="shipping" id="shipping" placeholder="Shipping ID"
+                            autofocus>
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="do">DO</label>
-                        <input type="text" class="form-control" name="do" id="do" placeholder="DO" autofocus>
+                        <input type="text" class="form-control" name="do" id="do" placeholder="DO">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="doSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
+                    <button id="doSubmitBtn" type="button" class="btn btn-primary">Submit</button>
                 </div>
             </form>
         </div>

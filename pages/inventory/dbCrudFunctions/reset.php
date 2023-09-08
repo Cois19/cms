@@ -17,7 +17,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     if ($utype == 3) {
         $reset_status = 'unauthorized';
     } else {
-        $query9 = "UPDATE tisn SET tstatus = 0, lup = '$uid', lud = CURRENT_TIMESTAMP WHERE tdono = '$tdono'";
+        $query9 = "UPDATE tisn SET tstatus = 0 WHERE tdono = '$tdono'";
         $result9 = mysqli_query($conn, $query9);
 
         if ($result9) {

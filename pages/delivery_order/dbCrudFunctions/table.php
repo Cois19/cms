@@ -8,14 +8,13 @@ $mode = $_POST['mode'];
 if ($mode == 'isn') {
     include '../../../users/session.php';
     $doId = $_POST['doId'];
+    $doStatus = $_POST['doStatus'];
 
-    // get tpid from tdoc table
-    $query7 = "SELECT tpid FROM tdoc WHERE que = $doId";
-    $result7 = mysqli_query($conn, $query7);
-    $row7 = mysqli_fetch_assoc($result7);
-    $tpid = $row7['tpid'];
-
-    $query2 = "SELECT tisn.que, tisn.tisn, tisn.tpn, tdoc.tpname, tisn.tmodel FROM tisn JOIN tdoc on tisn.tdoc_que = tdoc.que WHERE tisn.tdoc_que = $doId AND tisn.tstatus = 1 ORDER BY que DESC";
+    if ($doStatus == 1) {
+        $query2 = "SELECT tisn.que, tisn.tisn, tisn.tpn, tdoc.tpname, tisn.tmodel FROM tisn JOIN tdoc on tisn.tdoc_que = tdoc.que WHERE tisn.tdoc_que = $doId AND tisn.tstatus = 1 ORDER BY que DESC";
+    } else if ($doStatus == 2) {
+        $query2 = "SELECT tisn_sum.que, tisn_sum.tisn, tisn_sum.tpn, tdoc.tpname, tisn_sum.tmodel FROM tisn_sum JOIN tdoc on tisn_sum.tdoc_que = tdoc.que WHERE tisn_sum.tdoc_que = $doId AND tisn_sum.tstatus = 1 ORDER BY que DESC";
+    }
 
     if ($select_result2 = mysqli_query($conn, $query2)) {
         $response1 = array();
@@ -94,7 +93,7 @@ if ($mode == 'isn') {
         }
 
         if (!empty($tisn)) {
-            $conditions[] = "tisn.tisn = '$tisn'";
+            $conditions[] = "tisn_sum.tisn = '$tisn'";
         }
 
         if (!empty($tpid)) {
@@ -110,38 +109,38 @@ if ($mode == 'isn') {
         }
 
         if (!empty($cp)) {
-            $conditions[] = "tisn.cp = '$cp'";
+            $conditions[] = "tisn_sum.cp = '$cp'";
         }
 
         // Handle the start and end date conditions separately
         if (!empty($start) && !empty($end)) {
-            $conditions[] = "DATE(tisn.cd) BETWEEN DATE('$start') AND DATE('$end')";
+            $conditions[] = "DATE(tisn_sum.cd) BETWEEN DATE('$start') AND DATE('$end')";
         } elseif (!empty($start)) {
-            $conditions[] = "DATE(tisn.cd) >= DATE('$start')";
+            $conditions[] = "DATE(tisn_sum.cd) >= DATE('$start')";
         } elseif (!empty($end)) {
-            $conditions[] = "DATE(tisn.cd) <= DATE('$end')";
+            $conditions[] = "DATE(tisn_sum.cd) <= DATE('$end')";
         }
 
-        $conditions[] = "tisn.tstatus = 1 AND tdoc.tstatus != 0";
+        $conditions[] = "tisn_sum.tstatus = 1 AND tdoc.tstatus != 0";
 
         // Join the conditions with AND operator
         $whereClause = implode(' AND ', $conditions);
 
-        $query2 = "SELECT tdoc.tdono, tisn.tisn, tdoc.tpid, tdoc.tpno, tdoc.tpname, tdoc.tpmodel, tdoc.tdate, tisn.cd, tuser.uname,
+        $query2 = "SELECT tdoc.tdono, tisn_sum.tisn, tdoc.tpid, tdoc.tpno, tdoc.tpname, tdoc.tpmodel, tdoc.tdate, tisn_sum.cd, tuser.uname,
                     CASE
                         WHEN tdoc.tstatus = 0 THEN 'INACTIVE'
                         WHEN tdoc.tstatus = 1 THEN 'ON GOING'
                         WHEN tdoc.tstatus = 2 THEN 'GR COMPLETE'
                     END as 'status'
-                    FROM tdoc JOIN tisn on tdoc.que = tisn.tdoc_que
-                    JOIN tuser ON tisn.cp = tuser.uid";
+                    FROM tdoc JOIN tisn_sum on tdoc.que = tisn_sum.tdoc_que
+                    JOIN tuser ON tisn_sum.cp = tuser.uid";
 
         // Add the WHERE clause if there are conditions
         if (!empty($whereClause)) {
             $query2 .= " WHERE $whereClause";
         }
 
-        $query2 .= " ORDER BY tisn.cd DESC";
+        $query2 .= " ORDER BY tisn_sum.cd DESC";
 
         if ($select_result2 = mysqli_query($conn, $query2)) {
             $response1 = array();

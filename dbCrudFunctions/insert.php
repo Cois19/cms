@@ -1,9 +1,11 @@
 <?php
 include '../database/connect.php';
-date_default_timezone_set("Asia/Jakarta");  
+date_default_timezone_set("Asia/Jakarta");
 
 $response = '';
 $que = '';
+$tpid = '';
+$tpno = '';
 $mode = $_POST['mode'];
 
 session_start();
@@ -18,7 +20,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     include '../users/session.php';
 
     if ($mode == 'dorder') {
-        if (!empty($_POST['do'])) {
+        if (!empty($_POST['do']) && !empty($_POST['shipping'])) {
             $do = explode(',', $_POST['do']);
 
             $palletid = $do[0];
@@ -37,7 +39,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $date = $do[6];
 
             // Check if the same data already exists in tdoc table
-            $query = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tdate = '$date' AND tpmodel = '$tpmodel' LIMIT 1";
+            $query = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tdate = '$date' AND tpmodel = '$tpmodel' LIMIT 1";
             $result = mysqli_query($conn, $query);
 
             if (mysqli_num_rows($result) > 0) {
@@ -45,7 +47,55 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $response = "fail";
                 $row = mysqli_fetch_assoc($result);
                 $que = $row['que'];
+                $tpid = $row['tpid'];
+                $tpno = $row['tpno'];
             } else {
+                // Retrieve the 'shipment_list_id' value from the query string
+                $shipment_list_id = $_POST['shipping'];
+
+                // Construct the API URL
+                $url = 'http://snws07:8000/api/MES/Ext/GetSMTShipmentDetail';
+
+                // Create an array of data to send in the POST request
+                $data = array('shipment_list_id' => $shipment_list_id);
+
+                // Create a context for the POST request
+                $options = array(
+                    'http' => array(
+                        'method' => 'POST',
+                        'header' => 'Content-type: application/x-www-form-urlencoded',
+                        'content' => http_build_query($data)
+                    )
+                );
+                $context = stream_context_create($options);
+
+                // Make the POST request and retrieve the api_response
+                $api_response = file_get_contents($url, false, $context);
+
+                if ($api_response === false) {
+                    // Error handling if the request fails
+                    $response = 'api';
+                } else {
+                    // Decode the JSON api_response
+                    $responseData = json_decode($api_response, true);
+
+                    // Extract the data within the 'DATA' field
+                    $data = json_decode($responseData['DATA'], true);
+
+                    // Loop through the shippingNoticeDetails and insert into MySQL table
+                    foreach ($data[0]['shippingNoticeDetails'] as $shippingNotice) {
+                        $messageDetailSN = $shippingNotice['messageDetailSN'];
+                        $partNumber = $shippingNotice['partNumber'];
+                        $CustomerProject = $shippingNotice['CustomerProject'];
+
+                        // Insert shipping info
+                        $query7 = "INSERT INTO tshipping (messageDetailSN, partNumber, CustomerProject, palletId, cp)
+                                    VALUES ('$messageDetailSN', '$partNumber', '$CustomerProject', '$palletid', '$uid')";
+                        $result7 = mysqli_query($conn, $query7);
+                        // echo $query7;
+                    }
+                }
+
                 if (strlen($palletid) == 16) { // PTB
                     $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
                     VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'PTB', '$ucost', CURRENT_TIMESTAMP, '$uid')";
@@ -67,13 +117,14 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     $result2 = mysqli_query($conn, $query2);
 
                     // Retrieve que for the newly inserted data
-                    $query3 = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
+                    $query3 = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
                     $result3 = mysqli_query($conn, $query3);
                     $row = mysqli_fetch_assoc($result3);
                     $que = $row['que'];
+                    $tpid = $row['tpid'];
+                    $tpno = $row['tpno'];
                 }
             }
-
         } else {
             $response = "empty";
             $que = "empty";
@@ -301,7 +352,9 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
 $responseData = array(
     'status' => $response,
-    'que' => $que
+    'que' => $que,
+    'tpid' => $tpid,
+    'tpno' => $tpno
 );
 
 echo json_encode($responseData);
