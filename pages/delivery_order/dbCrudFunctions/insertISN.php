@@ -28,12 +28,15 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $query2 = "INSERT INTO tlog(tprocess, tdata, var1, cd, cp) VALUES('WRONG ISN LENGTH', '$tisn', '$doId', CURRENT_TIMESTAMP, '$uid')";
             $result2 = mysqli_query($conn, $query2);
         } else {
+            $numofrows = 1;
+            if (strlen($pid) == 8) {
+                // check if ISN exists in shipping table
+                $query8 = "SELECT tshipping.messageDetailSN FROM tshipping WHERE partNumber = '$pno' AND palletId = '$pid' and messageDetailSN = '$tisn'";
+                $result8 = mysqli_query($conn, $query8);
+                $numofrows = mysqli_num_rows($result8);
+            }
 
-            // check if ISN exists in shipping table
-            $query8 = "SELECT tshipping.messageDetailSN FROM tshipping WHERE partNumber = '$pno' AND palletId = '$pid' and messageDetailSN = '$tisn'";
-            $result8 = mysqli_query($conn, $query8);
-
-            if (mysqli_num_rows($result8) == 0) {
+            if ($numofrows == 0) {
                 $response = 'wrongisn';
             } else {
                 // get tdono, tpno, tvendor, tpmodel from tdoc table
@@ -67,10 +70,6 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     }
                 }
             }
-
-
-
-
         }
     } else {
         $response = "empty";

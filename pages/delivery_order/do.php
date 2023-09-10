@@ -182,11 +182,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         updateQtyCount();
                         loadTable();
                     } else if (response.status == 'fail') {
-                        $('#newIsnForm')[0].reset();
-                        $('#isn').focus();
                         playFailSound(function () {
                             playDuplicateSound();
                         });
+                        $('#newIsnForm')[0].reset();
+                        $('#isn').focus();
                     } else if (response.status == 'empty') {
                         alert('ISN Cannot be Empty!');
                     } else if (response.status == 'timeout') {
@@ -199,6 +199,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         playFailSound(function () {
                             playInvalidIsnSound();
                         });
+                        $('#newIsnForm')[0].reset();
+                        $('#isn').focus();
                     } else {
                         alert('Failed');
                     }

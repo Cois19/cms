@@ -27,31 +27,31 @@ $('#doSubmitBtn').click(function (e) {
         dataType: 'json',
         success: function (response) {
             if (response.status == 'success') {
-                $('#newDoForm')[0].reset();
-                $('#createModal').modal('hide');
-                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
-                    '&pid=' + response.tpid +
-                    '&pno=' + response.tpno;
+                // $('#newDoForm')[0].reset();
+                // $('#createModal').modal('hide');
+                // var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
+                //     '&pid=' + response.tpid +
+                //     '&pno=' + response.tpno;
 
-                window.location.href = url;
+                // window.location.href = url;
             } else if (response.status == 'empty') {
                 alert('DO Cannot be Empty!');
                 $('#do').focus();
             } else if (response.status == 'fail') {
-                $('#newDoForm')[0].reset();
-                $('#createModal').modal('hide');
-                var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
-                    '&pid=' + response.tpid +
-                    '&pno=' + response.tpno;
+                // $('#newDoForm')[0].reset();
+                // $('#createModal').modal('hide');
+                // var url = '/vsite/cms/pages/delivery_order/do.php?id=' + response.que +
+                //     '&pid=' + response.tpid +
+                //     '&pno=' + response.tpno;
 
-                window.location.href = url;
+                // window.location.href = url;
             } else if (response.status == 'timeout') {
                 window.location.href = '/vsite/cms/users/login.php';
+            } else if (response.status == 'emptyshipping') {
+                alert('Shipping Field Cannot Be Empty!');
             } else {
                 alert('Failed');
             }
-
-
         }
     });
 });
