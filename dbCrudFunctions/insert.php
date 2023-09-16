@@ -39,7 +39,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $date = $do[6];
 
             // Check if the same data already exists in tdoc table
-            $query = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tdate = '$date' AND tpmodel = '$tpmodel' LIMIT 1";
+            $query = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tdate = '$date' AND tpmodel = '$tpmodel' AND tstatus != 0 LIMIT 1";
             $result = mysqli_query($conn, $query);
 
             if (mysqli_num_rows($result) > 0) {
@@ -88,17 +88,25 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                             // Extract the data within the 'DATA' field
                             $data = json_decode($responseData['DATA'], true);
 
-                            // Loop through the shippingNoticeDetails and insert into MySQL table
+                            // Initialize an empty query string
+                            $query7 = "INSERT INTO tshipping (messageDetailSN, partNumber, CustomerProject, palletId, cp) VALUES ";
+
                             foreach ($data[0]['shippingNoticeDetails'] as $shippingNotice) {
                                 $messageDetailSN = $shippingNotice['messageDetailSN'];
                                 $partNumber = $shippingNotice['partNumber'];
                                 $CustomerProject = $shippingNotice['CustomerProject'];
 
-                                // Insert shipping info
-                                $query7 = "INSERT INTO tshipping (messageDetailSN, partNumber, CustomerProject, palletId, cp)
-                                    VALUES ('$messageDetailSN', '$partNumber', '$CustomerProject', '$palletid', '$uid')";
-                                $result7 = mysqli_query($conn, $query7);
+                                // Append the values for each row to the query string
+                                $query7 .= "('$messageDetailSN', '$partNumber', '$CustomerProject', '$palletid', '$uid'),";
                             }
+
+                            // Remove the trailing comma
+                            $query7 = rtrim($query7, ",");
+
+                            // Execute the query
+                            $result7 = mysqli_query($conn, $query7);
+
+
                         }
 
                         $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
@@ -122,7 +130,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                         $result2 = mysqli_query($conn, $query2);
 
                         // Retrieve que for the newly inserted data
-                        $query3 = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
+                        $query3 = "SELECT que, tpid, tpno FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' ORDER BY que DESC LIMIT 1";
                         $result3 = mysqli_query($conn, $query3);
                         $row = mysqli_fetch_assoc($result3);
                         $que = $row['que'];

@@ -12,7 +12,7 @@ if ($mode == 'isn') {
 
     if ($doStatus == 1) {
         $query2 = "SELECT tisn.que, tisn.tisn, tisn.tpn, tdoc.tpname, tisn.tmodel FROM tisn JOIN tdoc on tisn.tdoc_que = tdoc.que WHERE tisn.tdoc_que = $doId AND tisn.tstatus = 1 ORDER BY que DESC";
-    } else if ($doStatus == 2) {
+    } else if ($doStatus != 1) {
         $query2 = "SELECT tisn_sum.que, tisn_sum.tisn, tisn_sum.tpn, tdoc.tpname, tisn_sum.tmodel FROM tisn_sum JOIN tdoc on tisn_sum.tdoc_que = tdoc.que WHERE tisn_sum.tdoc_que = $doId AND tisn_sum.tstatus = 1 ORDER BY que DESC";
     }
 

@@ -38,6 +38,9 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
             if ($numofrows == 0) {
                 $response = 'wrongisn';
+                // Insert into tlog
+                $query2 = "INSERT INTO tlog(tprocess, tdata, var1, cd, cp) VALUES('INVALID ISN', '$tisn', '$doId', CURRENT_TIMESTAMP, '$uid')";
+                $result2 = mysqli_query($conn, $query2);
             } else {
                 // get tdono, tpno, tvendor, tpmodel from tdoc table
                 $query6 = "SELECT tdono, tpno, tvendor, tpmodel FROM tdoc WHERE que = $doId";

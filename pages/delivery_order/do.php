@@ -41,7 +41,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <!-- Modals -->
         <?php include '../../modals/delivery_order/create.php'; ?>
         <?php include '../../modals/edit.php'; ?>
-        <?php include '../../modals/uploading.php'; ?>
         <?php include '../../modals/delivery_order/isn.php'; ?>
         <?php include '../../modals/delivery_order/resetM.php'; ?>
         <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
@@ -50,6 +49,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include '../../modals/delivery_order/scanCompleteM.php'; ?>
         <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/loadingSpinnerM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">
@@ -214,7 +214,9 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/reset.php',
-                data: { doId: <?php echo "'" . $doId . "'"; ?> },
+                data: {
+                    doId: <?php echo "'" . $doId . "'"; ?>
+                },
                 success: function (response) {
                     if (response == 'success') {
                         $('#resetModal').modal('hide');
@@ -237,7 +239,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/delete.php',
-                data: { tdono: <?php echo "'" . $tdono . "'"; ?> },
+                data: {
+                    tdono: <?php echo "'" . $tdono . "'"; ?>,
+                    pid: <?php echo "'" . $pid . "'"; ?>,
+                    pno: <?php echo "'" . $pno . "'"; ?>
+                },
                 success: function (response) {
                     if (response == 'success') {
                         $('#deleteDoModal').modal('hide');
@@ -259,7 +265,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/gr.php',
-                data: { doId: <?php echo "'" . $doId . "'"; ?> },
+                data: {
+                    doId: <?php echo "'" . $doId . "'"; ?>,
+                    pid: <?php echo "'" . $pid . "'"; ?>,
+                    pno: <?php echo "'" . $pno . "'"; ?>
+                },
                 success: function (response) {
                     if (response == 'success') {
                         $('#grModal').modal('hide');

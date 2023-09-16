@@ -3,6 +3,8 @@ include '../../../database/connect.php';
 date_default_timezone_set("Asia/Jakarta");
 
 $doId = $_POST['doId'];
+$pid = $_POST['pid'];
+$pno = $_POST['pno'];
 $reset_status = '';
 
 session_start();
@@ -45,6 +47,14 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
         // Delete from tisn
         $query11 = "DELETE FROM tisn WHERE tisn.tdoc_que = $doId";
         $result11 = mysqli_query($conn, $query11);
+
+        // Insert into tshipping_sum
+        $query12 = "INSERT INTO tshipping_sum (messageDetailSN, partNumber, CustomerProject, palletId, cp) SELECT messageDetailSN, partNumber, CustomerProject, palletId, cp FROM tshipping WHERE palletId = '$pid' AND partNumber = '$pno'";
+        $result12 = mysqli_query($conn, $query12);
+
+        // Delete from tshipping
+        $query13 = "DELETE FROM tshipping WHERE palletId = '$pid' AND partNumber = '$pno'";
+        $result13 = mysqli_query($conn, $query13);
 
         if ($result9) {
             $reset_status = 'success';

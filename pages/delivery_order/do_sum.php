@@ -25,7 +25,6 @@ $hide = '';
         <!-- Modals -->
         <?php include '../../modals/delivery_order/create.php'; ?>
         <?php include '../../modals/edit.php'; ?>
-        <?php include '../../modals/uploading.php'; ?>
         <?php include '../../modals/delivery_order/isn.php'; ?>
         <?php include '../../modals/delivery_order/resetM.php'; ?>
         <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
@@ -33,6 +32,7 @@ $hide = '';
         <?php include '../../modals/delivery_order/filterTableM.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/loadingSpinnerM.php'; ?>
 
         <h2>DO Summary</h2>
         <hr>

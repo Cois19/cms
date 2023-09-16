@@ -25,6 +25,7 @@ include '../../users/session.php';
         <?php include '../../modals/delivery_order/isn.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/loadingSpinnerM.php'; ?>
 
         <h2>Period List</h2>
         <hr>
