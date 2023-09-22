@@ -21,6 +21,8 @@
             <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createModal">Add DO</button>
             </li>
             <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/delivery_order/do_sum.php'">DO Summary</button></li>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/delivery_order/isl.php'">ISL Search</button></li>
+            <li><button class="dropdown-item" onclick="window.location.href='/vsite/cms/pages/delivery_order/performance.php'" <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Performance</button></li>
           </ul>
         </li>
         <li class="nav-item dropdown">

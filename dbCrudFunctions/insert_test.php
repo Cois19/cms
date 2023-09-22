@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+
 include '../database/connect.php';
 date_default_timezone_set("Asia/Jakarta");
 require '../vendor/autoload.php'; // Include PhpSpreadsheet autoload file

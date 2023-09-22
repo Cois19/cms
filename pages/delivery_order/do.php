@@ -50,6 +50,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
+        <?php include '../../modals/isnDownloadCompleteM.php'; ?>
 
         <div class="card border-dark mb-3" id="doCard">
             <div class="card-header">

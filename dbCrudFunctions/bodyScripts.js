@@ -56,6 +56,12 @@ $('#doSubmitBtn').click(function (e) {
                 } else if (response.status == 'emptyshipping') {
                     $('#spinnerModal').modal('hide');
                     alert('Shipping Field Cannot Be Empty!');
+                } else if (response.status == 'islerror') {
+                    $('#spinnerModal').modal('hide');
+                    alert('Invalid ISL or Network Error! Please Try Again.');
+                } else if (response.status == 'islqty') {
+                    $('#spinnerModal').modal('hide');
+                    alert('ISN Quantities Do Not Match! Please Try Again.');
                 } else {
                     $('#spinnerModal').modal('hide');
                     alert('Failed');
@@ -98,8 +104,6 @@ $('#addPeriodForm').submit(function (e) {
             } else {
                 alert('Failed');
             }
-
-
         }
     });
 });

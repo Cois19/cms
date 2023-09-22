@@ -1,4 +1,5 @@
 <?php
+phpinfo();
 include '../../database/connect.php';
 include '../../users/session.php';
 ?>

@@ -8,8 +8,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3">
-                        <label for="shipping">Shipping ID</label>
-                        <input type="text" class="form-control" name="shipping" id="shipping" placeholder="Shipping ID"
+                        <label for="shipping">ISL</label>
+                        <input type="text" class="form-control" name="shipping" id="shipping" placeholder="ISL"
                             autofocus>
                     </div>
                     <div class="form-group mb-3">

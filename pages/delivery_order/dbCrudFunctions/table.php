@@ -164,6 +164,85 @@ if ($mode == 'isn') {
             );
         }
     }
+} else if ($mode == 'isl') {
+    if (!isset($_SESSION)) {
+        session_start();
+    }
+    $inactive_timeout = 900; // 15 minutes in seconds
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $inactive_timeout) {
+        session_unset(); // Unset all session variables if needed
+        session_destroy(); // Destroy the session if needed
+
+        $response = array(
+            'status' => 'timeout',
+            'message' => 'timeout'
+        );
+    } else {
+        include '../../../users/session.php';
+
+        $isl = $_POST['isl'];
+        $isl_isn = $_POST['isl_isn'];
+        $isl_pno = $_POST['isl_pno'];
+        $model = $_POST['model'];
+        $isl_pid = $_POST['isl_pid'];
+
+        // Initialize an empty array to hold the conditions
+        $conditions = array();
+
+        if (!empty($isl)) {
+            $conditions[] = "tshipping.isl = '$isl'";
+        }
+
+        if (!empty($isl_isn)) {
+            $conditions[] = "tshipping.messageDetailSN = '$isl_isn'";
+        }
+
+        if (!empty($isl_pno)) {
+            $conditions[] = "tshipping.partNumber = '$isl_pno'";
+        }
+
+        if (!empty($model)) {
+            $conditions[] = "tshipping.CustomerProject = '$tpmodelno'";
+        }
+
+        if (!empty($isl_pid)) {
+            $conditions[] = "tshipping.palletId = '$isl_pid'";
+        }
+
+        // Join the conditions with AND operator
+        $whereClause = implode(' AND ', $conditions);
+
+        $query2 = "SELECT isl, messageDetailSN, partNumber, CustomerProject, palletId FROM tshipping";
+
+        // Add the WHERE clause if there are conditions
+        if (!empty($whereClause)) {
+            $query2 .= " WHERE $whereClause";
+        }
+
+        $query2 .= " ORDER BY que DESC";
+
+        if ($select_result2 = mysqli_query($conn, $query2)) {
+            $response1 = array();
+            while ($row = mysqli_fetch_assoc($select_result2)) {
+                $response1[] = array_values($row);
+            }
+
+            if (empty($response1)) {
+                $response = array(
+                    'data' => null
+                );
+            } else {
+                $response = array(
+                    'data' => $response1
+                );
+            }
+        } else {
+            $response = array(
+                'status' => 500,
+                'message' => 'Error: ' . mysqli_error($conn)
+            );
+        }
+    }
 } else if ($mode == 'user') {
     include '../../../users/session.php';
     $query2 = "SELECT uid, uname, ucost, usection, uemail, 

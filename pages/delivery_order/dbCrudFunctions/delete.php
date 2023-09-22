@@ -35,7 +35,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
         $result11 = mysqli_query($conn, $query11);
 
         // Insert into tshipping_sum
-        $query14 = "INSERT INTO tshipping_sum (messageDetailSN, partNumber, CustomerProject, palletId, cp) SELECT messageDetailSN, partNumber, CustomerProject, palletId, cp FROM tshipping WHERE palletId = '$pid' AND partNumber = '$pno'";
+        $query14 = "INSERT INTO tshipping_sum (isl, messageDetailSN, partNumber, CustomerProject, palletId, cp) SELECT isl, messageDetailSN, partNumber, CustomerProject, palletId, cp FROM tshipping WHERE palletId = '$pid' AND partNumber = '$pno'";
         $result14 = mysqli_query($conn, $query14);
 
         // Delete from tshipping

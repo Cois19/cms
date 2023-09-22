@@ -89,28 +89,46 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                             $data = json_decode($responseData['DATA'], true);
 
                             // Initialize an empty query string
-                            $query7 = "INSERT INTO tshipping (messageDetailSN, partNumber, CustomerProject, palletId, cp) VALUES ";
+                            $query7 = "INSERT INTO tshipping (isl, messageDetailSN, partNumber, CustomerProject, palletId, cp) VALUES ";
 
-                            foreach ($data[0]['shippingNoticeDetails'] as $shippingNotice) {
-                                $messageDetailSN = $shippingNotice['messageDetailSN'];
-                                $partNumber = $shippingNotice['partNumber'];
-                                $CustomerProject = $shippingNotice['CustomerProject'];
+                            if ($data !== null && isset($data[0]['shippingNoticeDetails'])) {
+                                foreach ($data[0]['shippingNoticeDetails'] as $shippingNotice) {
+                                    $messageDetailSN = $shippingNotice['messageDetailSN'];
+                                    $partNumber = $shippingNotice['partNumber'];
+                                    $CustomerProject = $shippingNotice['CustomerProject'];
 
-                                // Append the values for each row to the query string
-                                $query7 .= "('$messageDetailSN', '$partNumber', '$CustomerProject', '$palletid', '$uid'),";
+                                    // Append the values for each row to the query string
+                                    $query7 .= "('$shipment_list_id', '$messageDetailSN', '$partNumber', '$CustomerProject', '$palletid', '$uid'),";
+                                }
+
+                                // Remove the trailing comma
+                                $query7 = rtrim($query7, ",");
+                            } else {
+                                error_log("Error in ISL Fetching");
                             }
-
-                            // Remove the trailing comma
-                            $query7 = rtrim($query7, ",");
 
                             // Execute the query
                             $result7 = mysqli_query($conn, $query7);
-
-
                         }
 
-                        $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
+                        if ($result7 != 1) {
+                            $response = 'islerror';
+                        } else {
+                            $query9 = "SELECT COUNT(*) FROM tshipping WHERE isl = '$shipment_list_id'";
+                            $result9 = mysqli_query($conn, $query9);
+                            $numofisl = mysqli_fetch_array($result9)[0];
+
+                            if ($numofisl != $qty) {
+                                $response = 'islqty';
+
+                                $query10 = "DELETE FROM tshipping WHERE isl = '$shipment_list_id'";
+                                $result10 = mysqli_query($conn, $query10);
+                            } else {
+                                $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
                                     VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'SMT', '$ucost', CURRENT_TIMESTAMP, '$uid')";
+                            }
+                        }
+
                     } else {
                         $response = 'emptyshipping';
                     }

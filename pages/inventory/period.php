@@ -194,7 +194,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             formData.append('period_que', '<?php echo $que; ?>');
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert_test.php',
+                url: '/vsite/cms/dbCrudFunctions/insert_test_simple.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
@@ -239,7 +239,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             formData.append('period_que', '<?php echo $que; ?>');
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert_test.php',
+                url: '/vsite/cms/dbCrudFunctions/insert_test_simple.php',
                 type: 'POST',
                 data: formData,
                 contentType: false,
