@@ -7,6 +7,9 @@
 <script src="/vsite/cms/assets/tinymce/js/tinymce/tinymce.min.js"></script>
 <script src="/vsite/cms/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
+<!-- use version 0.20.0 -->
+<script lang="javascript" src="/vsite/cms/assets/SheetJS/xlsx.full.min.js"></script>
+
 <!-- DataTables -->
 <script src="/vsite/cms/assets/DataTables/datatables.js"></script>
 <link rel="stylesheet" href="/vsite/cms/assets/DataTables/datatables.css">
