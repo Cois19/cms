@@ -30,6 +30,8 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Period Details</title>
     <?php include '../../scripts.php' ?>
+    <!-- use version 0.20.0 -->
+    <!-- <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script> -->
 </head>
 
 <body>
@@ -104,7 +106,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     </div>
                     <div class="btn-group <?php echo $hideIfNot1 ?>">
                         <button href="#" data-bs-toggle="modal" data-bs-target="#deactivatePeriodModal"
-                            class="btn btn-danger" <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Deactivate
+                            class="btn btn-danger" <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Deactivate
                             Period</button>
                     </div>
                 </div>
@@ -120,20 +122,20 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     <select class="form-select" name="areacode" id="areacode">
                         <option disabled selected>Select Area Code</option>
                         <?php
-                        $sql1 = "SELECT areacode FROM tarea WHERE tperiodque = $que";
+                        $sql1 = "SELECT areacode, areaname FROM tarea WHERE tperiodque = $que";
                         $areas = mysqli_query($conn, $sql1);
                         while ($area = mysqli_fetch_array($areas, MYSQLI_ASSOC)):
                             ;
                             ?>
                             <option value="<?php echo $area['areacode']; ?>">
-                                <?php echo $area['areacode']; ?>
+                                <?php echo $area['areacode']; ?> - <?php echo $area['areaname']; ?>
                             </option>
                         <?php endwhile; ?>
                     </select>
                 </div>
                 <div class="form-group mb-3">
                     <label for="tagno">Tag No</label>
-                    <input type="text" class="form-control" name="tagno" id="tagno" placeholder="Tag No">
+                    <input type="text" class="form-control" name="tagno" id="tagno" placeholder="Tag No" readonly>
                 </div>
                 <div class="form-group mb-3">
                     <label for="subloc">Sub Location</label>
@@ -193,86 +195,120 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             formData.append('mode', 'importpart');
             formData.append('period_que', '<?php echo $que; ?>');
 
-            $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert_test_simple.php',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.status == 'success') {
-                        // $('#addPeriodForm').reset();
-                        // $('#addPeriodModal').modal('hide');
-                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+            var file = $('#partmaster')[0].files[0];
 
-                        // window.location.href = url;
-                        alert('good');
-                    } else if (response.status == 'empty') {
-                        alert('Please Select a File!');
-                    } else if (response.status == 'fail') {
-                        // $('#addPeriodForm').reset();
-                        // $('#createModal').modal('hide');
-                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+            if (file) {
+                var reader = new FileReader();
 
-                        // window.location.href = url;
-                        alert('Part Already Exists!');
-                    } else if (response.status == 'timeout') {
-                        window.location.href = '/vsite/cms/users/login.php';
-                    } else {
-                        alert('Failed');
-                    }
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.error('AJAX error:', textStatus, errorThrown);
-                    console.log('Response:', xhr.responseText);
-                }
-            });
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { type: 'binary' });
+
+                    // Assuming the first sheet is the one you want to work with
+                    var sheetName = workbook.SheetNames[0];
+                    var sheet = workbook.Sheets[sheetName];
+
+                    // Parse the sheet's data (you may want to iterate through rows and columns)
+                    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    // Now you can send the JSON data to the server using AJAX
+                    formData.append('excelData', JSON.stringify(jsonData)); // Add the parsed data to formData
+
+                    $.ajax({
+                        url: '/vsite/cms/dbCrudFunctions/insert.php',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                // Handle success
+                                alert('Import successful');
+                            } else if (response.status == 'empty') {
+                                alert('Please Select a File!');
+                            } else if (response.status == 'fail') {
+                                // Handle failure
+                                alert('Part Already Exists!');
+                            } else if (response.status == 'timeout') {
+                                window.location.href = '/vsite/cms/users/login.php';
+                            } else {
+                                alert('Failed');
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            console.error('AJAX error:', textStatus, errorThrown);
+                            console.log('Response:', xhr.responseText);
+                        }
+                    });
+                };
+
+                reader.readAsBinaryString(file);
+            } else {
+                alert('Please Select a File!');
+            }
         });
 
         $('#addAreaForm').submit(function (event) {
             event.preventDefault(); // Prevent default form submission
 
             var formData = new FormData();
-            formData.append('area', $('#area')[0].files[0]); // Add the file input
+            // formData.append('area', $('#area')[0].files[0]); // Add the file input
             formData.append('mode', 'importarea');
             formData.append('period_que', '<?php echo $que; ?>');
 
-            $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert_test_simple.php',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.status == 'success') {
-                        // $('#addPeriodForm').reset();
-                        // $('#addPeriodModal').modal('hide');
-                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+            var file = $('#area')[0].files[0];
 
-                        // window.location.href = url;
-                        alert('good');
-                    } else if (response.status == 'empty') {
-                        alert('Please Select a File!');
-                    } else if (response.status == 'fail') {
-                        // $('#addPeriodForm').reset();
-                        // $('#createModal').modal('hide');
-                        // var url = '/vsite/cms/pages/inventory/period.php?id=' + response.que;
+            if (file) {
+                var reader = new FileReader();
 
-                        // window.location.href = url;
-                        alert('Part Already Exists!');
-                    } else if (response.status == 'timeout') {
-                        window.location.href = '/vsite/cms/users/login.php';
-                    } else {
-                        alert('Failed');
-                    }
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.error('AJAX error:', textStatus, errorThrown);
-                    console.log('Response:', xhr.responseText);
-                }
-            });
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { type: 'binary' });
+
+                    // Assuming the first sheet is the one you want to work with
+                    var sheetName = workbook.SheetNames[0];
+                    var sheet = workbook.Sheets[sheetName];
+
+                    // Parse the sheet's data (you may want to iterate through rows and columns)
+                    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    // Now you can send the JSON data to the server using AJAX
+                    formData.append('excelData', JSON.stringify(jsonData)); // Add the parsed data to formData
+
+                    $.ajax({
+                        url: '/vsite/cms/dbCrudFunctions/insert.php',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                // Handle success
+                                alert('Import successful');
+                            } else if (response.status == 'empty') {
+                                alert('Please Select a File!');
+                            } else if (response.status == 'fail') {
+                                // Handle failure
+                                alert('Part Already Exists!');
+                            } else if (response.status == 'timeout') {
+                                window.location.href = '/vsite/cms/users/login.php';
+                            } else {
+                                alert('Failed');
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            console.error('AJAX error:', textStatus, errorThrown);
+                            console.log('Response:', xhr.responseText);
+                        }
+                    });
+                };
+
+                reader.readAsBinaryString(file);
+            } else {
+                alert('Please Select a File!');
+            }
         });
 
         function fetchTagNumbers(selectedAreaCode) {
@@ -343,7 +379,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             event.preventDefault(); // Prevent form submission
 
             $.ajax({
-                url: '/vsite/cms/dbCrudFunctions/insert_test.php', // PHP script to process the form data
+                url: '/vsite/cms/dbCrudFunctions/insert.php', // PHP script to process the form data
                 type: 'POST',
                 data: $(this).serialize() + '&mode=inventorytag' + '&period_que=<?php echo $que; ?>',
                 dataType: 'json',

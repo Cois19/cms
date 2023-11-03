@@ -172,7 +172,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $description = $_POST['description'];
                 $p_remarks = $_POST['p_remarks'];
 
-                // Check if an; active period already exists
+                // Check if an active period already exists
                 $query = "SELECT * FROM tperiod WHERE status = 1";
                 $result = mysqli_query($conn, $query);
 
@@ -209,34 +209,27 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $que = "empty";
         }
     } else if ($mode == 'importpart') {
-        if ($_FILES['partmaster']['error'] === UPLOAD_ERR_OK) {
+        $partData = json_decode($_POST['excelData'], true); // Decode the JSON data sent from the client
+
+        if (!empty($partData)) {
             $period_que = $_POST['period_que'];
-            $tempFile = $_FILES['partmaster']['tmp_name'];
+            $firstRowSkipped = false; // Track if the first row has been skipped
 
-            $spreadsheet = IOFactory::load($tempFile);
-            $worksheet = $spreadsheet->getActiveSheet();
-
-            $rowIndex = 0;
-
-            foreach ($worksheet->getRowIterator() as $row) {
-                $rowIndex++;
-
-                if ($rowIndex <= 1) {
-                    continue; // Skip first row
+            $insertSql = "INSERT INTO tpartmaster (partno, partdesc, uom, account, model, tperiodque, cp, cd) VALUES ";
+            foreach ($partData as $rowData) {
+                if (!$firstRowSkipped) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped = true;
+                    continue;
                 }
 
-                $rowData = [];
-                foreach ($row->getCellIterator() as $cell) {
-                    $rowData[] = $cell->getValue();
-                }
-
-                $partno = $rowData[0]; // Value in the first column of Excel
+                $partno = $rowData[0]; // Assuming the first column contains 'partno'
                 $partdesc = $rowData[1];
                 $uom = $rowData[2];
                 $account = $rowData[3];
                 $model = $rowData[4];
 
-                // Check if the tpn value exists in the tdatamaster table
+                // Check if the part number already exists in the tpartmaster table
                 $checkSql = "SELECT * FROM tpartmaster WHERE partno = '$partno'";
                 $result = mysqli_query($conn, $checkSql);
 
@@ -245,55 +238,52 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     continue;
                 }
 
-                $insertSql = "INSERT INTO tpartmaster (partno, partdesc, uom, account, model, tperiodque, cp, cd) VALUES ('$partno', '$partdesc', '$uom', '$account', '$model', $period_que, '$uid', CURRENT_TIMESTAMP)";
-                $result1 = mysqli_query($conn, $insertSql);
+                // Insert the data into the tpartmaster table
+                $insertSql .= "('$partno', '$partdesc', '$uom', '$account', '$model', $period_que, '$uid', CURRENT_TIMESTAMP),";
+            }
 
-                if ($result1 != 1) {
-                    error_log("Error in insert query: " . mysqli_error($conn));
-                } else {
-                    $response = "success";
-                    // Insert into tlog
-                    $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INSERT PART MASTER', '$partno', CURRENT_TIMESTAMP, '$uid')";
-                    $result2 = mysqli_query($conn, $query2);
+            // Remove the trailing comma
+            $insertSql = rtrim($insertSql, ",");
+            $result1 = mysqli_query($conn, $insertSql);
 
-                    // Retrieve que for the newly inserted data
-                    $query3 = "SELECT que FROM tpartmaster WHERE partno = '$partno' LIMIT 1";
-                    $result3 = mysqli_query($conn, $query3);
-                    $row = mysqli_fetch_assoc($result3);
-                    $que = $row['que'];
-                }
+            if ($result1 != 1) {
+                error_log("Error in insert query: " . mysqli_error($conn));
+            } else {
+                $response = "success";
+                // Insert into tlog
+                $query2 = "INSERT INTO tlog(tprocess, var1, cd, cp) VALUES('INSERT PART MASTER', '$period_que', CURRENT_TIMESTAMP, '$uid')";
+                $result2 = mysqli_query($conn, $query2);
+
+                // Retrieve the 'que' for the newly inserted data
+                $query3 = "SELECT que FROM tpartmaster WHERE partno = '$partno' LIMIT 1";
+                $result3 = mysqli_query($conn, $query3);
+                $row = mysqli_fetch_assoc($result3);
+                $que = $row['que'];
             }
         } else {
             $response = "empty";
             $que = "empty";
         }
     } else if ($mode == 'importarea') {
-        if ($_FILES['area']['error'] === UPLOAD_ERR_OK) {
+        $areaData = json_decode($_POST['excelData'], true); // Decode the JSON data sent from the client
+
+        if (!empty($areaData)) {
             $period_que = $_POST['period_que'];
-            $tempFile = $_FILES['area']['tmp_name'];
+            $firstRowSkipped = false; // Track if the first row has been skipped
 
-            $spreadsheet = IOFactory::load($tempFile);
-            $worksheet = $spreadsheet->getActiveSheet();
-
-            $rowIndex = 0;
-
-            foreach ($worksheet->getRowIterator() as $row) {
-                $rowIndex++;
-
-                if ($rowIndex <= 1) {
-                    continue; // Skip first row
+            $insertSql = "INSERT INTO tarea (areacode, areaname, owner, tperiodque) VALUES ";
+            foreach ($areaData as $rowData) {
+                if (!$firstRowSkipped) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped = true;
+                    continue;
                 }
 
-                $rowData = [];
-                foreach ($row->getCellIterator() as $cell) {
-                    $rowData[] = $cell->getValue();
-                }
-
-                $areacode = $rowData[0]; // Value in the first column of Excel
+                $areacode = $rowData[0]; // Assuming the first column contains 'areacode'
                 $areaname = $rowData[1];
                 $owner = $rowData[2];
 
-                // Check if the tpn value exists in the tdatamaster table
+                // Check if the area code already exists in the tarea table
                 $checkSql = "SELECT * FROM tarea WHERE areacode = '$areacode'";
                 $result = mysqli_query($conn, $checkSql);
 
@@ -302,23 +292,28 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     continue;
                 }
 
-                $insertSql = "INSERT INTO tarea (areacode, areaname, owner, tperiodque) VALUES ('$areacode', '$areaname', '$owner', $period_que)";
-                $result1 = mysqli_query($conn, $insertSql);
+                // Insert the data into the tarea table
+                $insertSql .= "('$areacode', '$areaname', '$owner', $period_que),";
+                
+            }
 
-                if ($result1 != 1) {
-                    error_log("Error in insert query: " . mysqli_error($conn));
-                } else {
-                    $response = "success";
-                    // Insert into tlog
-                    $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INSERT AREA', '$areacode', CURRENT_TIMESTAMP, '$uid')";
-                    $result2 = mysqli_query($conn, $query2);
+            // Remove the trailing comma
+            $insertSql = rtrim($insertSql, ",");
+            $result1 = mysqli_query($conn, $insertSql);
 
-                    // Retrieve que for the newly inserted data
-                    $query3 = "SELECT que FROM tarea WHERE areacode = '$areacode' LIMIT 1";
-                    $result3 = mysqli_query($conn, $query3);
-                    $row = mysqli_fetch_assoc($result3);
-                    $que = $row['que'];
-                }
+            if ($result1 != 1) {
+                error_log("Error in insert query: " . mysqli_error($conn));
+            } else {
+                $response = "success";
+                // Insert into tlog
+                $query2 = "INSERT INTO tlog(tprocess, var1, cd, cp) VALUES('INSERT AREA', '$period_que', CURRENT_TIMESTAMP, '$uid')";
+                $result2 = mysqli_query($conn, $query2);
+
+                // Retrieve the 'que' for the newly inserted data
+                $query3 = "SELECT que FROM tarea WHERE areacode = '$areacode' LIMIT 1";
+                $result3 = mysqli_query($conn, $query3);
+                $row = mysqli_fetch_assoc($result3);
+                $que = $row['que'];
             }
         } else {
             $response = "empty";

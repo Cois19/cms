@@ -5,7 +5,7 @@ include '../../users/session.php';
 $que = $_GET['id'];
 $hideIfNot1 = '';
 
-$query4 = "SELECT DATE_FORMAT(tperiod.periodstart, '%Y-%m') AS periodname, tinventorytag.tagno, tinventorytag.partno, tpartmaster.partdesc, tarea.areaname, tinventorytag.subloc, tinventorytag.qty, tinventorytag.uom
+$query4 = "SELECT DATE_FORMAT(tperiod.periodstart, '%Y-%m') AS periodname, tinventorytag.tagno, tinventorytag.partno, tpartmaster.partdesc, tarea.areacode, tarea.areaname, tinventorytag.subloc, tinventorytag.qty, tinventorytag.uom
             FROM tinventorytag JOIN tperiod ON tperiod.que = tinventorytag.tperiodque
             JOIN tpartmaster ON tpartmaster.partno = tinventorytag.partno
             JOIN tarea ON tarea.areacode = tinventorytag.areacode
@@ -37,6 +37,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
 </head>
 
 <body>
+    <h4 class="row text-center"><strong>INVENTORY TAG</strong></h4>
     <div class="container mt-3 border border-dark text-dark">
 
         <div class="row">
@@ -56,36 +57,35 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                 <?php echo $row4['tagno']; ?>
             </div>
         </div>
-        <br>
         <div class="row text-center border-bottom border-dark">
-            <h4><strong>INVENTORY TAG</strong></h4>
         </div>
         <div class="row fs-5">
-            <div class="col-4 text-end"><strong>Part No</strong> : </div>
+            <div class="col-4"><strong>Part No</strong> : </div>
             <div class="col-8 ps-0">
                 <?php echo $row4['partno']; ?>
             </div>
         </div>
         <div class="row fs-5">
-            <div class="col-4 text-end"><strong>Part Name</strong> : </div>
+            <div class="col-4"><strong>Part Name</strong> : </div>
             <div class="col-8 ps-0">
                 <?php echo $row4['partdesc']; ?>
             </div>
         </div>
         <div class="row fs-5">
-            <div class="col-4 text-end"><strong>Area</strong> : </div>
+            <div class="col-4"><strong>Area</strong> : </div>
             <div class="col-8 ps-0">
+                <?php echo $row4['areacode']; ?> -
                 <?php echo $row4['areaname']; ?>
             </div>
         </div>
         <div class="row fs-5">
-            <div class="col-4 text-end"><strong>Sub Loc</strong> : </div>
+            <div class="col-4"><strong>Sub Loc</strong> : </div>
             <div class="col-8 ps-0">
                 <?php echo $row4['subloc']; ?>
             </div>
         </div>
-        <div class="row p-1 d-flex justify-content-between">
-            <div class="col-8 border border-dark"><strong>Quantity</strong> :
+        <div class="row fs-4 p-1 d-flex justify-content-between">
+            <div class="col-8 border border-dark"><strong>Qty</strong> :
                 <?php echo $row4['qty']; ?>
             </div>
             <div class="col-3 border border-dark"><strong>UOM</strong> :
@@ -95,61 +95,37 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         <div class="p-1">
             <div class="row border border-dark">
                 <div class="row">
-                    <div class="col-4 fs-5"><strong>Remark</strong> : </div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-                        . . . . . . . . .</div>
-                </div>
-                <div class="row">
-                    <div class="col-4"></div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-                        . . . . . . . . .</div>
-                </div>
-                <div class="row">
-                    <div class="col-4"></div>
-                    <div class="col-8">. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-                        . . . . . . . . .</div>
+                    <div class="col-4 fs-5" style="height: 100px"><strong>Remark</strong> : </div>
                 </div>
             </div>
         </div>
         <div class="row p-1 text-center">
-            <div class="col-6 border border-dark">
+            <div class="col-4 border border-dark">
                 <div class="row">
-                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                    <div class="col-12 border-bottom border-dark fs-5">
                         <strong>Prepared</strong>
                     </div>
-                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                    <div class="d-flex align-items-end justify-content-center" style="height: 100px">
                         <strong><em>(Store)</em></strong>
                     </div>
                 </div>
             </div>
-            <div class="col-6 border border-dark">
+            <div class="col-4 border border-dark">
                 <div class="row">
-                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                    <div class="col-12 border-bottom border-dark fs-5">
                         <strong>Auditor1</strong>
                     </div>
-                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                    <div class="d-flex align-items-end justify-content-center" style="height: 100px">
                         <strong><em>(PTSN)</em></strong>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row p-1 text-center">
-            <div class="col-6 border border-dark">
+            <div class="col-4 border border-dark">
                 <div class="row">
-                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
+                    <div class="col-12 border-bottom border-dark fs-5">
                         <strong>Auditor2</strong>
                     </div>
-                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
-                        <strong><em>(PEGATRON)</em></strong>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 border border-dark">
-                <div class="row">
-                    <div class="col-12 border-bottom border-dark fs-5" style="background-color: gray">
-                        <strong>Auditor3</strong>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-center" style="height: 150px">
+                    <div class="d-flex align-items-end justify-content-center" style="height: 100px">
                         <strong><em>(PEGATRON)</em></strong>
                     </div>
                 </div>

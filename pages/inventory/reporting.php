@@ -1,5 +1,5 @@
 <?php
-phpinfo();
+// phpinfo();
 include '../../database/connect.php';
 include '../../users/session.php';
 ?>
@@ -26,13 +26,14 @@ include '../../users/session.php';
         <?php include '../../modals/delivery_order/isn.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/inventory/editTagM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
 
         <h2>Summary</h2>
         <hr>
         <form method="post" id="filterForm">
             <div class="row">
-                <div class="col-2">
+                <div class="col-3">
                     <label for="periodFilter"><strong>Period :</strong></label>
                     <div id="periodFilterParent">
                         <select class="form-select" name="periodFilter" id="periodFilter">
@@ -50,20 +51,20 @@ include '../../users/session.php';
                         </select>
                     </div>
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                     <label for="periodFilter"><strong>Area :</strong></label>
                     <div id="areaFilterParent">
                         <select class="form-select" name="areaFilter" id="areaFilter">
                             <option disabled selected>Select Area</option>
                             <option value="">ALL</option>
                             <?php
-                            $sql1 = "SELECT areaname FROM tarea ORDER BY que";
+                            $sql1 = "SELECT areacode, areaname FROM tarea ORDER BY que";
                             $periods = mysqli_query($conn, $sql1);
                             while ($period = mysqli_fetch_array($periods, MYSQLI_ASSOC)):
                                 ;
                                 ?>
                                 <option value="<?php echo $period['areaname']; ?>">
-                                    <?php echo $period['areaname']; ?>
+                                <?php echo $period['areacode']; ?> - <?php echo $period['areaname']; ?>
                                 </option>
                             <?php endwhile; ?>
                         </select>
@@ -72,52 +73,35 @@ include '../../users/session.php';
             </div>
         </form>
         <br>
-        <table id="reportingTable" class="table">
-            <thead>
-                <tr>
-                    <th>NO</th>
-                    <th>TAG NO</th>
-                    <th>OWNER</th>
-                    <th>AREA CODE</th>
-                    <th>AREA NAME</th>
-                    <th>SUB LOC</th>
-                    <th>ACCOUNT</th>
-                    <th>MODEL</th>
-                    <th>PART NO</th>
-                    <th>PART DESC</th>
-                    <th>QTY</th>
-                    <th>UOM</th>
-                    <th>DATE</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <?php include '../../footer.php' ?>
+        <div class="table-responsive">
+            <table id="reportingTable" class="table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>QUE</th>
+                        <th>TAG NO</th>
+                        <th>OWNER</th>
+                        <th>AREA CODE</th>
+                        <th>AREA NAME</th>
+                        <th>SUB LOC</th>
+                        <th>ACCOUNT</th>
+                        <th>MODEL</th>
+                        <th>PART NO</th>
+                        <th>PART DESC</th>
+                        <th>QTY</th>
+                        <th>UOM</th>
+                        <th>DATE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <!-- <?php include '../../footer.php' ?> -->
     </div>
 
     <script>
         $('#periodFilter, #areaFilter').on('change', function () {
-            // Call the submitForm function to submit the form
-            $.ajax({
-                type: 'POST',
-                url: 'dbCrudFunctions/table.php',
-                data: $('#filterForm').serialize() + '&mode=reporting',
-                dataType: 'json',
-                success: function (response) {
-                    if (response.status == 'timeout') {
-                        window.location.href = '/vsite/cms/users/login.php';
-                    } else if (response.status == 'period') {
-                        alert(response.message);
-                    } else {
-                        if (response.data !== null) {
-                            table.clear().rows.add(response.data).draw();
-                        } else {
-                            table.clear().draw();
-                        }
-                    }
-
-                }
-            });
+            loadTableWithFilter();
         });
 
         function loadReportingTable() {
@@ -139,6 +123,65 @@ include '../../users/session.php';
             });
         }
 
+        function loadTableWithFilter() {
+            // Call the submitForm function to submit the form
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/table.php',
+                data: $('#filterForm').serialize() + '&mode=reporting',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else if (response.status == 'period') {
+                        alert(response.message);
+                    } else {
+                        if (response.data !== null) {
+                            table.clear().rows.add(response.data).draw();
+                        } else {
+                            table.clear().draw();
+                        }
+                    }
+
+                }
+            });
+        }
+
+        function editmodal(id) {
+
+            //THIS IS JQUERY AJAX METHOD
+            $.ajax({
+                type: 'GET',
+                url: 'edit.php',
+                data: { queryid: id, mode: 'edittag' },
+                success: function (data) {
+                    $("#display_detailsedit").html(data); //the data is displayed in id=display_details
+                }
+            });
+        }
+
+        $('#editTagForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/vsite/cms/pages/inventory/dbCrudFunctions/update.php',
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    } else if (response == 'success') {
+                        $('#editTagModal').modal('hide');
+                        loadTableWithFilter();
+                    } else {
+                        alert('Failed');
+                    }
+                }
+            });
+        });
+
+
+
         var table = $('#reportingTable').DataTable({
             fixedHeader: true,
             responsive: true,
@@ -159,10 +202,15 @@ include '../../users/session.php';
             // order: [[0, 'desc']],
             columnDefs: [
                 {
-                    target: 12,
+                    target: 13,
                     visible: false,
                     searchable: false
                 },
+                {
+                    target: 1,
+                    visible: false,
+                    searchable: false
+                }
             ],
             columns: [
                 {
@@ -184,7 +232,17 @@ include '../../users/session.php';
                 { data: 8 },
                 { data: 9 },
                 { data: 10 },
-                { data: 11 }
+                { data: 11 },
+                { data: 12 },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        var token = row[0];
+                        var href = '/vsite/cms/pages/inventory/inventory_tag.php?id=' + token;
+                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editTagModal" onClick="editmodal(\'' + token + '\')">EDIT</button>' +
+                            '<a href="' + href + '" target="_blank"><button type="button" class="btn btn-sm btn-success" href="">PRINT</button></a></div>';
+                    }
+                }
             ]
         });
 

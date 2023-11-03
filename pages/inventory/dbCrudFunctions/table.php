@@ -71,7 +71,7 @@ if ($mode == 'period') {
             // Join the conditions with AND operator
             $whereClause = implode(' AND ', $conditions);
 
-            $query2 = "SELECT tinventorytag.tagno, tarea.owner, tinventorytag.areacode, tarea.areaname, 
+            $query2 = "SELECT DISTINCT tinventorytag.que, tinventorytag.tagno, tarea.owner, tinventorytag.areacode, tarea.areaname, 
                             tinventorytag.subloc, tpartmaster.account, tpartmaster.model, tpartmaster.partno, 
                             tpartmaster.partdesc, tinventorytag.qty, tinventorytag.uom, tinventorytag.cd
                         FROM tarea JOIN tinventorytag ON tinventorytag.areacode = tarea.areacode
