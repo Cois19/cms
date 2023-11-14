@@ -79,7 +79,7 @@ if ($mode == 'period') {
 
             // Add the WHERE clause if there are conditions
             if (!empty($whereClause)) {
-                $query2 .= " WHERE $whereClause";
+                $query2 .= " WHERE $whereClause AND tinventorytag.tperiodque = $period AND tpartmaster.tperiodque = $period AND tarea.tperiodque = $period";
             }
 
             $query2 .= " ORDER BY tinventorytag.que DESC";

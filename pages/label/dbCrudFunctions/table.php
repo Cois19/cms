@@ -4,13 +4,9 @@ date_default_timezone_set("Asia/Jakarta");
 
 $mode = $_POST['mode'];
 
-if ($mode == 'period') {
+if ($mode == 'rules') {
     include '../../../users/session.php';
-    $query2 = "SELECT que, periodname, periodstart, periodend, description, remarks, 
-                    CASE
-                        WHEN status = 0 THEN 'INACTIVE'
-                        ELSE 'ACTIVE'
-                    END, cd FROM tperiod ORDER BY cd DESC";
+    $query2 = "SELECT que, model, type, ruleseparator, labelrules, remarks, cd FROM tlabelrules ORDER BY que DESC";
 
     if ($select_result2 = mysqli_query($conn, $query2)) {
         $response1 = array();

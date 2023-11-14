@@ -15,66 +15,71 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 } else {
     include '../../../users/session.php';
 
-    if (!empty($_POST['do'])) {
-        $do = explode(',', $_POST['do']);
+    // Handle the form submission
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $mode = $_POST['mode'];
 
-        $palletid = $do[0];
-        $partno = $do[1];
+        if ($mode == 'labelrule') {
+            $model = $_POST["model"];
+            $labelType = $_POST["labelType"];
+            $ruleSeparator = $_POST["ruleSeparator"];
+            $labelRemarks = $_POST["labelRemarks"];
 
-        // get partname
-        $query4 = "SELECT tpname, tpmodel FROM tdatamaster WHERE tpn = '$partno'";
-        $result4 = mysqli_query($conn, $query4);
-        $row4 = mysqli_fetch_assoc($result4);
-        $partname = $row4['tpname'];
-        $tpmodel = $row4['tpmodel'];
+            // Create an array to hold label rules
+            $labelRules = [];
 
-        $dnnumber = $do[3];
-        $qty = $do[4];
-        $boxcount = $do[5];
-        $date = $do[6];
+            for ($i = 1; isset($_POST["fixedLength$i"]); $i++) {
+                $fixedLength = $_POST["fixedLength$i"];
+                $requiredString = $_POST["requiredString$i"];
+                $fixedString = $_POST["fixedString$i"];
 
-        // Check if the same data already exists in tdoc table
-        $query = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tdate = '$date' AND tpmodel = '$tpmodel' LIMIT 1";
-        $result = mysqli_query($conn, $query);
+                // Create an object to represent each label rule with a unique key
+                $labelRule = [
+                    "fixedLength" => $fixedLength,
+                    "requiredString" => $requiredString,
+                    "fixedString" => $fixedString,
+                ];
 
-        if (mysqli_num_rows($result) > 0) {
-            // Data already exists, set response as "fail" and retrieve que
-            $response = "fail";
-            $row = mysqli_fetch_assoc($result);
-            $que = $row['que'];
-        } else {
-            if (strlen($palletid) == 16) { // PTB
-                $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$dnnumber', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'PTB', '$ucost', CURRENT_TIMESTAMP, '$uid')";
-            } else if (strlen($palletid) == 8) { // SMT
-                $query1 = "INSERT INTO tdoc(tpid, tpno, tpname, tdono, tqty, tbxcount, tdate, tstatus, tpmodel, tvendor, tcost, cd, cp) 
-                VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'SMT', '$ucost', CURRENT_TIMESTAMP, '$uid')";
+                // Add the label rule object to the labelRules array with a unique key
+                $labelRules["labelRule$i"] = $labelRule;
             }
 
-            $result1 = mysqli_query($conn, $query1);
+            // Convert the labelRules array to a JSON string
+            $labelRulesJson = json_encode($labelRules);
 
-            if ($result1 != 1) {
-                error_log("Error in insert query: " . mysqli_error($conn));
+            // Insert the data into the MySQL table
+            $query = "INSERT INTO tlabelrules (model, type, ruleseparator, labelrules, remarks, cd, cp) VALUES ('$model', '$labelType', '$ruleSeparator', '$labelRulesJson', '$labelRemarks', CURRENT_TIMESTAMP(), '$uid')";
+            $result = mysqli_query($conn, $query);
+            // echo $query;
+
+            if ($result) {
+                $response = 'success';
             } else {
-                // Data inserted successfully, set response as "success"
-                $response = "success";
-
-                // Insert into tlog
-                $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INSERT TDOC', '$palletid', CURRENT_TIMESTAMP, '$uid')";
-                $result2 = mysqli_query($conn, $query2);
-
-                // Retrieve que for the newly inserted data
-                $query3 = "SELECT que FROM tdoc WHERE tpid = '$palletid' AND tpno = '$partno' AND tpname = '$partname' AND tqty = '$qty' AND tdate = '$date' LIMIT 1";
-                $result3 = mysqli_query($conn, $query3);
-                $row = mysqli_fetch_assoc($result3);
-                $que = $row['que'];
+                $response = 'queryfail';
             }
-        }
+        } else if ($mode == 'labelscan') {
+            $ruleQue = $_POST['ruleQue'];
 
+            $query2 = "SELECT ruleseparator FROM tlabelrules WHERE que = $ruleQue";
+            $result2 = mysqli_query($conn, $query2);
+            $separator = mysqli_fetch_assoc($result2)[0];
+
+            // echo $query2;
+
+            // $query2 = 'INSERT INTO tlabel(value) VALUES("test")';
+            // $result2 = mysqli_query($conn, $query2);
+
+            if ($result2) {
+                $response = 'success';
+            } else {
+                $response = 'queryfail';
+            }
+            
+        }
     } else {
-        $response = "empty";
-        $que = "empty";
+        $response = 'fail';
     }
+
 }
 
 $responseData = array(

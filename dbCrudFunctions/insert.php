@@ -230,7 +230,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $model = $rowData[4];
 
                 // Check if the part number already exists in the tpartmaster table
-                $checkSql = "SELECT * FROM tpartmaster WHERE partno = '$partno'";
+                $checkSql = "SELECT * FROM tpartmaster WHERE partno = '$partno' AND tperiodque = $period_que";
                 $result = mysqli_query($conn, $checkSql);
 
                 if (mysqli_num_rows($result) > 0) {
@@ -284,7 +284,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $owner = $rowData[2];
 
                 // Check if the area code already exists in the tarea table
-                $checkSql = "SELECT * FROM tarea WHERE areacode = '$areacode'";
+                $checkSql = "SELECT * FROM tarea WHERE areacode = '$areacode' AND tperiodque = $period_que";
                 $result = mysqli_query($conn, $checkSql);
 
                 if (mysqli_num_rows($result) > 0) {

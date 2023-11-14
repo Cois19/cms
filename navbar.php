@@ -48,6 +48,11 @@
             <li><button class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePassModal">Change Password</button></li>
           </ul>
         </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link" href="/vsite/cms/pages/label/rule.php">
+            Label Check
+          </a>
+        </li>
       </ul>
       <span class="text-light">Welcome,
         <?php echo $uname; ?>

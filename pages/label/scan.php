@@ -2,6 +2,21 @@
 include '../../database/connect.php';
 include '../../users/session.php';
 
+$que = $_GET['id'];
+$hideIfNot1 = '';
+
+$query4 = "SELECT * FROM tlabelrules WHERE que = $que";
+$result4 = mysqli_query($conn, $query4);
+if ($result4 && mysqli_num_rows($result4) > 0) {
+    $row4 = mysqli_fetch_assoc($result4);
+
+    // if ($row4['tstatus'] != 1) {
+    //     $hideIfNot1 = "d-none";
+    // }
+} else {
+
+    // header("Location: index.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -11,10 +26,8 @@ include '../../users/session.php';
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Period Details</title>
+    <title>Label Scan</title>
     <?php include '../../scripts.php' ?>
-    <!-- use version 0.20.0 -->
-    <!-- <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script> -->
 </head>
 
 <body>
@@ -23,87 +36,173 @@ include '../../users/session.php';
     <div class="mb-3"></div>
     <div class="container">
         <!-- Modals -->
+        <?php include '../../modals/delivery_order/create.php'; ?>
+        <?php include '../../modals/edit.php'; ?>
+        <?php include '../../modals/delivery_order/resetM.php'; ?>
+        <?php include '../../modals/delivery_order/deleteDoM.php'; ?>
+        <?php include '../../modals/delivery_order/grM.php'; ?>
+        <?php include '../../modals/changePassM.php'; ?>
+        <?php include '../../modals/delivery_order/scanCompleteM.php'; ?>
+        <?php include '../../modals/delivery_order/deleteISNM.php'; ?>
+        <?php include '../../modals/inventory/addPeriodM.php'; ?>
+        <?php include '../../modals/loadingSpinnerM.php'; ?>
+        <?php include '../../modals/isnDownloadCompleteM.php'; ?>
+        <?php include '../../modals/label/scanLabelM.php'; ?>
 
-        <form method="post" id="inputRuleForm" class="col-6">
-            <h4>Input Label Rules</h4>
-            <hr>
-            <div class="form-group mb-3">
-                <label for="labelName">Label Name</label>
-                <input type="text" class="form-control" id="labelName" placeholder="Label Name">
+        <div class="card border-dark mb-3" id="doCard">
+            <div class="card-header">
+                Label Rules
             </div>
-            <div class="form-group mb-3">
-                <label for="ruleSeparator">Rule Separator</label>
-                <input type="text" class="form-control" id="ruleSeparator" placeholder="Example: , or ; or -">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Model</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['model']; ?>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Separator</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['ruleseparator']; ?>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">Remarks</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['remarks']; ?>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                        <h5 class="card-title">CD</h5>
+                        <p class="card-text mb-2">
+                            <?php echo $row4['cd']; ?>
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between">
+                    <div class="btn-group mb-3 mb-lg-0 <?php echo $hideIfNot1 ?>">
+                        <button id="scanLabelBtn" href="#" data-bs-toggle="modal" data-bs-target="#scanLabelModal"
+                            class="btn btn-primary">Scan
+                            Label</button>
+                    </div>
+                    <!-- <div class="btn-group <?php echo $hideIfNot1 ?>">
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#resetModal" class="btn btn-danger"
+                            <?php echo ($utype == 3) ? 'disabled' : ''; ?>>Reset
+                            ISN</button>
+                        <button href="#" data-bs-toggle="modal" data-bs-target="#deleteDoModal" class="btn btn-danger"
+                            <?php echo ($utype != 1) ? 'disabled' : ''; ?>>Delete
+                            DO</button>
+                    </div> -->
+                </div>
             </div>
-            <div id="additionalFields">
-                <button type="button" onclick="newFields()" class="btn btn-secondary mb-3"><i
-                        class="bi bi-plus-circle"></i> Add Label Rules</button>
-            </div>
-            <!-- <div class="form-group mb-3">
-                <label for="approvaldate">Approval Date</label>
-                <input type="date" class="form-control" id="approvaldate" placeholder="Approval Date">
-            </div> -->
-            <button id="inputBtn" type="submit" class="btn btn-success">Submit</button>
-        </form>
+        </div>
 
+        <div class="table-responsive">
+            <!-- <table id="labelTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>QUE</th>
+                        <th>MODEL</th>
+                        <th>TYPE</th>
+                        <th>LABEL</th>
+                        <th>CD</th>
+                        <th colspan="1" rowspan="1"></th>
+                    </tr>
+                </thead>
+            </table> -->
+        </div>
         <?php include '../../footer.php' ?>
     </div>
 
     <script>
-        $(document).ready(function () {
+        $('#newLabelForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/insert.php',
+                data: $(this).serialize() + '&mode=labelscan' + '&ruleQue=<?php echo $que; ?>',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == 'success') {
+                        playPassSound();
+                        $('#newLabelForm')[0].reset();
+                        // $('#isn').focus();
+                        // updateQtyCount();
+                        // loadTable();
+                    // } else if (response.status == 'fail') {
+                    //     playFailSound(function () {
+                    //         playDuplicateSound();
+                    //     });
+                    //     $('#newLabelForm')[0].reset();
+                    //     $('#isn').focus();
+                    // } else if (response.status == 'empty') {
+                    //     alert('ISN Cannot be Empty!');
+                    // } else if (response.status == 'timeout') {
+                    //     window.location.href = '/vsite/cms/users/login.php';
+                    // } else if (response.status == 'length') {
+                    //     playFailSound();
+                    //     $('#newLabelForm')[0].reset();
+                    //     $('#isn').focus();
+                    // } else if (response.status == 'wrongisn') {
+                    //     playFailSound(function () {
+                    //         playInvalidIsnSound();
+                    //     });
+                    //     $('#newLabelForm')[0].reset();
+                    //     $('#isn').focus();
+                    } else {
+                        alert('Failed');
+                    }
+                }
+            });
         });
 
-        function newFields() {
-            var count = $('#additionalFields .field-set').length + 1; // Get the current number of input fields and add 1
-            var html = '<h5>Label Rule ' + count + '</h5>' +
-                '<div style="display: flex;" class="field-set">' +
-                '<div class="form-group mb-3" style="margin-right: 8px; width: 22%;">' +
-                '<label for="minlength' + count + '">Min Length</label>' +
-                '<input type="text" class="form-control" id="minlength' + count + '" placeholder="Example: 3">' +
-                '</div>' +
-                '<div class="form-group mb-3" style="margin-right: 8px; width: 22%;">' +
-                '<label for="fixedLength' + count + '">Fixed Length</label>' +
-                '<input type="text" class="form-control" id="fixedLength' + count + '" placeholder="Example: 3">' +
-                '</div>' +
-                '<div class="form-group mb-3" style="margin-right: 8px; width: 22%;">' +
-                '<label for="requiredString' + count + '">Required String</label>' +
-                '<input type="text" class="form-control" id="requiredString' + count + '" placeholder="Example: ssid:">' +
-                '</div>' +
-                '<div class="form-group mb-3" style="margin-right: 8px; width: 22%;">' +
-                '<label for="fixedString' + count + '">Fixed String</label>' +
-                '<input type="text" class="form-control" id="fixedString' + count + '" placeholder="Example: CM">' +
-                '</div>' +
-                '<button class="btn btn-secondary align-self-center remove-fieldset" style="height: 50%; margin-top: 8px;" ' + (count == 1 ? 'disabled' : '') + '><i class="bi bi-x-circle"></i></button>' +
-                '</div>';
-            $('#additionalFields').append(html); // Append the new input field to the additionalPartnumbers div
+        var passSound = new Audio('/vsite/cms/assets/audio/pass.mp3');
+        var failSound = new Audio('/vsite/cms/assets/audio/fail.mp3');
+        var duplicateSound = new Audio('/vsite/cms/assets/audio/duplicate.mp3');
+        var dnCompleteSound = new Audio('/vsite/cms/assets/audio/dn complete.mp3');
+        var wrongPnSound = new Audio('/vsite/cms/assets/audio/wrong pn.mp3');
+        var invalidIsn = new Audio('/vsite/cms/assets/audio/invalid isn.mp3');
+
+        function playSound(sound, callback) {
+            var clone = sound.cloneNode(true);
+            clone.play();
+            clone.onended = function () {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            };
         }
 
-        $('#additionalFields').on('click', '.remove-fieldset', function () {
-            var fieldset = $(this).parent(); // Get the current fieldset
-            var index = fieldset.index(); // Get the index of the current fieldset
-            var h5 = fieldset.prev('h5'); // Get the preceding h5 element
+        function playPassSound(callback) {
+            playSound(passSound, callback);
+        }
 
-            // Check if the current fieldset is the bottom-most one
-            if (index == $('#additionalFields').children().length - 1) {
-                fieldset.remove(); // Remove the current fieldset
-                h5.remove(); // Remove the preceding h5 element
+        function playFailSound(callback) {
+            playSound(failSound, callback);
+        }
 
-                // Check if the preceding fieldset is not the first one
-                if (index > 0) {
-                    var prevFieldset = $('#additionalFields .field-set').eq(index - 1);
+        function playDuplicateSound() {
+            playSound(duplicateSound);
+        }
 
-                    // Enable the remove button of the preceding fieldset
-                    prevFieldset.find('.remove-fieldset').prop('disabled', false);
-                }
-            } else {
-                alert("Please remove the bottom one first.");
-            }
-        });
+        function playDnCompleteSound() {
+            playSound(dnCompleteSound);
+        }
 
-        $('#inputRuleForm').submit(function (event) {
-            event.preventDefault(); // Prevent form submission
+        function playWrongPnSound() {
+            playSound(wrongPnSound);
+        }
 
+        function playInvalidIsnSound() {
+            playSound(invalidIsn);
+        }
 
+        $(document).ready(function () {
+            // updateQtyCount();
+            // loadTable();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>

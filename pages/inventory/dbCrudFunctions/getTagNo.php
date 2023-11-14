@@ -27,7 +27,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
         $data .= $period . '-' . $areaCode . '-';
         
         // Fetch the last tag number from the database
-        $lastTagNoQuery = "SELECT tagno FROM tinventorytag ORDER BY que DESC LIMIT 1";
+        $lastTagNoQuery = "SELECT tagno FROM tinventorytag WHERE tperiodque = $que ORDER BY que DESC LIMIT 1";
         $lastTagNoResult = mysqli_query($conn, $lastTagNoQuery);
         if ($lastTagNoRow = mysqli_fetch_assoc($lastTagNoResult)) {
             $lastTagNo = $lastTagNoRow['tagno'];
