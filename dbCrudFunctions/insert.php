@@ -264,6 +264,81 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $response = "empty";
             $que = "empty";
         }
+    } else if ($mode == 'importsapequipment') {
+        $partData = json_decode($_POST['excelData'], true); // Decode the JSON data sent from the client
+
+        if (!empty($partData)) {
+            $firstRowSkipped = false; // Track if the first row has been skipped
+
+            $insertSql = "INSERT INTO tsapequipment (`no`, asset, descriptiontype) VALUES ";
+            // $insertSql = "INSERT INTO tisn_sum (tdono, tisn, tmodel, tstatus, tvendor, tcost, tdoc_que, cp, cd, tpn) VALUES ";
+            foreach ($partData as $rowData) {
+                if (!$firstRowSkipped) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped = true;
+                    continue;
+                }
+                
+                $no = mysqli_real_escape_string($conn, $rowData[0]); // Assuming the first column contains 'no'
+                // $projectcode = $rowData[1]; 
+                // $category = $rowData[2];
+                // $line = $rowData[3];
+                $asset = mysqli_real_escape_string($conn, $rowData[1]);
+                // $objecttype = $rowData[5];
+                $descriptiontype = mysqli_real_escape_string($conn, $rowData[2]);
+                // $station = $rowData[7];
+                // $deviceid = $rowData[8];
+                // $consumable = $rowData[9];
+                // $qty = $rowData[10];
+                // $location = $rowData[11];
+
+                // $tdono = $rowData[0];
+                // $tisn = $rowData[1];
+                // $tmodel = $rowData[2];
+                // $tstatus = $rowData[3];
+                // $tvendor = $rowData[4];
+                // $tcost = $rowData[5];
+                // $tdoc_que = $rowData[6];
+                // $cp = $rowData[7];
+                // $cd = $rowData[8];
+                // $tpn = $rowData[9];
+
+                // Check if the part number already exists in the tpartmaster table
+                // $checkSql = "SELECT * FROM tsapequipment WHERE ";
+                // $result = mysqli_query($conn, $checkSql);
+
+                // if (mysqli_num_rows($result) > 0) {
+                //     // Data already exists, skip this row
+                //     continue;
+                // }
+
+                // Insert the data into the tpartmaster table
+                $insertSql .= "($no, '$asset', '$descriptiontype'),";
+                // $insertSql .= "('$tdono', '$tisn', '$tmodel', $tstatus, '$tvendor', '$tcost', $tdoc_que, '$cp', '$cd', '$tpn'),";
+            }
+
+            // Remove the trailing comma
+            $insertSql = rtrim($insertSql, ",");
+            $result1 = mysqli_query($conn, $insertSql);
+
+            if ($result1 != 1) {
+                error_log("Error in insert query: " . mysqli_error($conn));
+            } else {
+                $response = "success";
+                // Insert into tlog
+                // $query2 = "INSERT INTO tlog(tprocess, var1, cd, cp) VALUES('INSERT SAP EQUIPMENT', '$period_que', CURRENT_TIMESTAMP, '$uid')";
+                // $result2 = mysqli_query($conn, $query2);
+
+                // Retrieve the 'que' for the newly inserted data
+                // $query3 = "SELECT que FROM tpartmaster WHERE partno = '$partno' LIMIT 1";
+                // $result3 = mysqli_query($conn, $query3);
+                // $row = mysqli_fetch_assoc($result3);
+                // $que = $row['que'];
+            }
+        } else {
+            $response = "empty";
+            $que = "empty";
+        }
     } else if ($mode == 'importarea') {
         $areaData = json_decode($_POST['excelData'], true); // Decode the JSON data sent from the client
 
@@ -328,6 +403,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $partno = $_POST['partno'];
             $qty = $_POST['qty'];
             $uom = $_POST['uom'];
+            $tagremarks = $_POST['tagremarks'];
 
             // Check if part no exists
             $query = "SELECT partno FROM tpartmaster WHERE partno = '$partno' AND tperiodque = $period_que";
@@ -337,16 +413,16 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 // part no doesn't exist
                 $response = "fail";
             } else {
-                // Check if part no exists
+                // Check if tag no exists
                 $query5 = "SELECT tagno FROM tinventorytag WHERE tagno = '$tagno' AND tperiodque = $period_que";
                 $result5 = mysqli_query($conn, $query5);
 
                 if (mysqli_num_rows($result5) > 0) {
-                    // part no doesn't exist
+                    // tag no doesn't exist
                     $response = "tagnoduplicate";
                 } else {
-                    $query1 = "INSERT INTO tinventorytag(areacode, tagno, subloc, partno, qty, uom, tperiodque, cd, cp) 
-                    VALUES('$areacode', '$tagno', '$subloc', '$partno', '$qty', '$uom', '$period_que', CURRENT_TIMESTAMP, '$uid')";
+                    $query1 = "INSERT INTO tinventorytag(areacode, tagno, subloc, partno, qty, uom, tag_remarks, tperiodque, cd, cp) 
+                    VALUES('$areacode', '$tagno', '$subloc', '$partno', '$qty', '$uom', '$tagremarks', '$period_que', CURRENT_TIMESTAMP, '$uid')";
                     $result1 = mysqli_query($conn, $query1);
 
                     if ($result1 != 1) {

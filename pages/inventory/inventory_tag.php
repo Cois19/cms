@@ -5,7 +5,7 @@ include '../../users/session.php';
 $que = $_GET['id'];
 $hideIfNot1 = '';
 
-$query4 = "SELECT DATE_FORMAT(tperiod.periodstart, '%Y-%m') AS periodname, tinventorytag.tagno, tinventorytag.partno, tpartmaster.partdesc, tarea.areacode, tarea.areaname, tinventorytag.subloc, tinventorytag.qty, tinventorytag.uom
+$query4 = "SELECT DATE_FORMAT(tperiod.periodstart, '%Y-%m') AS periodname, tinventorytag.tagno, tinventorytag.partno, tpartmaster.partdesc, tarea.areacode, tarea.areaname, tinventorytag.subloc, tinventorytag.qty, tinventorytag.uom, tinventorytag.tag_remarks
             FROM tinventorytag JOIN tperiod ON tperiod.que = tinventorytag.tperiodque
             JOIN tpartmaster ON tpartmaster.partno = tinventorytag.partno
             JOIN tarea ON tarea.areacode = tinventorytag.areacode
@@ -94,8 +94,11 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         </div>
         <div class="p-1">
             <div class="row border border-dark">
-                <div class="row">
-                    <div class="col-4 fs-5" style="height: 100px"><strong>Remark</strong> : </div>
+                <div class="row fs-5">
+                    <div class="col-4"><strong>Remark</strong> : </div>
+                    <div class="col-8 ps-0">
+                        <?php echo nl2br(htmlspecialchars($row4['tag_remarks'])); ?>
+                    </div>
                 </div>
             </div>
         </div>

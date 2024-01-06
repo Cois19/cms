@@ -28,6 +28,7 @@ include '../../users/session.php';
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/inventory/editTagM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
+        <?php include '../../modals/inventory/deleteTagM.php'; ?>
 
         <h2>Summary</h2>
         <hr>
@@ -90,6 +91,7 @@ include '../../users/session.php';
                         <th>PART DESC</th>
                         <th>QTY</th>
                         <th>UOM</th>
+                        <th>REMARKS</th>
                         <th>DATE</th>
                         <th>ACTION</th>
                     </tr>
@@ -180,10 +182,39 @@ include '../../users/session.php';
             });
         });
 
+        // Move this event binding outside both functions and ensure it's bound only once
+        $('#confirmDeleteTagBtn').on('click', function () {
+            var tagToDelete = $(this).data('tag'); // Get the Tag from the data attribute
+            $('#deleteTagModal').modal('hide');
+            confirmDeleteTag(tagToDelete);
+        });
 
+        function deleteTag(tag) {
+            $('#deleteTagModal').modal('show');
+            $('#confirmDeleteTagBtn').data('tag', tag); // Store the Tag in the data attribute
+        }
+
+        function confirmDeleteTag(tag) {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/deleteRowTag.php',
+                data: { tag: tag },
+                success: function (response) {
+                    if (response == 'success') {
+                        // $('#deleteISNModal').modal('hide');
+                    } else if (response == 'fail') {
+                        alert('Delete Failed');
+                    } else if (response == 'unauthorized') {
+                        alert('Ask Admin Level User to Delete.');
+                    } else if (response == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    }
+                    loadTableWithFilter();
+                }
+            });
+        }
 
         var table = $('#reportingTable').DataTable({
-            fixedHeader: true,
             responsive: true,
             dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
             buttons: [
@@ -202,7 +233,7 @@ include '../../users/session.php';
             // order: [[0, 'desc']],
             columnDefs: [
                 {
-                    target: 13,
+                    target: 14,
                     visible: false,
                     searchable: false
                 },
@@ -234,13 +265,15 @@ include '../../users/session.php';
                 { data: 10 },
                 { data: 11 },
                 { data: 12 },
+                { data: 13 },
                 {
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
                         var href = '/vsite/cms/pages/inventory/inventory_tag.php?id=' + token;
                         return '<div class="btn-group"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editTagModal" onClick="editmodal(\'' + token + '\')">EDIT</button>' +
-                            '<a href="' + href + '" target="_blank"><button type="button" class="btn btn-sm btn-success" href="">PRINT</button></a></div>';
+                            '<a href="' + href + '" target="_blank"><button type="button" class="btn btn-sm btn-success" href="">PRINT</button></a>' + 
+                            '<button type="button" class="btn btn-sm btn-danger" onClick="deleteTag(\'' + token + '\')">DELETE</button></div>';
                     }
                 }
             ]

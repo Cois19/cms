@@ -175,7 +175,8 @@ include '../../users/session.php';
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
-                        var href = '/vsite/cms/pages/label/scan.php?id=' + token;
+                        var model = row[1];
+                        var href = '/vsite/cms/pages/label/scan.php?id=' + token + '&model=' + model;
                         return '<div class="btn-group"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editTagModal" onClick="editmodal(\'' + token + '\')">EDIT</button>' +
                             '<a href="' + href + '" target="_blank"><button type="button" class="btn btn-sm btn-success" href="">SCAN</button></a></div>';
                     }

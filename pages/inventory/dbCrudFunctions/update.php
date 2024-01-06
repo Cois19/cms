@@ -18,8 +18,9 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     $areacode = $_POST['areacode'];
     $subloc = $_POST['subloc'];
     $qty = $_POST['qty'];
+    $tagremarks = $_POST['tagremarks'];
 
-    $query = "UPDATE tinventorytag SET areacode = '$areacode', subloc = '$subloc', qty = $qty, cd = CURRENT_TIMESTAMP(), cp = '$uid' WHERE que = $id";
+    $query = "UPDATE tinventorytag SET areacode = '$areacode', subloc = '$subloc', qty = $qty, tag_remarks = '$tagremarks', cd = CURRENT_TIMESTAMP(), cp = '$uid' WHERE que = $id";
     $result = mysqli_query($conn, $query);
 
     if ($result) {

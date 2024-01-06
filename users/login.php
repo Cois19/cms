@@ -63,6 +63,8 @@ if (isset($_SESSION['login']) && $_SESSION['login'] == "yes") {
         </div>
     </div>
     <!-- </main> -->
+    <br><br><br><br><br><br>
+    <?php include '../footer.php' ?>
 </body>
 
 <script>

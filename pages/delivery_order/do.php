@@ -311,7 +311,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     } else if (response == 'fail') {
                         alert('Delete Failed');
                     } else if (response == 'unauthorized') {
-                        alert('Admin only!');
+                        alert('Ask Admin Level User to Delete.');
                     } else if (response == 'timeout') {
                         window.location.href = '/vsite/cms/users/login.php';
                     }

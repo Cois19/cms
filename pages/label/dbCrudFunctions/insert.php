@@ -59,17 +59,27 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             }
         } else if ($mode == 'labelscan') {
             $ruleQue = $_POST['ruleQue'];
+            $label = $_POST['label'];
 
             $query2 = "SELECT ruleseparator FROM tlabelrules WHERE que = $ruleQue";
             $result2 = mysqli_query($conn, $query2);
-            $separator = mysqli_fetch_assoc($result2)[0];
 
-            // echo $query2;
+            if (mysqli_num_rows($result2) > 0) {
+                $row2 = mysqli_fetch_assoc($result2);
+                $ruleseparator = $row2['ruleseparator'];
 
-            // $query2 = 'INSERT INTO tlabel(value) VALUES("test")';
-            // $result2 = mysqli_query($conn, $query2);
+                
+        
+                $query4 = "SELECT labelrules FROM tlabelrules WHERE que = $ruleQue";
+                $result4 = mysqli_query($conn, $query4);
+            } else {
 
-            if ($result2) {
+            }
+
+            $query3 = "INSERT INTO tlabel(value) VALUES('$label')";
+            $result3 = mysqli_query($conn, $query3);
+
+            if ($result3) {
                 $response = 'success';
             } else {
                 $response = 'queryfail';

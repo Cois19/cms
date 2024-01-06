@@ -73,7 +73,7 @@ if ($mode == 'period') {
 
             $query2 = "SELECT DISTINCT tinventorytag.que, tinventorytag.tagno, tarea.owner, tinventorytag.areacode, tarea.areaname, 
                             tinventorytag.subloc, tpartmaster.account, tpartmaster.model, tpartmaster.partno, 
-                            tpartmaster.partdesc, tinventorytag.qty, tinventorytag.uom, tinventorytag.cd
+                            tpartmaster.partdesc, tinventorytag.qty, tinventorytag.uom, tinventorytag.tag_remarks, tinventorytag.cd
                         FROM tarea JOIN tinventorytag ON tinventorytag.areacode = tarea.areacode
                         JOIN tpartmaster ON tpartmaster.partno = tinventorytag.partno";
 

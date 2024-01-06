@@ -3,6 +3,7 @@ include '../../database/connect.php';
 include '../../users/session.php';
 
 $que = $_GET['id'];
+$model = $_GET['model'];
 $hideIfNot1 = '';
 
 $query4 = "SELECT * FROM tlabelrules WHERE que = $que";
@@ -99,10 +100,9 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
         </div>
 
         <div class="table-responsive">
-            <!-- <table id="labelTable" class="table table-hover">
+            <table id="labelTable" class="table table-hover">
                 <thead>
                     <tr>
-                        <th>NO</th>
                         <th>QUE</th>
                         <th>MODEL</th>
                         <th>TYPE</th>
@@ -111,7 +111,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <th colspan="1" rowspan="1"></th>
                     </tr>
                 </thead>
-            </table> -->
+            </table>
         </div>
         <?php include '../../footer.php' ?>
     </div>
@@ -129,7 +129,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                     if (response.status == 'success') {
                         playPassSound();
                         $('#newLabelForm')[0].reset();
-                        // $('#isn').focus();
+                        $('#label').focus();
                         // updateQtyCount();
                         // loadTable();
                     // } else if (response.status == 'fail') {
@@ -200,9 +200,69 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             playSound(invalidIsn);
         }
 
+        function loadTable() {
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/table.php',
+                data: { mode: 'label', model: '<?php echo $model; ?>' },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.data) {
+                        table.clear().rows.add(response.data).draw();
+                    } else {
+                        table.clear().draw();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX error:', error);
+                }
+            });
+        }
+
+        var table = $('#labelTable').DataTable({
+            fixedHeader: true,
+            responsive: true,
+            dom: '<"d-flex flex-wrap justify-content-between"B<"d-flex flex-wrap me-3"<"remaining-qty me-2"><"scanned-qty">><"d-flex flex-wrap justify-content-between"<"me-3"l>f>>rt<"d-flex flex-wrap justify-content-between"ip>',
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                        'copy',
+                        'excel',
+                        'csv',
+                        'pdf',
+                        'print'
+                    ]
+                }
+            ],
+            order: [[0, 'desc']],
+            columnDefs: [
+                {
+                    target: 0,
+                    visible: false,
+                    searchable: false
+                },
+            ],
+            columns: [
+                { data: 0 },
+                { data: 1 },
+                { data: 2 },
+                { data: 3 },
+                { data: 4 },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        var token = row[0];
+                        return '<button type="button" class="btn btn-sm btn-warning" onClick="deleteISN(\'' + token + '\')">DELETE</button>';
+                    }
+                }
+            ]
+        });
+
         $(document).ready(function () {
             // updateQtyCount();
-            // loadTable();
+            loadTable();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>

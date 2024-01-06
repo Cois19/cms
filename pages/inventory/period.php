@@ -156,6 +156,10 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
                         <select class="form-select" name="uom" id="uom"></select>
                     </div>
                 </div>
+                <div class="form-group mb-3">
+                    <label for="tagremarks">Remarks</label>
+                    <textarea type="text" class="form-control" name="tagremarks" id="tagremarks" placeholder="Remarks"></textarea>
+                </div>
                 <button id="printBtn" type="submit" class="btn btn-success">Print</button>
             </form>
         </div>
