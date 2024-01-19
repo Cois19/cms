@@ -21,6 +21,7 @@ if ($result->num_rows == 1) {
     $_SESSION['uname'] = $row['uname'];
     $_SESSION['uemail'] = $row['uemail'];
     $_SESSION['utype'] = $row['utype'];
+    $_SESSION['usection'] = $row['usection'];
     echo "success";
 } else {
     echo "Invalid badge or password";

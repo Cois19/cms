@@ -8,6 +8,18 @@ $tpid = '';
 $tpno = '';
 $mode = $_POST['mode'];
 
+function getParts($string, $positions)
+{
+    $parts = array();
+
+    foreach ($positions as $position) {
+        $parts[] = substr($string, 0, $position);
+        $string = substr($string, $position);
+    }
+
+    return $parts;
+}
+
 session_start();
 $inactive_timeout = 900; // 15 minutes in seconds
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $inactive_timeout) {
@@ -270,7 +282,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
         if (!empty($partData)) {
             $firstRowSkipped = false; // Track if the first row has been skipped
 
-            $insertSql = "INSERT INTO tsapequipment (`no`, asset, descriptiontype) VALUES ";
+            $insertSql = "INSERT INTO mc_linecode (linecode, floor) VALUES ";
             // $insertSql = "INSERT INTO tisn_sum (tdono, tisn, tmodel, tstatus, tvendor, tcost, tdoc_que, cp, cd, tpn) VALUES ";
             foreach ($partData as $rowData) {
                 if (!$firstRowSkipped) {
@@ -278,14 +290,14 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     $firstRowSkipped = true;
                     continue;
                 }
-                
-                $no = mysqli_real_escape_string($conn, $rowData[0]); // Assuming the first column contains 'no'
+
+                $linecode = mysqli_real_escape_string($conn, $rowData[0]); // Assuming the first column contains 'no'
                 // $projectcode = $rowData[1]; 
                 // $category = $rowData[2];
                 // $line = $rowData[3];
-                $asset = mysqli_real_escape_string($conn, $rowData[1]);
+                $floor = mysqli_real_escape_string($conn, $rowData[1]);
                 // $objecttype = $rowData[5];
-                $descriptiontype = mysqli_real_escape_string($conn, $rowData[2]);
+                // $descriptiontype = mysqli_real_escape_string($conn, $rowData[2]);
                 // $station = $rowData[7];
                 // $deviceid = $rowData[8];
                 // $consumable = $rowData[9];
@@ -313,7 +325,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 // }
 
                 // Insert the data into the tpartmaster table
-                $insertSql .= "($no, '$asset', '$descriptiontype'),";
+                $insertSql .= "('$linecode', '$floor'),";
                 // $insertSql .= "('$tdono', '$tisn', '$tmodel', $tstatus, '$tvendor', '$tcost', $tdoc_que, '$cp', '$cd', '$tpn'),";
             }
 
@@ -369,7 +381,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
                 // Insert the data into the tarea table
                 $insertSql .= "('$areacode', '$areaname', '$owner', $period_que),";
-                
+
             }
 
             // Remove the trailing comma
@@ -447,9 +459,156 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $response = "empty";
             $que = "empty";
         }
+    } else if ($mode == 'importmaterial') {
+        $materialData = json_decode($_POST['excelData'], true); // Decode the JSON data sent from the client
+
+        if (!empty($materialData)) {
+            $firstRowSkipped = false; // Track if the first row has been skipped
+
+            $idx_ID = 'ID';
+            $idx_DD = date("d");
+            $idx_MM = date("m");
+            $idx_YY = date("y");
+            $i_idx = '';
+            $i_idx .= $idx_ID . $idx_YY . $idx_MM . $idx_DD;
+
+            // Fetch the last tag number from the database
+            $lastIdxQuery = "SELECT idx FROM mc_transaction ORDER BY que DESC";
+            $lastIdxResult = mysqli_query($conn, $lastIdxQuery);
+            if ($lastIdxRow = mysqli_fetch_assoc($lastIdxResult)) {
+                $lastIdx = $lastIdxRow['idx'];
+
+                // check if the latest idx is today or yesterday
+                $lastIdxParts = getParts($lastIdx, array(2, 2, 2, 2, 4));
+                $lastIdx_YY = $lastIdxParts[1];
+                $lastIdx_MM = $lastIdxParts[2];
+                $lastIdx_DD = $lastIdxParts[3];
+                $lastIdx_counter = $lastIdxParts[4];
+
+                if ($lastIdx_YY != $idx_YY || $lastIdx_MM != $idx_MM || $lastIdx_DD != $idx_DD) {
+                    $i_idx .= '0001'; // reset counter to 0001 if last idx is not today
+                } else {
+                    $i_idx .= $lastIdx_YY . $lastIdx_MM . $lastIdx_DD . $lastIdx_counter;
+                }
+            } else {
+                $i_idx .= '0001'; // default if there is no existing idx
+            }
+
+            $insertSql = "INSERT INTO mc_materialmaster (doc, wo, s_hu, material, description, batch, uom, d_hu, qty, status, cd, cp) VALUES ";
+            $plusW_transactionSql = "INSERT INTO mc_transaction (idx, type, doc, wo, s_hu, material, description, batch, uom, d_hu, qty, location, cp) VALUES ";
+            foreach ($materialData as $rowData) {
+                if (!$firstRowSkipped) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped = true;
+                    continue;
+                }
+
+                $doc = $rowData[0];
+                $wo = $rowData[1];
+                $s_hu = $rowData[2];
+                $material = $rowData[3];
+                $description = $rowData[4];
+                $batch = $rowData[5];
+                $uom = $rowData[6];
+                $d_hu = $rowData[7];
+                $qty = $rowData[8];
+
+                // Check if this incoming exists in the mc_materialmaster table
+                $checkSql = "SELECT * FROM mc_materialmaster WHERE d_hu = '$d_hu' 
+                            AND s_hu = '$s_hu' AND doc = '$doc' AND material = '$material'
+                            AND qty = $qty";
+                $result = mysqli_query($conn, $checkSql);
+
+                if (mysqli_num_rows($result) > 0) {
+                    // Data already exists, skip this row
+                    continue;
+                }
+
+                // Increment $i_idx for each row
+                $nextIdxCounter = str_pad(substr($i_idx, -4) + 1, 4, '0', STR_PAD_LEFT);
+                $i_idx = substr($i_idx, 0, 8) . $nextIdxCounter;
+
+                // Insert the data into the mc_materialmaster table
+                $insertSql .= "('$doc', '$wo', '$s_hu', '$material', '$description', '$batch', '$uom', '$d_hu', $qty, 0, CURRENT_TIMESTAMP, '$uid'),";
+                $plusW_transactionSql .= "('$i_idx', 0, '$doc', '$wo', '$s_hu', '$material', '$description', '$batch', '$uom', '$d_hu', $qty, 'W001', '$uid'),";
+            }
+
+            // Remove the trailing comma
+            $insertSql = rtrim($insertSql, ",");
+            $result1 = mysqli_query($conn, $insertSql);
+            $plusW_transactionSql = rtrim($plusW_transactionSql, ",");
+            // echo $plusW_transactionSql;
+            $plusW_transactionResult = mysqli_query($conn, $plusW_transactionSql);
+
+            // Extract unique d_hu & doc values from the inserted data
+            $uniqueDhuValues = array_unique(array_column($materialData, 7));
+            $uniqueDocValues = array_unique(array_column($materialData, 0));
+
+            $firstRowSkipped1 = false;
+            $firstRowSkipped2 = false;
+
+            // Initialize query
+            $insertHuSql = '';
+            $resultHu = '';
+            $insertDocSql = '';
+            $resultDOc = '';
+
+            // Insert unique d_hu values into mc_hu
+            foreach ($uniqueDhuValues as $uniqueDhu) {
+                if (!$firstRowSkipped1) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped1 = true;
+                    continue;
+                }
+
+                // Check if the d_hu already exists in mc_hu
+                $checkHuSql = "SELECT * FROM mc_hu WHERE d_hu = '$uniqueDhu'";
+                $resultCheckHu = mysqli_query($conn, $checkHuSql);
+
+                if (mysqli_num_rows($resultCheckHu) > 0) {
+                    // d_hu already exists, skip this row
+                    continue;
+                }
+
+                $insertHuSql = "INSERT INTO mc_hu (d_hu, doc, status, cd, cp) VALUES ('$uniqueDhu', '$doc', 0, CURRENT_TIMESTAMP, '$uid')";
+                $resultHu = mysqli_query($conn, $insertHuSql);
+            }
+
+            // Insert unique doc values into mc_doc
+            foreach ($uniqueDocValues as $uniqueDoc) {
+                if (!$firstRowSkipped2) {
+                    // Skip the first row (header row)
+                    $firstRowSkipped2 = true;
+                    continue;
+                }
+
+                // Check if the doc already exists in mc_doc
+                $checkHuSql = "SELECT * FROM mc_doc WHERE doc = '$uniqueDoc'";
+                $resultCheckHu = mysqli_query($conn, $checkHuSql);
+
+                if (mysqli_num_rows($resultCheckHu) > 0) {
+                    // doc already exists, skip this row
+                    continue;
+                }
+
+                $insertHuSql = "INSERT INTO mc_doc (doc, status, cd, cp) VALUES ('$uniqueDoc', 0, CURRENT_TIMESTAMP, '$uid')";
+                $resultHu = mysqli_query($conn, $insertHuSql);
+            }
+
+            if ($result1 != 1 && $resultHu != 1 && $resultDoc != 1 && $plusW_transactionResult != 1) {
+                error_log("Error in insert query: " . mysqli_error($conn));
+            } else {
+                $response = "success";
+
+                // Insert into tlog
+                $query2 = "INSERT INTO tlog(tprocess, tdata, var1, cd, cp) VALUES('IMPORT MATERIAL MASTER', '$d_hu', '$material', CURRENT_TIMESTAMP, '$uid')";
+                $result2 = mysqli_query($conn, $query2);
+            }
+        } else {
+            $response = "empty";
+            $que = "empty";
+        }
     }
-
-
 }
 
 $responseData = array(

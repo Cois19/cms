@@ -22,6 +22,7 @@ if (isset($_POST['shipment_list_id'])) {
 
     // Make the POST request and retrieve the response
     $response = file_get_contents($url, false, $context);
+    echo $response;
 
     if ($response === false) {
         // Error handling if the request fails

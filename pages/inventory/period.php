@@ -346,7 +346,6 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
             // retrieve the selected value
             var selectedPartNo = $(this).val();
 
-            // make an AJAX request to fetch the sixtypartnumbers for the selected model
             $.ajax({
                 url: 'dbCrudFunctions/checkPartNo.php',
                 data: {
