@@ -9,36 +9,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fetch Data</title>
     <?php include 'scripts.php' ?>
+    <style rel="stylesheet" media="print">
+        body {
+            color: black;
+        }
+    </style>
 </head>
 
 <body>
     <!-- <?php include 'navbar2.php' ?> -->
-    <form method="POST" action="fetch_data.php">
+    <!-- <form method="POST" action="fetch_data.php">
         Shipment List ID: <input type="text" name="shipment_list_id">
         <input type="submit" value="Fetch Data">
-    </form>
+    </form> -->
 
-    <?php
-    function getParts($string, $positions){
-        $parts = array();
-    
-        foreach ($positions as $position){
-            $parts[] = substr($string, 0, $position);
-            $string = substr($string, $position);
-        }
-    
-        return $parts;
-    }
+    <div class="text-center" style="margin: 0 auto">
+        <?php
+        require 'vendor/autoload.php';
 
-    $parts = getParts('ID2401010001', array(2,2,2,2,4));
-    print_r($parts);
-    echo $parts[0];
-    echo $parts[1];
-    echo $parts[2];
-    echo $parts[3];
-    echo $parts[4];
+        $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
+        echo '<img src="data:image/png;base64,' . base64_encode($generator->getBarcode('P00000278882_999999', $generator::TYPE_CODE_128, 2, 50)) . '">';
+        ?>
+        <p>HU: P00000278882_999999</p>
+        <hr>
 
-    ?>
+        <?php
+        $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
+        echo '<img src="data:image/png;base64,' . base64_encode($generator->getBarcode('1', $generator::TYPE_CODE_128, 2, 50)) . '">';
+        ?>
+        <p>HU: 1</p>
+        <hr>
+
+        <?php
+
+        use chillerlan\QRCode\{QRCode, QROptions};
+
+        $data = 'P00000278882_999999999';
+
+        // Create QROptions instance and set the desired size
+        $options = new QROptions;
+        $options->scale = 3;
+
+        // Create QRCode instance with options
+        $qrcode = new QRCode;
+        $qrcode->setOptions($options);
+
+        // Render and display the QR code
+        ?>
+        <div style="width: 100px; margin: 0 auto">
+            <?php
+            echo '<img src="' . $qrcode->render($data) . '" alt="QR Code" />';
+            ?>
+        </div>
+        <p>HU: P00000278882_999999999</p>
+    </div>
 </body>
 
 

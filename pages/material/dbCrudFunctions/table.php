@@ -41,9 +41,10 @@ if ($mode == 'materialDoc') {
     }
 } else if ($mode == 'materialDhu') {
     include '../../../users/session.php';
+    $newdoc = $_POST['newdoc'];
     $query2 = "SELECT
-                    mchu.doc,
                     mchu.d_hu,
+                    mchu.doc,
                     mcm.wo,
                     COUNT(mcm.d_hu) AS 'TOTAL QTY',
                     SUM(CASE WHEN mcm.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
@@ -55,6 +56,46 @@ if ($mode == 'materialDoc') {
                     END AS 'STATUS',
                     mchu.cd
                 FROM mc_materialmaster mcm JOIN mc_hu mchu ON mcm.d_hu = mchu.d_hu
+                WHERE mcm.doc = '$newdoc'
+                GROUP BY mchu.d_hu
+                ORDER BY mchu.cd DESC
+                LIMIT 5000";
+
+    if ($select_result2 = mysqli_query($conn, $query2)) {
+        $response1 = array();
+        while ($row = mysqli_fetch_assoc($select_result2)) {
+            $response1[] = array_values($row);
+        }
+        if (empty($response1)) {
+            $response1 = null;
+        }
+        $response = array(
+            'data' => $response1
+        );
+    } else {
+        $response = array(
+            'status' => 500,
+            'message' => 'Error: ' . mysqli_error($conn)
+        );
+    }
+} else if ($mode == 'ps_materialDhu') {
+    include '../../../users/session.php';
+    $newdoc = $_POST['newdoc'];
+    $query2 = "SELECT
+                    mchu.d_hu,
+                    mchu.doc,
+                    mcm.wo,
+                    COUNT(mcm.d_hu) AS 'TOTAL QTY',
+                    SUM(CASE WHEN mcm.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
+                    SUM(CASE WHEN mcm.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED',
+                    CASE
+                        WHEN mchu.`status` = 0 THEN 'ON GOING'
+                        WHEN mchu.`status` = 1 THEN 'GR COMPLETE'
+                        ELSE 'UNKNOWN'
+                    END AS 'STATUS',
+                    mchu.cd
+                FROM mc_materialmaster mcm JOIN mc_hu mchu ON mcm.d_hu = mchu.d_hu
+                WHERE mcm.doc = '$newdoc'
                 GROUP BY mchu.d_hu
                 ORDER BY mchu.cd DESC
                 LIMIT 5000";
@@ -79,13 +120,14 @@ if ($mode == 'materialDoc') {
 } else if ($mode == 'materialDetails') {
     $dhu = $_POST['dhu'];
     include '../../../users/session.php';
-    $query2 = "SELECT wo, s_hu, material, `description`, batch, qty, uom,
+    $query2 = "SELECT que, split_id, s_hu, material, `description`, batch, qty, uom,
                     CASE
                         WHEN `status` = 0 THEN 'ON GOING'
                         WHEN `status` = 1 THEN 'GR COMPLETE'
                         ELSE 'UNKNOWN'
                     END AS 'STATUS',
-                    cd
+                    cd,
+                    receiver
                 FROM mc_materialmaster
                 WHERE d_hu = '$dhu'
                 ORDER BY cd DESC;";
@@ -110,13 +152,14 @@ if ($mode == 'materialDoc') {
 } else if ($mode == 'ps_materialDetails') {
     $dhu = $_POST['dhu'];
     include '../../../users/session.php';
-    $query2 = "SELECT que, wo, s_hu, material, `description`, batch, qty, uom,
+    $query2 = "SELECT que, split_id, s_hu, material, `description`, batch, qty, uom,
                     CASE
                         WHEN `status` = 0 THEN 'ON GOING'
                         WHEN `status` = 1 THEN 'GR COMPLETE'
                         ELSE 'UNKNOWN'
                     END AS 'STATUS',
-                    cd
+                    cd,
+                    receiver
                 FROM mc_materialmaster
                 WHERE d_hu = '$dhu'
                 ORDER BY cd DESC;";

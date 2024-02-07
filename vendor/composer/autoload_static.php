@@ -6,6 +6,33 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitb726171b278d16bc61b267d582f9ed2c
 {
+    public static $prefixLengthsPsr4 = array (
+        'c' => 
+        array (
+            'chillerlan\\Settings\\' => 20,
+            'chillerlan\\QRCode\\' => 18,
+        ),
+        'P' => 
+        array (
+            'Picqer\\Barcode\\' => 15,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'chillerlan\\Settings\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/chillerlan/php-settings-container/src',
+        ),
+        'chillerlan\\QRCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/chillerlan/php-qrcode/src',
+        ),
+        'Picqer\\Barcode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/picqer/php-barcode-generator/src',
+        ),
+    );
+
     public static $prefixesPsr0 = array (
         'P' => 
         array (
@@ -23,6 +50,8 @@ class ComposerStaticInitb726171b278d16bc61b267d582f9ed2c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb726171b278d16bc61b267d582f9ed2c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb726171b278d16bc61b267d582f9ed2c::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInitb726171b278d16bc61b267d582f9ed2c::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitb726171b278d16bc61b267d582f9ed2c::$classMap;
 

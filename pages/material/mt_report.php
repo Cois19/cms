@@ -25,8 +25,6 @@ include '../../users/session.php';
         <?php include '../../modals/delivery_order/isn.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
-        <?php include '../../modals/material/inputTransactionM.php'; ?>
-        <?php include '../../modals/material/outputTransactionM.php'; ?>
         <?php include '../../modals/material/filterTransactionTableM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
 

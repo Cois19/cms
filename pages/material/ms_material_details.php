@@ -7,12 +7,12 @@ $allowedSections = ['MS', 'ALL'];
 if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSections)) {
     echo "<script>
             window.alert('You are not authorized to access this page.');
-            window.location.href = '/vsite/cms/pages/delivery_order/index.php';
+            window.location.href = '/vsite/cms/pages/material/ps_material_dhu.php';
         </script>";
     exit();
 }
 
-$doc = $_GET['doc'];
+// $doc = $_GET['doc'];
 $dhu = $_GET['dhu'];
 ?>
 
@@ -39,11 +39,11 @@ $dhu = $_GET['dhu'];
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
+        <?php include '../../modals/material/splitQtyM.php'; ?>
 
         <div class="d-flex justify-content-between">
             <h2>Material Details</h2>
-            <button style="margin-left: 10px" class="btn btn-danger"
-                onclick="location.href='/vsite/cms/pages/material/ms_material_dhu.php?doc=<?php echo $doc; ?>'">BACK</button>
+            <button style="margin-left: 10px" class="btn btn-danger" onclick="location.href='javascript:history.back()'">BACK</button>
         </div>
 
         <hr>
@@ -76,16 +76,15 @@ $dhu = $_GET['dhu'];
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 col-sm-12">
-                        <h5 class="card-title">Dest. Handling Unit</h5>
+                        <h5 class="card-title">D. Handling Unit / WO</h5>
                         <p class="card-text mb-2">
-                            <?php echo $row4['d_hu']; ?>
+                            <?php echo $row4['d_hu']; ?> / <?php echo $row4['wo']; ?>
                         </p>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <h5 class="card-title">Status</h5>
                         <p class="card-text mb-2">
-                            <span
-                                class="badge fs-6 <?php echo ($row4['STATUS'] === 'ON GOING') ? 'text-bg-warning' : (($row4['STATUS'] === 'GR COMPLETE') ? 'text-bg-success' : ''); ?>">
+                            <span class="badge fs-6 <?php echo ($row4['STATUS'] === 'ON GOING') ? 'text-bg-warning' : (($row4['STATUS'] === 'GR COMPLETE') ? 'text-bg-success' : ''); ?>">
                                 <?php echo $row4['STATUS']; ?>
                             </span>
                         </p>
@@ -124,7 +123,8 @@ $dhu = $_GET['dhu'];
             <table id="materialDetailsTable" class="table">
                 <thead>
                     <tr>
-                        <th>WO</th>
+                        <th>NO</th>
+                        <th>SPLIT ID</th>
                         <th>S. HANDLING UNIT</th>
                         <th>MATERIAL</th>
                         <th>DESCRIPTION</th>
@@ -133,7 +133,8 @@ $dhu = $_GET['dhu'];
                         <th>UOM</th>
                         <th>STATUS</th>
                         <th>CD</th>
-                        <!-- <th colspan="1" rowspan="1"></th> -->
+                        <th>RECEIVER</th>
+                        <th colspan="1" rowspan="1"></th>
                     </tr>
                 </thead>
             </table>
@@ -151,15 +152,55 @@ $dhu = $_GET['dhu'];
                     dhu: '<?php echo $dhu; ?>'
                 },
                 dataType: 'json',
-                success: function (response) {
+                success: function(response) {
                     if (response.data) {
                         table.clear().rows.add(response.data).draw();
                     } else {
                         table.clear().draw();
                     }
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error('AJAX error:', error);
+                }
+            });
+        }
+
+        $('#confirmSplitQtyBtn').on('click', function() {
+            var qtyToSplit = $('#confirmSplitQtyBtn').data('oldQty');
+            var newQty = $('#newQty').val(); // Get the value of newQty
+            $('#splitQtyModal').modal('hide');
+            confirmSplitQty(qtyToSplit, newQty); // Pass newQty to confirmSplitQty function
+        });
+
+        function splitQty(oldQty) {
+            $('#splitQtyModal').modal('show');
+            $('#confirmSplitQtyBtn').data('oldQty', oldQty);
+        }
+
+        function confirmSplitQty(oldQue, newQty) {
+            // e.preventDefault(); // Prevent the default form submission
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/insert.php',
+                data: {
+                    oldQue: oldQue,
+                    newQty: newQty,
+                    mode: 'splitQty'
+                }, // Include newQty in the data
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        alert('Split successful');
+                        window.location.reload();
+                    } else if (response.status == 'negative') {
+                        alert('The splitted materials cannot have less than 0 qty!');
+                    } else if (response.status == 'fail') {
+                        alert('Split failed');
+                    } else if (response.status == 'unauthorized') {
+                        alert('Ask Admin Level User to Split.');
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    }
                 }
             });
         }
@@ -181,46 +222,74 @@ $dhu = $_GET['dhu'];
             //         ]
             //     }
             // ],
-            order: [[8, 'desc']],
-            // columnDefs: [
-            //     {
-            //         target: 1,
-            //         visible: false,
-            //         searchable: false
-            //     },
-            // ],
-            columns: [
-                { data: 0 },
-                { data: 1 },
-                { data: 2 },
-                { data: 3 },
-                { data: 4 },
-                { data: 5 },
-                { data: 6 },
+            order: [
+                [9, 'desc']
+            ],
+            columnDefs: [{
+                target: 9,
+                width: '10%'
+            }, ],
+            columns: [{
+                    data: 0
+                },
                 {
-                    data: 7,
-                    render: function (data, type, row) {
-                        if (row[7] === "ON GOING") {
-                            return '<span class="badge text-bg-warning fs-6">' + row[7] + '</span>';
-                        } else if (row[7] === "GR COMPLETE") {
-                            return '<span class="badge text-bg-success fs-6">' + row[7] + '</span>';
+                    data: 1
+                },
+                {
+                    data: 2
+                },
+                {
+                    data: 3
+                },
+                {
+                    data: 4
+                },
+                {
+                    data: 5
+                },
+                {
+                    data: 6
+                },
+                {
+                    data: 7
+                },
+                {
+                    data: 8,
+                    render: function(data, type, row) {
+                        if (row[8] === "ON GOING") {
+                            return '<span class="badge text-bg-warning fs-6">' + row[8] + '</span>';
+                        } else if (row[8] === "GR COMPLETE") {
+                            return '<span class="badge text-bg-success fs-6">' + row[8] + '</span>';
                         } else {
-                            return row[7];
+                            return row[8];
                         }
                     }
                 },
-                { data: 8 }
-                // {
-                //     data: null,
-                //     render: function (data, type, row) {
-                //         var token = row[6];
-                //         return '<button type="button" class="btn btn-sm btn-primary" onClick="receiveMaterial(\'' + token + '\')">GR</button>';
-                //     }
-                // }
+                {
+                    data: 9
+                },
+                {
+                    data: 10
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        var token = row[0];
+                        var status = row[8];
+                        var disabledAttribute = status === "GR COMPLETE" ? 'disabled' : '';
+                        return '<button type="button" class="btn btn-sm btn-success mb-2" style="width: 60px" onClick="splitQty(\'' + token + '\')" ' + disabledAttribute + '>SPLIT</button>' +
+                            '<button type="button" class="btn btn-sm btn-primary" style="width: 60px" onClick="printLabel(\'' + token + '\')" ' + disabledAttribute + '>LABEL</button>';
+                    }
+                }
             ]
         });
 
-        $(document).ready(function () {
+        function printLabel(que) {
+            var url = 'split_label.php?id=' + que;
+            window.open(url, '_blank'); // Opens the URL in a new tab
+        }
+
+        $(document).ready(function() {
             loadMaterialDetailsTable();
             $("div.dataTables_filter input").focus();
         });

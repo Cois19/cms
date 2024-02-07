@@ -7,7 +7,7 @@ $allowedSections = ['SS', 'ALL'];
 if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSections)) {
     echo "<script>
             window.alert('You are not authorized to access this page.');
-            window.location.href = '/vsite/cms/pages/delivery_order/index.php';
+            window.location.href = '/vsite/cms/pages/material/ms_material_doc.php';
         </script>";
     exit();
 }
@@ -43,9 +43,16 @@ $doc = $_GET['doc'];
         <div class="d-flex justify-content-between">
             <h2>Material Destination Handling Units</h2>
             <button style="margin-left: 10px" class="btn btn-danger"
-                onclick="location.href='/vsite/cms/pages/material/ps_material_doc.php'">BACK</button>
+                onclick="location.href='javascript:history.back()'">BACK</button>
         </div>
         <hr>
+
+        <form method="post" id="scanDhuForm">
+            <div class="form-group mb-3" style="width: 200px;">
+                <label for="scanDhu">DHU :</label>
+                <input type="text" class="form-control" name="scanDhu" id="scanDhu" placeholder="DHU" autofocus>
+            </div>
+        </form>
 
         <?php
         $documentQuery = "SELECT
@@ -117,13 +124,13 @@ $doc = $_GET['doc'];
                 </div>
             </div>
         </div>
-
+        
         <div class="table-responsive">
             <table id="materialDhuTable" class="table">
                 <thead>
                     <tr>
-                        <th>DOCUMENT</th>
                         <th>D. HANDLING UNIT</th>
+                        <th>DOCUMENT</th>
                         <th>WO</th>
                         <th>TOTAL QTY</th>
                         <th>ON GOING</th>
@@ -143,7 +150,7 @@ $doc = $_GET['doc'];
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/table.php',
-                data: { mode: 'materialDhu' },
+                data: { mode: 'ps_materialDhu', newdoc: <?php echo $doc ?> },
                 dataType: 'json',
                 success: function (response) {
                     if (response.data) {
@@ -175,13 +182,17 @@ $doc = $_GET['doc'];
             //         ]
             //     }
             // ],
-            order: [[7, 'desc']],
+            order: [[7, 'desc'], [6, 'desc']],
             columnDefs: [
+                // {
+                //     target: 0,
+                //     visible: false,
+                //     searchable: false
+                // },
                 {
-                    target: 0,
-                    visible: false,
-                    searchable: false
-                },
+                    target: 7,
+                    width: '10%'
+                }
             ],
             columns: [
                 { data: 0 },
@@ -206,23 +217,31 @@ $doc = $_GET['doc'];
                 {
                     data: null,
                     render: function (data, type, row) {
-                        var doc = row[0];
-                        var dhu = row[1];
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadMaterialDetails(\'' + doc + '\', \'' + dhu + '\')">DETAILS</button>';
+                        // var doc = row[0];
+                        var dhu = row[0];
+                        return '<button type="button" class="btn btn-sm btn-primary" onClick="loadMaterialDetails(\'' + dhu + '\')">DETAILS</button>';
                     }
                 }
             ]
         });
 
-        function loadMaterialDetails(doc, dhu) {
-            var url = 'ps_material_details.php?doc=' + doc + '&dhu=' + dhu;
+        $('#scanDhuForm').submit(function (e) {
+            e.preventDefault();
+
+            var scanDhuValue = $('#scanDhu').val();
+            loadMaterialDetails(scanDhuValue);
+            $('#scanDhuForm')[0].reset();
+            $('#scanDhu').focus();
+        });
+
+        function loadMaterialDetails(dhu) {
+            var url = 'ps_material_details.php?dhu=' + dhu;
 
             window.location.href = url;
         }
 
         $(document).ready(function () {
             loadMaterialDhuTable();
-            $("div.dataTables_filter input").focus();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>

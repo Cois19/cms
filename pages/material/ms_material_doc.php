@@ -7,10 +7,26 @@ $allowedSections = ['MS', 'ALL'];
 if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSections)) {
     echo "<script>
             window.alert('You are not authorized to access this page.');
-            window.location.href = '/vsite/cms/pages/delivery_order/index.php';
+            window.location.href = '/vsite/cms/pages/material/ps_material_dhu.php';
         </script>";
     exit();
 }
+
+$updateMc_doc = "UPDATE mc_doc mcd
+                    SET mcd.status = 1
+                    WHERE mcd.doc IN (
+                        SELECT mcd.doc
+                        FROM (
+                            SELECT 
+                                mchu.doc,
+                                COUNT(mchu.d_hu) AS 'TOTAL QTY',
+                                SUM(CASE WHEN mchu.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
+                                SUM(CASE WHEN mchu.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED'
+                            FROM mc_hu mchu
+                            GROUP BY mchu.doc
+                        ) AS subquery
+                        WHERE subquery.doc = mcd.doc AND subquery.PENDING = 0)";
+mysqli_query($conn, $updateMc_doc);
 ?>
 
 <!DOCTYPE html>
@@ -40,8 +56,7 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
 
         <h2>Material Documents</h2>
         <hr>
-        <button id="importMaterialModalBtn" href="#" data-bs-toggle="modal" data-bs-target="#importMaterialModal"
-            class="btn btn-success mb-3">Import Material</button>
+        <button id="importMaterialModalBtn" href="#" data-bs-toggle="modal" data-bs-target="#importMaterialModal" class="btn btn-success mb-3">Import Material</button>
         <div class="table-responsive">
             <table id="materialDocTable" class="table">
                 <thead>
@@ -61,7 +76,7 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
     </div>
 
     <script>
-        $('#importMaterialForm').submit(function (event) {
+        $('#importMaterialForm').submit(function(event) {
             event.preventDefault(); // Prevent default form submission
 
             var formData = new FormData();
@@ -73,16 +88,20 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             if (file) {
                 var reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     var data = e.target.result;
-                    var workbook = XLSX.read(data, { type: 'binary' });
+                    var workbook = XLSX.read(data, {
+                        type: 'binary'
+                    });
 
                     // Assuming the first sheet is the one you want to work with
                     var sheetName = workbook.SheetNames[0];
                     var sheet = workbook.Sheets[sheetName];
 
                     // Parse the sheet's data (you may want to iterate through rows and columns)
-                    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    var jsonData = XLSX.utils.sheet_to_json(sheet, {
+                        header: 1
+                    });
 
                     // Now you can send the JSON data to the server using AJAX
                     formData.append('excelData', JSON.stringify(jsonData)); // Add the parsed data to formData
@@ -94,12 +113,14 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
                         contentType: false,
                         processData: false,
                         dataType: 'json',
-                        success: function (response) {
+                        success: function(response) {
                             if (response.status == 'success') {
                                 alert('Import successful');
                                 loadMaterialDocTable();
                             } else if (response.status == 'empty') {
                                 alert('Please select a file!');
+                            } else if (response.status == 'emptydoc') {
+                                alert('Some data is empty! Please check the file again.');
                             } else if (response.status == 'fail') {
                                 alert('Material already exists!');
                             } else if (response.status == 'timeout') {
@@ -108,7 +129,7 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
                                 alert('Failed');
                             }
                         },
-                        error: function (xhr, textStatus, errorThrown) {
+                        error: function(xhr, textStatus, errorThrown) {
                             console.error('AJAX error:', textStatus, errorThrown);
                             console.log('Response:', xhr.responseText);
                         }
@@ -120,21 +141,23 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
                 alert('Please Select a File!');
             }
         });
-        
+
         function loadMaterialDocTable() {
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/table.php',
-                data: { mode: 'materialDoc' },
+                data: {
+                    mode: 'materialDoc'
+                },
                 dataType: 'json',
-                success: function (response) {
+                success: function(response) {
                     if (response.data) {
                         table.clear().rows.add(response.data).draw();
                     } else {
                         table.clear().draw();
                     }
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error('AJAX error:', error);
                 }
             });
@@ -157,7 +180,9 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             //         ]
             //     }
             // ],
-            order: [[5, 'desc']],
+            order: [
+                [5, 'desc']
+            ],
             // columnDefs: [
             //     {
             //         target: 1,
@@ -165,14 +190,21 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             //         searchable: false
             //     },
             // ],
-            columns: [
-                { data: 0 },
-                { data: 1 },
-                { data: 2 },
-                { data: 3 },
+            columns: [{
+                    data: 0
+                },
+                {
+                    data: 1
+                },
+                {
+                    data: 2
+                },
+                {
+                    data: 3
+                },
                 {
                     data: 4,
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         if (row[4] === "ON GOING") {
                             return '<span class="badge text-bg-warning fs-6">' + row[4] + '</span>';
                         } else if (row[4] === "GR COMPLETE") {
@@ -182,10 +214,12 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
                         }
                     }
                 },
-                { data: 5 },
+                {
+                    data: 5
+                },
                 {
                     data: null,
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         var doc = row[0];
                         return '<button type="button" class="btn btn-sm btn-primary" onClick="loadMaterialDhu(\'' + doc + '\')">DETAILS</button>';
                     }
@@ -199,7 +233,7 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             window.location.href = url;
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             loadMaterialDocTable();
             $("div.dataTables_filter input").focus();
         });

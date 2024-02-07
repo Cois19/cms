@@ -192,7 +192,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             if ($result1 != 1) {
                 error_log("Error in insert query: " . mysqli_error($conn));
             } else {
-                $updateStatusQuery = "UPDATE mc_materialmaster SET status = 1 WHERE que = '$que'";
+                $updateStatusQuery = "UPDATE mc_materialmaster SET status = 1, receiver = '$uid' WHERE que = '$que'";
                 mysqli_query($conn, $updateStatusQuery);
                 $response = "success";
 
@@ -216,6 +216,22 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 if ($qty == 0) {
                     $updateMc_hu = "UPDATE mc_hu SET status = 1 WHERE d_hu = '$dhu'";
                     mysqli_query($conn, $updateMc_hu);
+
+                    $updateMc_doc = "UPDATE mc_doc mcd
+                                        SET mcd.status = 1
+                                        WHERE mcd.doc IN (
+                                            SELECT mcd.doc
+                                            FROM (
+                                                SELECT 
+                                                    mchu.doc,
+                                                    COUNT(mchu.d_hu) AS 'TOTAL QTY',
+                                                    SUM(CASE WHEN mchu.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
+                                                    SUM(CASE WHEN mchu.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED'
+                                                FROM mc_hu mchu
+                                                GROUP BY mchu.doc
+                                            ) AS subquery
+                                            WHERE subquery.doc = mcd.doc AND subquery.PENDING = 0)";
+                    mysqli_query($conn, $updateMc_doc);
                 }
 
                 // // Insert into tlog
@@ -226,7 +242,73 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $response = "empty";
             $que = "empty";
         }
-    } 
+    } else if ($mode == 'splitQty') {
+        if (!empty($_POST['oldQue']) && !empty($_POST['newQty'])) {
+            $oldQue = $_POST['oldQue'];
+            $newQty = $_POST['newQty'];
+
+            // get old qty
+            $query = "SELECT qty FROM mc_materialmaster WHERE que = $oldQue";
+            $result = mysqli_query($conn, $query);
+            $oldQty = mysqli_fetch_array($result)[0];
+
+            // update old qty
+            $updatedOldQty = $oldQty - $newQty;
+
+            if ($updatedOldQty <= 0) {
+                $response = "negative"; // cannot be equal or less than 0
+            } else {
+                $query2 = "UPDATE mc_materialmaster SET qty = $updatedOldQty, split_id = CONCAT(d_hu, '_', que), cd = CURRENT_TIMESTAMP() WHERE que = $oldQue";
+                mysqli_query($conn, $query2);
+
+
+                $query1 = "INSERT INTO mc_materialmaster (doc, wo, s_hu, material, description, batch, uom, d_hu, qty, status, cd, cp)
+                        SELECT mcm.doc, mcm.wo, mcm.s_hu, mcm.material, mcm.description, mcm.batch, mcm.uom, mcm.d_hu, $newQty, 0, CURRENT_TIMESTAMP, '$uid'
+                        FROM mc_materialmaster mcm
+                        WHERE que = $oldQue";
+                $result1 = mysqli_query($conn, $query1);
+
+                if ($result1 != 1) {
+                    error_log("Error in insert query: " . mysqli_error($conn));
+                } else {
+                    // Insert into tlog
+                    // $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INPUT MATERIAL MASTER', '$material', CURRENT_TIMESTAMP, '$uid')";
+                    // $result2 = mysqli_query($conn, $query2);
+
+                    // Retrieve que for the newly inserted data
+                    $query3 = "SELECT doc, wo, s_hu, material, description, batch, uom, d_hu FROM mc_materialmaster WHERE que = $oldQue LIMIT 1";
+                    $result3 = mysqli_query($conn, $query3);
+                    $row3 = mysqli_fetch_assoc($result3);
+
+                    $doc = $row3['doc'];
+                    $wo = $row3['wo'];
+                    $s_hu = $row3['s_hu'];
+                    $material = $row3['material'];
+                    $description = $row3['description'];
+                    $batch = $row3['batch'];
+                    $uom = $row3['uom'];
+                    $d_hu = $row3['d_hu'];
+
+                    $query4 = "SELECT que FROM mc_materialmaster WHERE doc = '$doc' AND wo = '$wo' AND s_hu = '$s_hu' AND
+                                material = '$material' AND description = '$description' AND batch = '$batch' AND uom = '$uom'
+                                AND d_hu = '$d_hu'
+                                ORDER BY que DESC
+                                LIMIT 1";
+                    $result4 = mysqli_query($conn, $query4);
+                    $newQue = mysqli_fetch_array($result4)[0];
+
+                    $query5 = "UPDATE mc_materialmaster SET split_id = CONCAT(d_hu, '_', que) WHERE que = $newQue";
+                    mysqli_query($conn, $query5);
+
+                    // Data inserted successfully, set response as "success"
+                    $response = "success";
+                }
+            }
+        } else {
+            $response = "empty";
+            $que = "empty";
+        }
+    }
 }
 
 $responseData = array(

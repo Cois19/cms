@@ -7,12 +7,26 @@ $allowedSections = ['SS', 'ALL'];
 if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSections)) {
     echo "<script>
             window.alert('You are not authorized to access this page.');
-            window.location.href = '/vsite/cms/pages/delivery_order/index.php';
+            window.location.href = '/vsite/cms/pages/material/ms_material_doc.php';
         </script>";
     exit();
 }
 
-
+$updateMc_doc = "UPDATE mc_doc mcd
+                    SET mcd.status = 1
+                    WHERE mcd.doc IN (
+                        SELECT mcd.doc
+                        FROM (
+                            SELECT 
+                                mchu.doc,
+                                COUNT(mchu.d_hu) AS 'TOTAL QTY',
+                                SUM(CASE WHEN mchu.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
+                                SUM(CASE WHEN mchu.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED'
+                            FROM mc_hu mchu
+                            GROUP BY mchu.doc
+                        ) AS subquery
+                        WHERE subquery.doc = mcd.doc AND subquery.PENDING = 0)";
+mysqli_query($conn, $updateMc_doc);
 ?>
 
 <!DOCTYPE html>
@@ -41,6 +55,22 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
 
         <h2>Material Documents</h2>
         <hr>
+
+        <div class="d-flex">
+            <form method="post" id="scanDhuForm" class="me-3">
+                <div class="form-group mb-3" style="width: 200px;">
+                    <label for="scanDhu">DHU :</label>
+                    <input type="text" class="form-control" name="scanDhu" id="scanDhu" placeholder="DHU" autofocus>
+                </div>
+            </form>
+            <form method="post" id="scanDocForm">
+                <div class="form-group mb-3" style="width: 200px;">
+                    <label for="scanDoc">DOC :</label>
+                    <input type="text" class="form-control" name="scanDoc" id="scanDoc" placeholder="DOC">
+                </div>
+            </form>
+        </div>
+
         <div class="table-responsive">
             <table id="materialDocTable" class="table">
                 <thead>
@@ -64,16 +94,18 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             $.ajax({
                 type: 'POST',
                 url: 'dbCrudFunctions/table.php',
-                data: { mode: 'materialDoc' },
+                data: {
+                    mode: 'materialDoc'
+                },
                 dataType: 'json',
-                success: function (response) {
+                success: function(response) {
                     if (response.data) {
                         table.clear().rows.add(response.data).draw();
                     } else {
                         table.clear().draw();
                     }
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error('AJAX error:', error);
                 }
             });
@@ -96,7 +128,9 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             //         ]
             //     }
             // ],
-            order: [[5, 'desc']],
+            order: [
+                [5, 'desc']
+            ],
             // columnDefs: [
             //     {
             //         target: 1,
@@ -104,14 +138,21 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             //         searchable: false
             //     },
             // ],
-            columns: [
-                { data: 0 },
-                { data: 1 },
-                { data: 2 },
-                { data: 3 },
+            columns: [{
+                    data: 0
+                },
+                {
+                    data: 1
+                },
+                {
+                    data: 2
+                },
+                {
+                    data: 3
+                },
                 {
                     data: 4,
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         if (row[4] === "ON GOING") {
                             return '<span class="badge text-bg-warning fs-6">' + row[4] + '</span>';
                         } else if (row[4] === "GR COMPLETE") {
@@ -121,10 +162,12 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
                         }
                     }
                 },
-                { data: 5 },
+                {
+                    data: 5
+                },
                 {
                     data: null,
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         var doc = row[0];
                         return '<button type="button" class="btn btn-sm btn-primary" onClick="loadMaterialDhu(\'' + doc + '\')">DETAILS</button>';
                     }
@@ -138,9 +181,32 @@ if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSe
             window.location.href = url;
         }
 
-        $(document).ready(function () {
+        $('#scanDhuForm').submit(function(e) {
+            e.preventDefault();
+
+            var scanDhuValue = $('#scanDhu').val();
+            loadMaterialDetails(scanDhuValue);
+            $('#scanDhuForm')[0].reset();
+            $('#scanDhu').focus();
+        });
+
+        function loadMaterialDetails(dhu) {
+            var url = 'ps_material_details.php?dhu=' + dhu;
+
+            window.location.href = url;
+        }
+
+        $('#scanDocForm').submit(function(e) {
+            e.preventDefault();
+
+            var scanDocValue = $('#scanDoc').val();
+            loadMaterialDhu(scanDocValue);
+            $('#scanDocForm')[0].reset();
+            $('#scanDoc').focus();
+        });
+
+        $(document).ready(function() {
             loadMaterialDocTable();
-            $("div.dataTables_filter input").focus();
         });
 
         <?php include '../../dbCrudFunctions/bodyScripts.js' ?>

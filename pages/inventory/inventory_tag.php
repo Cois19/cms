@@ -33,7 +33,7 @@ if ($result4 && mysqli_num_rows($result4) > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Tag</title>
     <?php include '../../scripts.php' ?>
-    <link rel="stylesheet" href="../../styles/custom.css">
+    <link rel="stylesheet" href="../../styles/custom.css" media="print">
 </head>
 
 <body>

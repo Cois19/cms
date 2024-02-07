@@ -7,12 +7,12 @@ $allowedSections = ['SS', 'ALL'];
 if (!isset($_SESSION['usection']) || !in_array($_SESSION['usection'], $allowedSections)) {
     echo "<script>
             window.alert('You are not authorized to access this page.');
-            window.location.href = '/vsite/cms/pages/delivery_order/index.php';
+            window.location.href = '/vsite/cms/pages/material/ms_material_doc.php';
         </script>";
     exit();
 }
 
-$doc = $_GET['doc'];
+// $doc = $_GET['doc'];
 $dhu = $_GET['dhu'];
 ?>
 
@@ -36,6 +36,7 @@ $dhu = $_GET['dhu'];
         <!-- Modals -->
         <?php include '../../modals/delivery_order/create.php'; ?>
         <?php include '../../modals/delivery_order/isn.php'; ?>
+        <?php include '../../modals/material/splitQtyM.php'; ?>
         <?php include '../../modals/changePassM.php'; ?>
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
@@ -43,7 +44,7 @@ $dhu = $_GET['dhu'];
         <div class="d-flex justify-content-between">
             <h2>Material Details</h2>
             <button style="margin-left: 10px" class="btn btn-danger"
-                onclick="location.href='/vsite/cms/pages/material/ps_material_dhu.php?doc=<?php echo $doc; ?>'">BACK</button>
+                onclick="location.href='javascript:history.back()'">BACK</button>
         </div>
 
         <hr>
@@ -76,9 +77,9 @@ $dhu = $_GET['dhu'];
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 col-sm-12">
-                        <h5 class="card-title">Dest. Handling Unit</h5>
+                        <h5 class="card-title">D. Handling Unit / WO</h5>
                         <p class="card-text mb-2">
-                            <?php echo $row4['d_hu']; ?>
+                            <?php echo $row4['d_hu']; ?> / <?php echo $row4['wo']; ?>
                         </p>
                     </div>
                     <div class="col-md-4 col-sm-12">
@@ -125,7 +126,7 @@ $dhu = $_GET['dhu'];
                 <thead>
                     <tr>
                         <th>NO</th>
-                        <th>WO</th>
+                        <th>SPLIT ID</th>
                         <th>S. HANDLING UNIT</th>
                         <th>MATERIAL</th>
                         <th>DESCRIPTION</th>
@@ -134,6 +135,7 @@ $dhu = $_GET['dhu'];
                         <th>UOM</th>
                         <th>STATUS</th>
                         <th>CD</th>
+                        <th>RECEIVER</th>
                         <th colspan="1" rowspan="1"></th>
                     </tr>
                 </thead>
@@ -198,6 +200,7 @@ $dhu = $_GET['dhu'];
                     }
                 }
             });
+            $("div.dataTables_filter input").focus();
         }
 
         var table = $('#materialDetailsTable').DataTable({
@@ -220,9 +223,8 @@ $dhu = $_GET['dhu'];
             order: [[9, 'desc']],
             columnDefs: [
                 {
-                    target: 0,
-                    visible: false,
-                    searchable: false
+                    target: 9,
+                    width: '10%'
                 },
             ],
             columns: [
@@ -247,13 +249,14 @@ $dhu = $_GET['dhu'];
                     }
                 },
                 { data: 9 },
+                { data: 10 },
                 {
                     data: null,
                     render: function (data, type, row) {
                         var token = row[0];
                         var status = row[8];
                         var disabledAttribute = status === "GR COMPLETE" ? 'disabled' : '';
-                        return '<button type="button" class="btn btn-sm btn-primary" onClick="receiveMaterial(\'' + token + '\')" ' + disabledAttribute + '>GR</button>';
+                        return '<button type="button" class="btn btn-sm btn-primary mb-2" style="width: 50px" onClick="receiveMaterial(\'' + token + '\')" ' + disabledAttribute + '>GR</button>';
                     }
                 }
             ]

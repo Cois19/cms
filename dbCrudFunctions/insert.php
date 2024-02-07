@@ -140,7 +140,6 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                                     VALUES('$palletid', '$partno', '$partname', '$palletid', '$qty', '$boxcount', '$date', '1', '$tpmodel', 'SMT', '$ucost', CURRENT_TIMESTAMP, '$uid')";
                             }
                         }
-
                     } else {
                         $response = 'emptyshipping';
                     }
@@ -381,7 +380,6 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 
                 // Insert the data into the tarea table
                 $insertSql .= "('$areacode', '$areaname', '$owner', $period_que),";
-
             }
 
             // Remove the trailing comma
@@ -513,6 +511,20 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $d_hu = $rowData[7];
                 $qty = $rowData[8];
 
+                // Check if $doc is empty
+                if (empty($doc) || empty($s_hu) || empty($material) || empty($description) || empty($d_hu) || empty($qty)) {
+                    $response = "emptydoc";
+                    
+                    $responseData = array(
+                        'status' => $response
+                    );
+                    
+                    echo json_encode($responseData);
+
+                    exit(); // or return; if this code is inside a function
+                }
+
+
                 // Check if this incoming exists in the mc_materialmaster table
                 $checkSql = "SELECT * FROM mc_materialmaster WHERE d_hu = '$d_hu' 
                             AND s_hu = '$s_hu' AND doc = '$doc' AND material = '$material'
@@ -532,6 +544,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $insertSql .= "('$doc', '$wo', '$s_hu', '$material', '$description', '$batch', '$uom', '$d_hu', $qty, 0, CURRENT_TIMESTAMP, '$uid'),";
                 $plusW_transactionSql .= "('$i_idx', 0, '$doc', '$wo', '$s_hu', '$material', '$description', '$batch', '$uom', '$d_hu', $qty, 'W001', '$uid'),";
             }
+            // echo $insertSql;
 
             // Remove the trailing comma
             $insertSql = rtrim($insertSql, ",");
@@ -551,7 +564,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $insertHuSql = '';
             $resultHu = '';
             $insertDocSql = '';
-            $resultDOc = '';
+            $resultDoc = '';
 
             // Insert unique d_hu values into mc_hu
             foreach ($uniqueDhuValues as $uniqueDhu) {
@@ -560,6 +573,10 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     $firstRowSkipped1 = true;
                     continue;
                 }
+
+                // Find the corresponding doc for the current unique d_hu
+                $key = array_search($uniqueDhu, array_column($materialData, 7)); // 7 is the index of d_hu in $rowData
+                $docForDhu = $materialData[$key][0]; // 0 is the index of doc in $rowData
 
                 // Check if the d_hu already exists in mc_hu
                 $checkHuSql = "SELECT * FROM mc_hu WHERE d_hu = '$uniqueDhu'";
@@ -570,7 +587,8 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                     continue;
                 }
 
-                $insertHuSql = "INSERT INTO mc_hu (d_hu, doc, status, cd, cp) VALUES ('$uniqueDhu', '$doc', 0, CURRENT_TIMESTAMP, '$uid')";
+                // Insert d_hu along with the corresponding doc into mc_hu
+                $insertHuSql = "INSERT INTO mc_hu (d_hu, doc, status, cd, cp) VALUES ('$uniqueDhu', '$docForDhu', 0, CURRENT_TIMESTAMP, '$uid')";
                 $resultHu = mysqli_query($conn, $insertHuSql);
             }
 
@@ -621,4 +639,3 @@ $responseData = array(
 echo json_encode($responseData);
 
 mysqli_close($conn);
-?>

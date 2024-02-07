@@ -4,7 +4,7 @@ $('#changePassForm').submit(function (e) {
     // Send form data using Ajax
     $.ajax({
         type: 'POST',
-        url: 'dbCrudFunctions/changePass.php',
+        url: '/vsite/cms/dbCrudFunctions/changePass.php',
         data: $(this).serialize(),
         success: function (response) {
             if (response == 'success') {
