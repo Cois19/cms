@@ -26,7 +26,36 @@ $updateMc_doc = "UPDATE mc_doc mcd
                             GROUP BY mchu.doc
                         ) AS subquery
                         WHERE subquery.doc = mcd.doc AND subquery.PENDING = 0)";
+
+$updateMc_doc_whenPendingIsZero = "UPDATE mc_doc mcd
+                                    SET mcd.status = 0
+                                    WHERE mcd.doc IN (
+                                        SELECT mcd.doc
+                                        FROM (
+                                            SELECT 
+                                                mchu.doc,
+                                                COUNT(mchu.d_hu) AS 'TOTAL QTY',
+                                                SUM(CASE WHEN mchu.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
+                                                SUM(CASE WHEN mchu.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED'
+                                            FROM mc_hu mchu
+                                            GROUP BY mchu.doc
+                                        ) AS subquery
+                                        WHERE subquery.doc = mcd.doc AND subquery.PENDING != 0)";
+
+$updateMc_hu = "UPDATE mc_hu AS mchu
+                JOIN (
+                    SELECT
+                        mcm.d_hu,
+                        SUM(CASE WHEN mcm.status = 0 THEN 1 ELSE 0 END) AS 'PENDING'
+                    FROM mc_materialmaster mcm
+                    GROUP BY mcm.d_hu
+                ) AS pending_counts ON mchu.d_hu = pending_counts.d_hu
+                SET mchu.status = 0
+                WHERE pending_counts.PENDING != 0";
+
 mysqli_query($conn, $updateMc_doc);
+mysqli_query($conn, $updateMc_doc_whenPendingIsZero);
+mysqli_query($conn, $updateMc_hu);
 ?>
 
 <!DOCTYPE html>

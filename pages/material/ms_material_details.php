@@ -52,6 +52,7 @@ $dhu = $_GET['dhu'];
         $dhuQuery = "SELECT
                         mchu.d_hu,
                         mcm.wo,
+                        mcm.doc,
                         COUNT(mcm.d_hu) AS 'TOTAL QTY',
                         SUM(CASE WHEN mcm.status = 0 THEN 1 ELSE 0 END) AS 'PENDING',
                         SUM(CASE WHEN mcm.status = 1 THEN 1 ELSE 0 END) AS 'RECEIVED',
@@ -76,9 +77,9 @@ $dhu = $_GET['dhu'];
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 col-sm-12">
-                        <h5 class="card-title">D. Handling Unit / WO</h5>
+                        <h5 class="card-title">D. Handling Unit / WO / Doc</h5>
                         <p class="card-text mb-2">
-                            <?php echo $row4['d_hu']; ?> / <?php echo $row4['wo']; ?>
+                            <?php echo $row4['d_hu']; ?> / <?php echo $row4['wo']; ?> / <?php echo $row4['doc']; ?>
                         </p>
                     </div>
                     <div class="col-md-4 col-sm-12">
