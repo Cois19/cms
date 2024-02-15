@@ -127,10 +127,11 @@ if ($mode == 'materialDoc') {
                         ELSE 'UNKNOWN'
                     END AS 'STATUS',
                     cd,
+                    loc,
                     receiver
                 FROM mc_materialmaster
                 WHERE d_hu = '$dhu'
-                ORDER BY cd DESC;";
+                ORDER BY cd DESC";
 
     if ($select_result2 = mysqli_query($conn, $query2)) {
         $response1 = array();

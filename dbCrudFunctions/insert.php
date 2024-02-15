@@ -187,12 +187,12 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                 $query = "SELECT * FROM tperiod WHERE status = 1";
                 $result = mysqli_query($conn, $query);
 
-                if (mysqli_num_rows($result) > 0) {
-                    // Data already exists, set response as "fail" and retrieve que
-                    $response = "fail";
-                    $row = mysqli_fetch_assoc($result);
-                    $que = $row['que'];
-                } else {
+                // if (mysqli_num_rows($result) > 0) {
+                //     // Data already exists, set response as "fail" and retrieve que
+                //     $response = "fail";
+                //     $row = mysqli_fetch_assoc($result);
+                //     $que = $row['que'];
+                // } else {
                     $query1 = "INSERT INTO tperiod(periodname, periodstart, periodend, description, remarks, status, cd, cp) 
                     VALUES('$periodname', '$startDate', '$endDate', '$description', '$p_remarks', '1', CURRENT_TIMESTAMP, '$uid')";
                     $result1 = mysqli_query($conn, $query1);
@@ -213,7 +213,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
                         $row = mysqli_fetch_assoc($result3);
                         $que = $row['que'];
                     }
-                }
+                // }
             }
         } else {
             $response = "empty";

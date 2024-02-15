@@ -40,6 +40,7 @@ $dhu = $_GET['dhu'];
         <?php include '../../modals/inventory/addPeriodM.php'; ?>
         <?php include '../../modals/loadingSpinnerM.php'; ?>
         <?php include '../../modals/material/splitQtyM.php'; ?>
+        <?php include '../../modals/material/issueM.php'; ?>
 
         <div class="d-flex justify-content-between">
             <h2>Material Details</h2>
@@ -134,6 +135,7 @@ $dhu = $_GET['dhu'];
                         <th>UOM</th>
                         <th>STATUS</th>
                         <th>CD</th>
+                        <th>LOC</th>
                         <th>RECEIVER</th>
                         <th colspan="1" rowspan="1"></th>
                     </tr>
@@ -193,6 +195,48 @@ $dhu = $_GET['dhu'];
                     if (response.status == 'success') {
                         alert('Split successful');
                         window.location.reload();
+                    } else if (response.status == 'negative') {
+                        alert('The splitted materials cannot have less than 0 qty!');
+                    } else if (response.status == 'fail') {
+                        alert('Split failed');
+                    } else if (response.status == 'unauthorized') {
+                        alert('Ask Admin Level User to Split.');
+                    } else if (response.status == 'timeout') {
+                        window.location.href = '/vsite/cms/users/login.php';
+                    }
+                }
+            });
+        }
+
+        $('#confirmIssueBtn').on('click', function(event) {
+            event.preventDefault();
+            var que = $('#confirmIssueBtn').data('que');
+            var loc = $('#loc').val(); // Get the value of loc
+            $('#issueModal').modal('hide');
+            confirmIssue(que, loc); // Pass loc to confirmIssue function
+        });
+
+        function issue(que) {
+            $('#issueModal').modal('show');
+            $('#confirmIssueBtn').data('que', que);
+        }
+
+        function confirmIssue(que, loc) {
+            // e.preventDefault(); // Prevent the default form submission
+            $.ajax({
+                type: 'POST',
+                url: 'dbCrudFunctions/insert.php',
+                data: {
+                    que: que,
+                    loc: loc,
+                    mode: 'issue'
+                }, // Include newQty in the data
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        alert('Issue successful');
+                        loadMaterialDetailsTable();
+                        $('#loc').val('');
                     } else if (response.status == 'negative') {
                         alert('The splitted materials cannot have less than 0 qty!');
                     } else if (response.status == 'fail') {
@@ -273,12 +317,16 @@ $dhu = $_GET['dhu'];
                     data: 10
                 },
                 {
+                    data: 11
+                },
+                {
                     data: null,
                     render: function(data, type, row) {
                         var token = row[0];
                         var status = row[8];
                         var disabledAttribute = status === "GR COMPLETE" ? 'disabled' : '';
                         return '<button type="button" class="btn btn-sm btn-success mb-2" style="width: 60px" onClick="splitQty(\'' + token + '\')" ' + disabledAttribute + '>SPLIT</button>' +
+                            '<button type="button" class="btn btn-sm btn-warning mb-2" style="width: 60px" onClick="issue(\'' + token + '\')" ' + disabledAttribute + '>ISSUE</button>' +
                             '<button type="button" class="btn btn-sm btn-primary" style="width: 60px" onClick="printLabel(\'' + token + '\')" ' + disabledAttribute + '>LABEL</button>';
                     }
                 }

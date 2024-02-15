@@ -308,6 +308,28 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
             $response = "empty";
             $que = "empty";
         }
+    } else if ($mode == 'issue') {
+        if (!empty($_POST['que']) && !empty($_POST['loc'])) {
+            $que = $_POST['que'];
+            $loc = $_POST['loc'];
+
+            $query2 = "UPDATE mc_materialmaster SET loc = '$loc', cd = CURRENT_TIMESTAMP() WHERE que = $que";
+            $result2 = mysqli_query($conn, $query2);
+
+            if ($result2 != 1) {
+                error_log("Error in insert query: " . mysqli_error($conn));
+            } else {
+                // Insert into tlog
+                // $query2 = "INSERT INTO tlog(tprocess, tdata, cd, cp) VALUES('INPUT MATERIAL MASTER', '$material', CURRENT_TIMESTAMP, '$uid')";
+                // $result2 = mysqli_query($conn, $query2);
+
+                // Data inserted successfully, set response as "success"
+                $response = "success";
+            }
+        } else {
+            $response = "empty";
+            $que = "empty";
+        }
     }
 }
 
